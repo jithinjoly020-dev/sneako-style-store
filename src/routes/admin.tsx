@@ -55,7 +55,7 @@ function AdminLayout() {
 
   return (
     <div className="min-h-screen md:flex">
-      <aside className="border-b border-border p-6 md:min-h-screen md:w-60 md:border-r md:border-b-0">
+      <aside className="border-b border-border bg-surface p-6 md:min-h-screen md:w-60 md:border-r md:border-b-0">
         <Link to="/" className="font-display text-lg font-semibold tracking-[-0.04em]">
           CONCRETE
         </Link>

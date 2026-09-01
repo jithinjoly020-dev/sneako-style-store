@@ -20,7 +20,9 @@ const nav = [
   { to: "/admin", label: "Overview", exact: true },
   { to: "/admin/products", label: "Products", exact: false },
   { to: "/admin/orders", label: "Orders", exact: false },
+  { to: "/admin/customers", label: "Customers", exact: false },
 ] as const;
+
 
 function AdminLayout() {
   const { session, loading, isAdmin } = useAuth();

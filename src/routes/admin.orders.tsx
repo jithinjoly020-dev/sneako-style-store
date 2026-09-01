@@ -4,6 +4,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { money } from "@/lib/cart";
+import { downloadCsv } from "@/lib/export-csv";
+
 
 export const Route = createFileRoute("/admin/orders")({
   component: AdminOrders,
@@ -29,8 +31,25 @@ function AdminOrders() {
   const qc = useQueryClient();
   const [filter, setFilter] = useState<"all" | Status>("all");
   const [open, setOpen] = useState<string | null>(null);
+  const [q, setQ] = useState("");
 
-  const visible = filter === "all" ? orders : orders.filter((o) => o.status === filter);
+  const term = q.trim().toLowerCase();
+  const visible = orders
+    .filter((o) => filter === "all" || o.status === filter)
+    .filter(
+      (o) =>
+        !term ||
+        [o.order_number, o.customer_name, o.customer_email, o.customer_phone, o.city]
+          .join(" ")
+          .toLowerCase()
+          .includes(term),
+    );
+
+  const countFor = (s: "all" | Status) =>
+    s === "all" ? orders.length : orders.filter((o) => o.status === s).length;
+  const filteredRevenue = visible
+    .filter((o) => o.status !== "cancelled")
+    .reduce((n, o) => n + Number(o.total), 0);
 
   async function updateStatus(id: string, status: Status) {
     const { error } = await supabase.from("orders").update({ status }).eq("id", id);
@@ -42,9 +61,43 @@ function AdminOrders() {
     qc.invalidateQueries({ queryKey: ["admin-orders"] });
   }
 
+  function exportCsv() {
+    downloadCsv(
+      `orders-${new Date().toISOString().slice(0, 10)}.csv`,
+      visible.map((o) => ({
+        order_number: o.order_number,
+        date: new Date(o.created_at).toLocaleString(),
+        status: o.status,
+        customer: o.customer_name,
+        email: o.customer_email,
+        phone: o.customer_phone,
+        address: `${o.address_line}, ${o.city} ${o.postal_code}, ${o.country}`,
+        payment: o.payment_method,
+        total: Number(o.total),
+      })),
+    );
+  }
+
   return (
     <div>
-      <h1 className="text-3xl font-semibold md:text-5xl">Orders</h1>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h1 className="text-3xl font-semibold md:text-5xl">Orders</h1>
+        <div className="flex flex-wrap items-center gap-3">
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search order, name, email, city…"
+            className="w-64 border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground"
+          />
+          <button
+            type="button"
+            onClick={exportCsv}
+            className="label-xs border border-border px-4 py-2.5"
+          >
+            Export CSV
+          </button>
+        </div>
+      </div>
 
       <div className="hairline mt-8 flex flex-wrap gap-5 pb-4">
         {(["all", ...STATUSES] as const).map((s) => (
@@ -58,10 +111,15 @@ function AdminOrders() {
                 : "label-xs text-muted-foreground hover:text-foreground"
             }
           >
-            {s}
+            {s} ({countFor(s)})
           </button>
         ))}
       </div>
+
+      <p className="label-xs mt-4 text-muted-foreground">
+        Showing {visible.length} orders · {money(filteredRevenue)} value
+      </p>
+
 
       <div className="mt-6 border border-border">
         {visible.map((o) => (

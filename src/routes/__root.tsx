@@ -16,6 +16,8 @@ import { CartProvider } from "@/lib/cart";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Toaster } from "@/components/ui/sonner";
+import { PageDepth } from "@/components/three-d";
+
 
 function NotFoundComponent() {
   return (
@@ -133,7 +135,9 @@ function RootComponent() {
           {!isAdmin && <SiteHeader />}
           <main className="flex-1">
             {/* Required: nested routes render here. */}
-            <Outlet />
+            <PageDepth routeKey={pathname}>
+              <Outlet />
+            </PageDepth>
           </main>
           {!isAdmin && <SiteFooter />}
         </div>
@@ -141,4 +145,5 @@ function RootComponent() {
       </CartProvider>
     </QueryClientProvider>
   );
+
 }

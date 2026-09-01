@@ -346,18 +346,21 @@ function Index() {
       <section className="border-t border-border">
         <div className="mx-auto max-w-[1400px] px-5 py-20 text-center md:px-10 md:py-28">
           <Reveal3D>
-            <h2 className="text-[11vw] leading-[0.9] font-semibold tracking-[-0.05em] md:text-[6rem]">
-              BUY ONE.
-              <br />
-              WEAR IT OUT.
-            </h2>
+            <SplitText
+              as="h2"
+              text="BUY ONE. WEAR IT OUT."
+              stagger={90}
+              className="block text-[11vw] leading-[0.9] font-semibold tracking-[-0.05em] md:text-[6rem]"
+            />
             <div className="mt-10">
-              <Link
-                to="/shop"
-                className="inline-flex items-center bg-primary px-10 py-4 text-sm font-medium tracking-wide text-primary-foreground transition-opacity hover:opacity-85"
-              >
-                Shop all products
-              </Link>
+              <Magnetic>
+                <Link
+                  to="/shop"
+                  className="inline-flex items-center bg-primary px-10 py-4 text-sm font-medium tracking-wide text-primary-foreground transition-opacity hover:opacity-85"
+                >
+                  Shop all products
+                </Link>
+              </Magnetic>
             </div>
           </Reveal3D>
         </div>

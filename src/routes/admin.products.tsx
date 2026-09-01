@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { productsQuery, type Product } from "@/lib/products";
 import { money } from "@/lib/cart";
+import { downloadCsv } from "@/lib/export-csv";
+
 
 export const Route = createFileRoute("/admin/products")({
   component: AdminProducts,
@@ -48,6 +50,10 @@ function AdminProducts() {
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState<FormState | null>(null);
   const [saving, setSaving] = useState(false);
+  const [q, setQ] = useState("");
+  const [cat, setCat] = useState("all");
+  const [sort, setSort] = useState<"name" | "price" | "stock">("name");
+
 
   const startNew = () => {
     setEditing("new");

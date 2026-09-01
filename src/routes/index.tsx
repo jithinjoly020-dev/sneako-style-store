@@ -4,6 +4,14 @@ import { productsQuery } from "@/lib/products";
 import { ProductCard } from "@/components/product-card";
 import { Reveal3D, Parallax3D, Tilt3D } from "@/components/three-d";
 import { CollectibleCard } from "@/components/collectible-card";
+import {
+  SplitText,
+  Marquee,
+  Magnetic,
+  ScaleReveal,
+  ScrollProgress,
+  Counter,
+} from "@/components/motion";
 
 export const Route = createFileRoute("/")({
   head: () => ({

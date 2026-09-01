@@ -20,9 +20,6 @@ export function SiteFooter() {
           <Link to="/contact" className="label-xs text-muted-foreground hover:text-foreground">
             Contact
           </Link>
-          <Link to="/admin" className="label-xs text-muted-foreground hover:text-foreground">
-            Admin
-          </Link>
         </div>
       </div>
       <div className="border-t border-border px-5 py-5 md:px-10">

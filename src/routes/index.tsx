@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { productsQuery } from "@/lib/products";
 import { ProductCard } from "@/components/product-card";
 import { Reveal3D, Parallax3D, Tilt3D } from "@/components/three-d";
+import { CollectibleCard } from "@/components/collectible-card";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -71,6 +72,37 @@ const faqs = [
   },
 ];
 
+const collectibles = [
+  {
+    index: "001",
+    name: "Concrete",
+    edition: "Ed. 240 / 240 GSM",
+    image: "/images/tee-concrete.jpg",
+    spec: "Garment dyed — ink",
+  },
+  {
+    index: "002",
+    name: "Static",
+    edition: "Ed. 180 / 240 GSM",
+    image: "/images/tee-static.jpg",
+    spec: "Garment dyed — steel",
+  },
+  {
+    index: "003",
+    name: "Blank",
+    edition: "Ed. 300 / 240 GSM",
+    image: "/images/tee-blank.jpg",
+    spec: "Garment dyed — bone",
+  },
+  {
+    index: "004",
+    name: "Monolith",
+    edition: "Ed. 120 / 240 GSM",
+    image: "/images/tee-monolith.jpg",
+    spec: "Garment dyed — ash",
+  },
+];
+
 function Index() {
   const { data: products = [] } = useQuery(productsQuery);
   const featured = products.filter((p) => p.featured && p.is_active).slice(0, 4);
@@ -89,6 +121,23 @@ function Index() {
             />
           </Parallax3D>
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/45 to-background/10" />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-45 mix-blend-screen"
+            style={{
+              background:
+                "linear-gradient(102deg, transparent 18%, color-mix(in oklab, var(--color-foreground) 12%, transparent) 32%, transparent 42%, color-mix(in oklab, var(--color-foreground) 8%, transparent) 56%, transparent 68%)",
+            }}
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(120% 80% at 50% 40%, transparent 40%, rgb(0 0 0 / 0.55) 100%)",
+            }}
+          />
+          <div className="film-grain pointer-events-none absolute inset-0" aria-hidden />
           <div className="absolute inset-0 mx-auto flex max-w-[1400px] flex-col justify-end px-5 pb-14 md:px-10 md:pb-20">
             <p className="label-xs fade-up text-muted-foreground">Collection 01 — Concrete</p>
             <h1 className="fade-up mt-4 max-w-4xl text-[13vw] leading-[0.86] font-semibold tracking-[-0.05em] md:text-[7rem]">
@@ -144,6 +193,44 @@ function Index() {
               <ProductCard product={p} />
             </Reveal3D>
           ))}
+        </div>
+      </section>
+
+      <section className="relative overflow-hidden border-t border-border">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-70"
+          style={{
+            background:
+              "radial-gradient(70% 45% at 50% 0%, color-mix(in oklab, var(--color-foreground) 10%, transparent), transparent 70%)",
+          }}
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-40 mix-blend-screen"
+          style={{
+            background:
+              "repeating-linear-gradient(102deg, transparent 0 90px, color-mix(in oklab, var(--color-foreground) 5%, transparent) 90px 130px, transparent 130px 220px)",
+          }}
+        />
+        <div className="relative mx-auto max-w-[1400px] px-5 py-20 md:px-10 md:py-28">
+          <Reveal3D>
+            <p className="label-xs text-muted-foreground">Collectibles</p>
+            <h2 className="mt-4 max-w-3xl text-3xl font-semibold md:text-5xl">
+              Every drop ships with a digital card
+            </h2>
+            <p className="mt-5 max-w-xl text-sm leading-relaxed text-muted-foreground">
+              Each shirt is minted to a numbered collectible — beveled edge, glass layers, and the
+              full spec of the garment you own. Move your cursor across a card to light it.
+            </p>
+          </Reveal3D>
+          <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {collectibles.map((c, i) => (
+              <Reveal3D key={c.index} delay={i * 90}>
+                <CollectibleCard {...c} />
+              </Reveal3D>
+            ))}
+          </div>
         </div>
       </section>
 

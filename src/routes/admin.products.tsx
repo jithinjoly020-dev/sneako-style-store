@@ -126,6 +126,81 @@ function AdminProducts() {
   const set = (key: keyof FormState, value: string | boolean) =>
     setForm((f) => (f ? { ...f, [key]: value } : f));
 
+  const categories = ["all", ...Array.from(new Set(products.map((p) => p.category)))];
+
+  const term = q.trim().toLowerCase();
+  const visible = products
+    .filter((p) => cat === "all" || p.category === cat)
+    .filter(
+      (p) => !term || `${p.name} ${p.slug} ${p.category}`.toLowerCase().includes(term),
+    )
+    .sort((a, b) => {
+      if (sort === "price") return Number(a.price) - Number(b.price);
+      if (sort === "stock") return a.stock - b.stock;
+      return a.name.localeCompare(b.name);
+    });
+
+  const lowStock = products.filter((p) => p.stock < 20).length;
+
+  async function patch(id: string, values: Partial<Product>, msg: string) {
+    const { error } = await supabase.from("products").update(values).eq("id", id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success(msg);
+    qc.invalidateQueries({ queryKey: ["products"] });
+  }
+
+  const adjustStock = (p: Product, delta: number) =>
+    patch(p.id, { stock: Math.max(0, p.stock + delta) }, "Stock updated");
+  const toggleActive = (p: Product) =>
+    patch(p.id, { is_active: !p.is_active }, p.is_active ? "Hidden from shop" : "Published");
+  const toggleFeatured = (p: Product) =>
+    patch(p.id, { featured: !p.featured }, p.featured ? "Removed from homepage" : "Featured");
+
+  async function duplicate(p: Product) {
+    const suffix = Date.now().toString().slice(-4);
+    const { error } = await supabase.from("products").insert({
+      name: `${p.name} copy`,
+      slug: `${p.slug}-copy-${suffix}`,
+      description: p.description,
+      price: p.price,
+      image_url: p.image_url,
+      sizes: p.sizes,
+      colors: p.colors,
+      category: p.category,
+      stock: p.stock,
+      featured: false,
+      is_active: false,
+    });
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Product duplicated as a hidden draft");
+    qc.invalidateQueries({ queryKey: ["products"] });
+  }
+
+  function exportCsv() {
+    downloadCsv(
+      `products-${new Date().toISOString().slice(0, 10)}.csv`,
+      visible.map((p) => ({
+        name: p.name,
+        slug: p.slug,
+        category: p.category,
+        price: Number(p.price),
+        stock: p.stock,
+        sizes: p.sizes.join(" / "),
+        colors: p.colors.join(" / "),
+        featured: p.featured,
+        active: p.is_active,
+        image_url: p.image_url,
+      })),
+    );
+  }
+
+
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">

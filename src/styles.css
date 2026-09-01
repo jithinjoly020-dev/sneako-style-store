@@ -37,28 +37,30 @@
 
 :root {
   --radius: 0px;
-  --background: oklch(0.18 0 0);
-  --foreground: oklch(0.94 0 0);
+  /* Brand: #141414 ink, #EDEDED bone, #5C5C5C steel, #9B9B9B ash */
+  --background: oklch(0.18 0 0); /* #141414 */
+  --foreground: oklch(0.938 0 0); /* #EDEDED */
   --surface: oklch(0.225 0 0);
-  --surface-foreground: oklch(0.94 0 0);
+  --surface-foreground: oklch(0.938 0 0);
   --card: oklch(0.225 0 0);
-  --card-foreground: oklch(0.94 0 0);
-  --popover: oklch(0.2 0 0);
-  --popover-foreground: oklch(0.94 0 0);
-  --primary: oklch(0.94 0 0);
+  --card-foreground: oklch(0.938 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.938 0 0);
+  --primary: oklch(0.938 0 0);
   --primary-foreground: oklch(0.18 0 0);
-  --secondary: oklch(0.28 0 0);
-  --secondary-foreground: oklch(0.94 0 0);
-  --muted: oklch(0.26 0 0);
-  --muted-foreground: oklch(0.66 0 0);
-  --accent: oklch(0.3 0 0);
-  --accent-foreground: oklch(0.94 0 0);
+  --secondary: oklch(0.285 0 0);
+  --secondary-foreground: oklch(0.938 0 0);
+  --muted: oklch(0.262 0 0);
+  --muted-foreground: oklch(0.663 0 0); /* #9B9B9B */
+  --accent: oklch(0.462 0 0); /* #5C5C5C */
+  --accent-foreground: oklch(0.938 0 0);
   --destructive: oklch(0.58 0.19 25);
   --destructive-foreground: oklch(0.97 0 0);
-  --border: oklch(0.32 0 0);
-  --input: oklch(0.32 0 0);
-  --ring: oklch(0.6 0 0);
+  --border: oklch(0.315 0 0);
+  --input: oklch(0.315 0 0);
+  --ring: oklch(0.462 0 0);
 }
+
 
 @layer base {
   * {

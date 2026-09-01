@@ -32,12 +32,13 @@ function Index() {
         <div className="relative h-[78vh] min-h-[520px] w-full overflow-hidden">
           <img
             src="/images/hero.jpg"
-            alt="Model wearing a heavyweight grey t-shirt against a concrete wall"
+            alt="Model wearing an oversized heavyweight grey t-shirt against a concrete wall"
             width={1920}
             height={1200}
             className="size-full object-cover"
           />
-          <div className="absolute inset-0 bg-background/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/45 to-background/10" />
+
           <div className="absolute inset-0 mx-auto flex max-w-[1400px] flex-col justify-end px-5 pb-14 md:px-10 md:pb-20">
             <p className="label-xs fade-up text-muted-foreground">Collection 01 — Concrete</p>
             <h1 className="fade-up mt-4 max-w-4xl text-[13vw] leading-[0.86] font-semibold tracking-[-0.05em] md:text-[7rem]">

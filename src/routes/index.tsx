@@ -151,42 +151,79 @@ function Index() {
           <div className="film-grain pointer-events-none absolute inset-0" aria-hidden />
           <div className="absolute inset-0 mx-auto flex max-w-[1400px] flex-col justify-end px-5 pb-14 md:px-10 md:pb-20">
             <p className="label-xs fade-up text-muted-foreground">Collection 01 — Concrete</p>
-            <h1 className="fade-up mt-4 max-w-4xl text-[13vw] leading-[0.86] font-semibold tracking-[-0.05em] md:text-[7rem]">
-              WEIGHT
-              <br />
-              OVER NOISE
-            </h1>
-            <p className="fade-up mt-6 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
-              Heavyweight cotton basics built in a grey-only palette. Made to be worn every day,
-              washed hard, and to still look like itself two years from now.
-            </p>
+            <SplitText
+              as="h1"
+              text="WEIGHT OVER NOISE"
+              stagger={90}
+              delay={120}
+              className="mt-4 block max-w-4xl text-[13vw] leading-[0.86] font-semibold tracking-[-0.05em] md:text-[7rem]"
+            />
+            <SplitText
+              text="Heavyweight cotton basics built in a grey-only palette. Made to be worn every day, washed hard, and to still look like itself two years from now."
+              stagger={14}
+              delay={500}
+              className="mt-6 block max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg"
+            />
             <div className="fade-up mt-8 flex flex-wrap gap-3">
-              <Link
-                to="/shop"
-                className="inline-flex items-center bg-primary px-8 py-4 text-sm font-medium tracking-wide text-primary-foreground transition-opacity hover:opacity-85"
-              >
-                Shop the collection
-              </Link>
-              <Link
-                to="/about"
-                className="inline-flex items-center border border-border px-8 py-4 text-sm font-medium tracking-wide transition-colors hover:bg-accent"
-              >
-                The studio
-              </Link>
+              <Magnetic>
+                <Link
+                  to="/shop"
+                  className="inline-flex items-center bg-primary px-8 py-4 text-sm font-medium tracking-wide text-primary-foreground transition-opacity hover:opacity-85"
+                >
+                  Shop the collection
+                </Link>
+              </Magnetic>
+              <Magnetic>
+                <Link
+                  to="/about"
+                  className="inline-flex items-center border border-border px-8 py-4 text-sm font-medium tracking-wide transition-colors hover:bg-accent"
+                >
+                  The studio
+                </Link>
+              </Magnetic>
             </div>
           </div>
         </div>
       </section>
 
+      <section className="border-y border-border py-4">
+        <Marquee
+          items={[
+            "240 GSM heavyweight",
+            "Free shipping over ₹2,999",
+            "Cash on delivery",
+            "Made in India",
+            "14-day returns",
+            "Grey-only palette",
+          ]}
+          speed={34}
+        />
+      </section>
+
       <section className="mx-auto max-w-[1400px] px-5 py-16 md:px-10 md:py-24">
         <Reveal3D>
           <p className="label-xs text-muted-foreground">Manifesto</p>
-          <p className="mt-6 max-w-4xl text-2xl leading-[1.25] font-medium tracking-[-0.02em] md:text-[2.75rem]">
-            Most t-shirts are a billboard with sleeves. We took the graphics off, doubled the
-            fabric weight, and spent the difference on cotton. What's left is a shirt that does one
-            job properly — and gets out of the way.
-          </p>
+          <SplitText
+            as="p"
+            text="Most t-shirts are a billboard with sleeves. We took the graphics off, doubled the fabric weight, and spent the difference on cotton. What's left is a shirt that does one job properly — and gets out of the way."
+            stagger={18}
+            className="mt-6 block max-w-4xl text-2xl leading-[1.25] font-medium tracking-[-0.02em] md:text-[2.75rem]"
+          />
         </Reveal3D>
+        <div className="mt-14 grid gap-px bg-border sm:grid-cols-3">
+          {[
+            { n: 240, s: " GSM", l: "Fabric weight" },
+            { n: 12000, s: "+", l: "Shirts shipped" },
+            { n: 48, s: "h", l: "Dispatch time" },
+          ].map((s) => (
+            <div key={s.l} className="bg-background p-8">
+              <p className="text-4xl font-semibold tracking-[-0.03em] md:text-5xl">
+                <Counter to={s.n} suffix={s.s} />
+              </p>
+              <p className="label-xs mt-3 text-muted-foreground">{s.l}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       <section className="mx-auto max-w-[1400px] px-5 pb-16 md:px-10 md:pb-24">

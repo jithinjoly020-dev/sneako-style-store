@@ -4,6 +4,14 @@ import { productsQuery } from "@/lib/products";
 import { ProductCard } from "@/components/product-card";
 import { Reveal3D, Parallax3D, Tilt3D } from "@/components/three-d";
 import { CollectibleCard } from "@/components/collectible-card";
+import {
+  SplitText,
+  Marquee,
+  Magnetic,
+  ScaleReveal,
+  ScrollProgress,
+  Counter,
+} from "@/components/motion";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -12,7 +20,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Concrete makes heavyweight cotton t-shirts and basics in a tight, unbranded palette. Free shipping over $100.",
+          "Concrete makes heavyweight cotton t-shirts and basics in a tight, unbranded palette. Free shipping over ₹2,999.",
       },
       { property: "og:title", content: "Concrete — Heavyweight T-Shirts" },
       {
@@ -109,16 +117,19 @@ function Index() {
 
   return (
     <div>
+      <ScrollProgress />
       <section className="relative">
         <div className="relative h-[78vh] min-h-[520px] w-full overflow-hidden">
           <Parallax3D speed={0.14} className="absolute inset-0">
-            <img
-              src="/images/hero.jpg"
-              alt="Model wearing an oversized heavyweight grey t-shirt against a concrete wall"
-              width={1920}
-              height={1200}
-              className="h-[120%] w-full object-cover"
-            />
+            <ScaleReveal from={1.22} className="h-full">
+              <img
+                src="/images/hero.jpg"
+                alt="Model wearing an oversized heavyweight grey t-shirt against a concrete wall"
+                width={1920}
+                height={1200}
+                className="h-[120%] w-full object-cover"
+              />
+            </ScaleReveal>
           </Parallax3D>
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/45 to-background/10" />
           <div
@@ -140,42 +151,79 @@ function Index() {
           <div className="film-grain pointer-events-none absolute inset-0" aria-hidden />
           <div className="absolute inset-0 mx-auto flex max-w-[1400px] flex-col justify-end px-5 pb-14 md:px-10 md:pb-20">
             <p className="label-xs fade-up text-muted-foreground">Collection 01 — Concrete</p>
-            <h1 className="fade-up mt-4 max-w-4xl text-[13vw] leading-[0.86] font-semibold tracking-[-0.05em] md:text-[7rem]">
-              WEIGHT
-              <br />
-              OVER NOISE
-            </h1>
-            <p className="fade-up mt-6 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
-              Heavyweight cotton basics built in a grey-only palette. Made to be worn every day,
-              washed hard, and to still look like itself two years from now.
-            </p>
+            <SplitText
+              as="h1"
+              text="WEIGHT OVER NOISE"
+              stagger={90}
+              delay={120}
+              className="mt-4 block max-w-4xl text-[13vw] leading-[0.86] font-semibold tracking-[-0.05em] md:text-[7rem]"
+            />
+            <SplitText
+              text="Heavyweight cotton basics built in a grey-only palette. Made to be worn every day, washed hard, and to still look like itself two years from now."
+              stagger={14}
+              delay={500}
+              className="mt-6 block max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg"
+            />
             <div className="fade-up mt-8 flex flex-wrap gap-3">
-              <Link
-                to="/shop"
-                className="inline-flex items-center bg-primary px-8 py-4 text-sm font-medium tracking-wide text-primary-foreground transition-opacity hover:opacity-85"
-              >
-                Shop the collection
-              </Link>
-              <Link
-                to="/about"
-                className="inline-flex items-center border border-border px-8 py-4 text-sm font-medium tracking-wide transition-colors hover:bg-accent"
-              >
-                The studio
-              </Link>
+              <Magnetic>
+                <Link
+                  to="/shop"
+                  className="inline-flex items-center bg-primary px-8 py-4 text-sm font-medium tracking-wide text-primary-foreground transition-opacity hover:opacity-85"
+                >
+                  Shop the collection
+                </Link>
+              </Magnetic>
+              <Magnetic>
+                <Link
+                  to="/about"
+                  className="inline-flex items-center border border-border px-8 py-4 text-sm font-medium tracking-wide transition-colors hover:bg-accent"
+                >
+                  The studio
+                </Link>
+              </Magnetic>
             </div>
           </div>
         </div>
       </section>
 
+      <section className="border-y border-border py-4">
+        <Marquee
+          items={[
+            "240 GSM heavyweight",
+            "Free shipping over ₹2,999",
+            "Cash on delivery",
+            "Made in India",
+            "14-day returns",
+            "Grey-only palette",
+          ]}
+          speed={34}
+        />
+      </section>
+
       <section className="mx-auto max-w-[1400px] px-5 py-16 md:px-10 md:py-24">
         <Reveal3D>
           <p className="label-xs text-muted-foreground">Manifesto</p>
-          <p className="mt-6 max-w-4xl text-2xl leading-[1.25] font-medium tracking-[-0.02em] md:text-[2.75rem]">
-            Most t-shirts are a billboard with sleeves. We took the graphics off, doubled the
-            fabric weight, and spent the difference on cotton. What's left is a shirt that does one
-            job properly — and gets out of the way.
-          </p>
+          <SplitText
+            as="p"
+            text="Most t-shirts are a billboard with sleeves. We took the graphics off, doubled the fabric weight, and spent the difference on cotton. What's left is a shirt that does one job properly — and gets out of the way."
+            stagger={18}
+            className="mt-6 block max-w-4xl text-2xl leading-[1.25] font-medium tracking-[-0.02em] md:text-[2.75rem]"
+          />
         </Reveal3D>
+        <div className="mt-14 grid gap-px bg-border sm:grid-cols-3">
+          {[
+            { n: 240, s: " GSM", l: "Fabric weight" },
+            { n: 12000, s: "+", l: "Shirts shipped" },
+            { n: 48, s: "h", l: "Dispatch time" },
+          ].map((s) => (
+            <div key={s.l} className="bg-background p-8">
+              <p className="text-4xl font-semibold tracking-[-0.03em] md:text-5xl">
+                <Counter to={s.n} suffix={s.s} />
+              </p>
+              <p className="label-xs mt-3 text-muted-foreground">{s.l}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       <section className="mx-auto max-w-[1400px] px-5 pb-16 md:px-10 md:pb-24">
@@ -298,18 +346,21 @@ function Index() {
       <section className="border-t border-border">
         <div className="mx-auto max-w-[1400px] px-5 py-20 text-center md:px-10 md:py-28">
           <Reveal3D>
-            <h2 className="text-[11vw] leading-[0.9] font-semibold tracking-[-0.05em] md:text-[6rem]">
-              BUY ONE.
-              <br />
-              WEAR IT OUT.
-            </h2>
+            <SplitText
+              as="h2"
+              text="BUY ONE. WEAR IT OUT."
+              stagger={90}
+              className="block text-[11vw] leading-[0.9] font-semibold tracking-[-0.05em] md:text-[6rem]"
+            />
             <div className="mt-10">
-              <Link
-                to="/shop"
-                className="inline-flex items-center bg-primary px-10 py-4 text-sm font-medium tracking-wide text-primary-foreground transition-opacity hover:opacity-85"
-              >
-                Shop all products
-              </Link>
+              <Magnetic>
+                <Link
+                  to="/shop"
+                  className="inline-flex items-center bg-primary px-10 py-4 text-sm font-medium tracking-wide text-primary-foreground transition-opacity hover:opacity-85"
+                >
+                  Shop all products
+                </Link>
+              </Magnetic>
             </div>
           </Reveal3D>
         </div>

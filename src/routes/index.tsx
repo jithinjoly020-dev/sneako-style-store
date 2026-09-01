@@ -121,6 +121,23 @@ function Index() {
             />
           </Parallax3D>
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/45 to-background/10" />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-45 mix-blend-screen"
+            style={{
+              background:
+                "linear-gradient(102deg, transparent 18%, color-mix(in oklab, var(--color-foreground) 12%, transparent) 32%, transparent 42%, color-mix(in oklab, var(--color-foreground) 8%, transparent) 56%, transparent 68%)",
+            }}
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(120% 80% at 50% 40%, transparent 40%, rgb(0 0 0 / 0.55) 100%)",
+            }}
+          />
+          <div className="film-grain pointer-events-none absolute inset-0" aria-hidden />
           <div className="absolute inset-0 mx-auto flex max-w-[1400px] flex-col justify-end px-5 pb-14 md:px-10 md:pb-20">
             <p className="label-xs fade-up text-muted-foreground">Collection 01 — Concrete</p>
             <h1 className="fade-up mt-4 max-w-4xl text-[13vw] leading-[0.86] font-semibold tracking-[-0.05em] md:text-[7rem]">

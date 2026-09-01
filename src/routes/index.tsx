@@ -12,7 +12,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Concrete makes heavyweight cotton t-shirts and basics in a tight, unbranded palette. Free shipping over $100.",
+          "Concrete makes heavyweight cotton t-shirts and basics in a tight, unbranded palette. Free shipping over ₹2,999.",
       },
       { property: "og:title", content: "Concrete — Heavyweight T-Shirts" },
       {

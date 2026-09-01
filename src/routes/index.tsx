@@ -117,16 +117,19 @@ function Index() {
 
   return (
     <div>
+      <ScrollProgress />
       <section className="relative">
         <div className="relative h-[78vh] min-h-[520px] w-full overflow-hidden">
           <Parallax3D speed={0.14} className="absolute inset-0">
-            <img
-              src="/images/hero.jpg"
-              alt="Model wearing an oversized heavyweight grey t-shirt against a concrete wall"
-              width={1920}
-              height={1200}
-              className="h-[120%] w-full object-cover"
-            />
+            <ScaleReveal from={1.22} className="h-full">
+              <img
+                src="/images/hero.jpg"
+                alt="Model wearing an oversized heavyweight grey t-shirt against a concrete wall"
+                width={1920}
+                height={1200}
+                className="h-[120%] w-full object-cover"
+              />
+            </ScaleReveal>
           </Parallax3D>
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/45 to-background/10" />
           <div

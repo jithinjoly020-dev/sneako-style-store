@@ -72,6 +72,37 @@ const faqs = [
   },
 ];
 
+const collectibles = [
+  {
+    index: "001",
+    name: "Concrete",
+    edition: "Ed. 240 / 240 GSM",
+    image: "/images/tee-concrete.jpg",
+    spec: "Garment dyed — ink",
+  },
+  {
+    index: "002",
+    name: "Static",
+    edition: "Ed. 180 / 240 GSM",
+    image: "/images/tee-static.jpg",
+    spec: "Garment dyed — steel",
+  },
+  {
+    index: "003",
+    name: "Blank",
+    edition: "Ed. 300 / 240 GSM",
+    image: "/images/tee-blank.jpg",
+    spec: "Garment dyed — bone",
+  },
+  {
+    index: "004",
+    name: "Monolith",
+    edition: "Ed. 120 / 240 GSM",
+    image: "/images/tee-monolith.jpg",
+    spec: "Garment dyed — ash",
+  },
+];
+
 function Index() {
   const { data: products = [] } = useQuery(productsQuery);
   const featured = products.filter((p) => p.featured && p.is_active).slice(0, 4);

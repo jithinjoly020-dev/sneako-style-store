@@ -221,8 +221,47 @@ function AdminProducts() {
         </div>
       )}
 
-      <div className="mt-10 border border-border">
-        {products.map((p) => (
+      <div className="mt-10 flex flex-wrap items-center gap-3">
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Search products…"
+          className="w-56 border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground"
+        />
+        <select
+          value={cat}
+          onChange={(e) => setCat(e.target.value)}
+          className="border border-border bg-background px-3 py-2 text-xs"
+        >
+          {categories.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value as typeof sort)}
+          className="border border-border bg-background px-3 py-2 text-xs"
+        >
+          <option value="name">Sort: name</option>
+          <option value="price">Sort: price</option>
+          <option value="stock">Sort: stock</option>
+        </select>
+        <button
+          type="button"
+          onClick={exportCsv}
+          className="label-xs border border-border px-4 py-2.5"
+        >
+          Export CSV
+        </button>
+        <span className="label-xs text-muted-foreground">
+          {visible.length} shown · {lowStock} low stock
+        </span>
+      </div>
+
+      <div className="mt-5 border border-border">
+        {visible.map((p) => (
           <div
             key={p.id}
             className="flex flex-wrap items-center gap-4 border-b border-border px-4 py-3 last:border-b-0"
@@ -232,10 +271,58 @@ function AdminProducts() {
               <p className="text-sm font-medium">{p.name}</p>
               <p className="label-xs text-muted-foreground">
                 {p.category} · {p.is_active ? "live" : "hidden"}
+                {p.featured ? " · featured" : ""}
               </p>
             </div>
             <span className="font-mono text-sm">{money(Number(p.price))}</span>
-            <span className="label-xs w-20 text-muted-foreground">{p.stock} left</span>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                aria-label={`Decrease stock for ${p.name}`}
+                onClick={() => adjustStock(p, -1)}
+                className="label-xs border border-border px-2 py-1.5"
+              >
+                −
+              </button>
+              <span
+                className={
+                  p.stock < 20
+                    ? "label-xs w-16 text-center text-destructive"
+                    : "label-xs w-16 text-center text-muted-foreground"
+                }
+              >
+                {p.stock} left
+              </span>
+              <button
+                type="button"
+                aria-label={`Increase stock for ${p.name}`}
+                onClick={() => adjustStock(p, 1)}
+                className="label-xs border border-border px-2 py-1.5"
+              >
+                +
+              </button>
+            </div>
+            <button
+              type="button"
+              onClick={() => toggleActive(p)}
+              className="label-xs border border-border px-3 py-2"
+            >
+              {p.is_active ? "Hide" : "Publish"}
+            </button>
+            <button
+              type="button"
+              onClick={() => toggleFeatured(p)}
+              className="label-xs border border-border px-3 py-2"
+            >
+              {p.featured ? "Unfeature" : "Feature"}
+            </button>
+            <button
+              type="button"
+              onClick={() => duplicate(p)}
+              className="label-xs border border-border px-3 py-2"
+            >
+              Duplicate
+            </button>
             <button
               type="button"
               onClick={() => startEdit(p)}
@@ -252,10 +339,11 @@ function AdminProducts() {
             </button>
           </div>
         ))}
-        {products.length === 0 && (
-          <p className="label-xs px-4 py-6 text-muted-foreground">No products yet.</p>
+        {visible.length === 0 && (
+          <p className="label-xs px-4 py-6 text-muted-foreground">No products match.</p>
         )}
       </div>
+
     </div>
   );
 }

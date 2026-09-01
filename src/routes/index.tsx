@@ -148,6 +148,44 @@ function Index() {
         </div>
       </section>
 
+      <section className="relative overflow-hidden border-t border-border">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-70"
+          style={{
+            background:
+              "radial-gradient(70% 45% at 50% 0%, color-mix(in oklab, var(--color-foreground) 10%, transparent), transparent 70%)",
+          }}
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-40 mix-blend-screen"
+          style={{
+            background:
+              "repeating-linear-gradient(102deg, transparent 0 90px, color-mix(in oklab, var(--color-foreground) 5%, transparent) 90px 130px, transparent 130px 220px)",
+          }}
+        />
+        <div className="relative mx-auto max-w-[1400px] px-5 py-20 md:px-10 md:py-28">
+          <Reveal3D>
+            <p className="label-xs text-muted-foreground">Collectibles</p>
+            <h2 className="mt-4 max-w-3xl text-3xl font-semibold md:text-5xl">
+              Every drop ships with a digital card
+            </h2>
+            <p className="mt-5 max-w-xl text-sm leading-relaxed text-muted-foreground">
+              Each shirt is minted to a numbered collectible — beveled edge, glass layers, and the
+              full spec of the garment you own. Move your cursor across a card to light it.
+            </p>
+          </Reveal3D>
+          <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {collectibles.map((c, i) => (
+              <Reveal3D key={c.index} delay={i * 90}>
+                <CollectibleCard {...c} />
+              </Reveal3D>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="border-t border-border">
         <div className="mx-auto grid max-w-[1400px] gap-px bg-border px-0 md:grid-cols-3">
           {specs.map((f, i) => (

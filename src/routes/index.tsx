@@ -35,7 +35,7 @@ export const Route = createFileRoute("/")({
 const specs = [
   { k: "240 GSM", v: "Combed ring-spun cotton, garment dyed, pre-shrunk so it stays the size you bought." },
   { k: "No logos", v: "Blank by design. Nothing printed on you that you didn't ask for." },
-  { k: "Ships in 48h", v: "Packed and dispatched within two working days. Cash on delivery available." },
+  { k: "Ships in 48h", v: "Packed and dispatched within two working days. UPI, cards and netbanking — 5% off prepaid." },
 ];
 
 const process = [
@@ -191,7 +191,7 @@ function Index() {
           items={[
             "240 GSM heavyweight",
             "Free shipping over ₹2,999",
-            "Cash on delivery",
+            "UPI · Cards · COD",
             "Made in India",
             "14-day returns",
             "Grey-only palette",

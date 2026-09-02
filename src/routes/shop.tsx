@@ -7,13 +7,13 @@ import { ProductCard } from "@/components/product-card";
 export const Route = createFileRoute("/shop")({
   head: () => ({
     meta: [
-      { title: "Shop All — Concrete" },
+      { title: "Shop All — unlabelled" },
       {
         name: "description",
-        content: "Browse every Concrete tee, long sleeve and basic. Heavyweight cotton only.",
+        content: "Browse every unlabelled tee, long sleeve and basic. Heavyweight cotton only.",
       },
-      { property: "og:title", content: "Shop All — Concrete" },
-      { property: "og:description", content: "Every Concrete tee and basic in one place." },
+      { property: "og:title", content: "Shop All — unlabelled" },
+      { property: "og:description", content: "Every unlabelled tee and basic in one place." },
     ],
   }),
   component: Shop,

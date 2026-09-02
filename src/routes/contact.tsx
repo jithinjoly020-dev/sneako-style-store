@@ -3,13 +3,13 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact — Concrete" },
+      { title: "Contact — unlabelled" },
       {
         name: "description",
-        content: "Questions about sizing, orders or wholesale? Reach the Concrete studio.",
+        content: "Questions about sizing, orders or wholesale? Reach the unlabelled studio.",
       },
-      { property: "og:title", content: "Contact — Concrete" },
-      { property: "og:description", content: "Reach the Concrete studio about orders or sizing." },
+      { property: "og:title", content: "Contact — unlabelled" },
+      { property: "og:description", content: "Reach the unlabelled studio about orders or sizing." },
     ],
   }),
   component: Contact,
@@ -21,8 +21,8 @@ function Contact() {
       <h1 className="text-4xl font-semibold md:text-7xl">CONTACT</h1>
       <div className="mt-12 grid gap-px bg-border md:grid-cols-3">
         {[
-          { k: "Orders", v: "orders@concrete.supply" },
-          { k: "Wholesale", v: "trade@concrete.supply" },
+          { k: "Orders", v: "orders@unlabelled.store" },
+          { k: "Wholesale", v: "trade@unlabelled.store" },
           { k: "Studio", v: "Unit 14, Grey Yard, 09:00–17:00" },
         ].map((c) => (
           <div key={c.k} className="bg-background p-8">

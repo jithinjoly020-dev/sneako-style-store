@@ -6,7 +6,7 @@ export function SiteFooter() {
       <div className="mx-auto flex max-w-[1400px] flex-col gap-8 px-5 py-14 md:flex-row md:items-end md:justify-between md:px-10">
         <div>
           <p className="font-display text-4xl font-semibold tracking-[-0.05em] md:text-6xl">
-            CONCRETE
+            UNLABELLED
           </p>
           <p className="label-xs mt-3 text-muted-foreground">Heavyweight basics. Nothing extra.</p>
         </div>
@@ -24,7 +24,7 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-border px-5 py-5 md:px-10">
         <p className="label-xs text-muted-foreground">
-          © {new Date().getFullYear()} Concrete Supply Co.
+          © {new Date().getFullYear()} unlabelled Supply Co.
         </p>
       </div>
     </footer>

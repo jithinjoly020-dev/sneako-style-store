@@ -3,12 +3,12 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "The Studio — Concrete" },
+      { title: "The Studio — unlabelled" },
       {
         name: "description",
-        content: "Concrete is a small studio making heavyweight, unbranded cotton basics.",
+        content: "unlabelled is a small studio making heavyweight, unbranded cotton basics.",
       },
-      { property: "og:title", content: "The Studio — Concrete" },
+      { property: "og:title", content: "The Studio — unlabelled" },
       {
         property: "og:description",
         content: "A small studio making heavyweight, unbranded cotton basics.",

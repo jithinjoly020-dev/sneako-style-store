@@ -108,7 +108,7 @@ function ProductPage() {
           <p className="label-xs text-muted-foreground">
             {product.stock} in stock · Ships within 48 hours
           </p>
-          <p className="label-xs text-muted-foreground">Cash on delivery available</p>
+          <p className="label-xs text-muted-foreground">5% off prepaid · COD available</p>
         </div>
       </div>
     </div>

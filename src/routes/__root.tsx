@@ -84,7 +84,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Concrete — Heavyweight T-Shirts" },
+      { title: "unlabelled — Heavyweight T-Shirts" },
       {
         name: "description",
         content: "Minimal heavyweight t-shirts and basics. Built to hold their shape.",

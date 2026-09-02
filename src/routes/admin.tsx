@@ -6,10 +6,10 @@ import { useAuth } from "@/lib/auth";
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
-      { title: "Admin — Concrete" },
-      { name: "description", content: "Manage Concrete products, orders and stock." },
-      { property: "og:title", content: "Admin — Concrete" },
-      { property: "og:description", content: "Manage Concrete products, orders and stock." },
+      { title: "Admin — unlabelled" },
+      { name: "description", content: "Manage unlabelled products, orders and stock." },
+      { property: "og:title", content: "Admin — unlabelled" },
+      { property: "og:description", content: "Manage unlabelled products, orders and stock." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -59,7 +59,7 @@ function AdminLayout() {
     <div className="min-h-screen md:flex">
       <aside className="border-b border-border bg-surface p-6 md:min-h-screen md:w-60 md:border-r md:border-b-0">
         <Link to="/" className="font-display text-lg font-semibold tracking-[-0.04em]">
-          CONCRETE
+          UNLABELLED
         </Link>
         <p className="label-xs mt-1 text-muted-foreground">Admin</p>
         <nav className="mt-8 flex gap-5 md:flex-col md:gap-3">

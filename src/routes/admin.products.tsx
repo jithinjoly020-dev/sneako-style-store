@@ -53,6 +53,39 @@ function AdminProducts() {
   const [q, setQ] = useState("");
   const [cat, setCat] = useState("all");
   const [sort, setSort] = useState<"name" | "price" | "stock">("name");
+  const [uploading, setUploading] = useState(false);
+
+  async function uploadImage(file: File) {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Choose an image file");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5 MB");
+      return;
+    }
+    setUploading(true);
+    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error } = await supabase.storage
+      .from("product-images")
+      .upload(path, file, { cacheControl: "31536000", upsert: false });
+    if (error) {
+      setUploading(false);
+      toast.error(error.message);
+      return;
+    }
+    const { data, error: signError } = await supabase.storage
+      .from("product-images")
+      .createSignedUrl(path, 60 * 60 * 24 * 3650);
+    setUploading(false);
+    if (signError || !data) {
+      toast.error(signError?.message ?? "Could not fetch the image URL");
+      return;
+    }
+    setForm((f) => (f ? { ...f, image_url: data.signedUrl } : f));
+    toast.success("Image uploaded — URL filled in automatically");
+  }
 
 
   const startNew = () => {
@@ -244,6 +277,33 @@ function AdminProducts() {
                 />
               </div>
             ))}
+            <div className="md:col-span-2 border border-dashed border-border p-4">
+              <label htmlFor="image_file" className="label-xs text-muted-foreground">
+                Upload image (fills the URL automatically)
+              </label>
+              <div className="mt-3 flex flex-wrap items-center gap-4">
+                <input
+                  id="image_file"
+                  type="file"
+                  accept="image/*"
+                  disabled={uploading}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) void uploadImage(file);
+                    e.target.value = "";
+                  }}
+                  className="text-xs"
+                />
+                {uploading && <span className="label-xs text-muted-foreground">Uploading…</span>}
+                {form.image_url && (
+                  <img
+                    src={form.image_url}
+                    alt="Product preview"
+                    className="size-16 object-cover"
+                  />
+                )}
+              </div>
+            </div>
             <div className="md:col-span-2">
               <label htmlFor="description" className="label-xs text-muted-foreground">
                 Description

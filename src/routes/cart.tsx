@@ -4,10 +4,10 @@ import { money, useCart } from "@/lib/cart";
 export const Route = createFileRoute("/cart")({
   head: () => ({
     meta: [
-      { title: "Your Cart — Concrete" },
-      { name: "description", content: "Review your Concrete order before checkout." },
-      { property: "og:title", content: "Your Cart — Concrete" },
-      { property: "og:description", content: "Review your Concrete order before checkout." },
+      { title: "Your Cart — unlabelled" },
+      { name: "description", content: "Review your unlabelled order before checkout." },
+      { property: "og:title", content: "Your Cart — unlabelled" },
+      { property: "og:description", content: "Review your unlabelled order before checkout." },
     ],
   }),
   component: CartPage,

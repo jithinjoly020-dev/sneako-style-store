@@ -71,12 +71,18 @@ export type Database = {
           customer_email: string
           customer_name: string
           customer_phone: string
+          discount: number
           id: string
           notes: string
           order_number: string
           payment_method: string
+          payment_ref: string | null
+          payment_status: string
           postal_code: string
+          shipping_fee: number
+          shipping_method: string
           status: Database["public"]["Enums"]["order_status"]
+          subtotal: number
           total: number
           updated_at: string
         }
@@ -88,12 +94,18 @@ export type Database = {
           customer_email: string
           customer_name: string
           customer_phone?: string
+          discount?: number
           id?: string
           notes?: string
           order_number?: string
           payment_method?: string
+          payment_ref?: string | null
+          payment_status?: string
           postal_code?: string
+          shipping_fee?: number
+          shipping_method?: string
           status?: Database["public"]["Enums"]["order_status"]
+          subtotal?: number
           total?: number
           updated_at?: string
         }
@@ -105,12 +117,18 @@ export type Database = {
           customer_email?: string
           customer_name?: string
           customer_phone?: string
+          discount?: number
           id?: string
           notes?: string
           order_number?: string
           payment_method?: string
+          payment_ref?: string | null
+          payment_status?: string
           postal_code?: string
+          shipping_fee?: number
+          shipping_method?: string
           status?: Database["public"]["Enums"]["order_status"]
+          subtotal?: number
           total?: number
           updated_at?: string
         }

@@ -277,6 +277,33 @@ function AdminProducts() {
                 />
               </div>
             ))}
+            <div className="md:col-span-2 border border-dashed border-border p-4">
+              <label htmlFor="image_file" className="label-xs text-muted-foreground">
+                Upload image (fills the URL automatically)
+              </label>
+              <div className="mt-3 flex flex-wrap items-center gap-4">
+                <input
+                  id="image_file"
+                  type="file"
+                  accept="image/*"
+                  disabled={uploading}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) void uploadImage(file);
+                    e.target.value = "";
+                  }}
+                  className="text-xs"
+                />
+                {uploading && <span className="label-xs text-muted-foreground">Uploading…</span>}
+                {form.image_url && (
+                  <img
+                    src={form.image_url}
+                    alt="Product preview"
+                    className="size-16 object-cover"
+                  />
+                )}
+              </div>
+            </div>
             <div className="md:col-span-2">
               <label htmlFor="description" className="label-xs text-muted-foreground">
                 Description

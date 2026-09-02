@@ -1,17 +1,33 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { money, useCart } from "@/lib/cart";
+import {
+  SHIPPING_OPTIONS,
+  totalsFor,
+  type PaymentMethod,
+  type ShippingMethod,
+} from "@/lib/checkout-options";
+import { createPaymentOrder, getPaymentConfig, verifyPayment } from "@/lib/payments.functions";
+import { emailOrderToOwner } from "@/lib/order-email.functions";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
     meta: [
-      { title: "Checkout — Concrete" },
-      { name: "description", content: "Place your Concrete order with cash on delivery." },
-      { property: "og:title", content: "Checkout — Concrete" },
-      { property: "og:description", content: "Place your Concrete order with cash on delivery." },
+      { title: "Checkout — unlabelled" },
+      {
+        name: "description",
+        content:
+          "Pay securely with UPI, cards or netbanking through Razorpay or Cashfree — 5% off every prepaid unlabelled order.",
+      },
+      { property: "og:title", content: "Checkout — unlabelled" },
+      {
+        property: "og:description",
+        content: "Secure UPI, card and netbanking payments. 5% off prepaid orders.",
+      },
     ],
   }),
   component: Checkout,
@@ -29,20 +45,58 @@ const schema = z.object({
 });
 
 const fields = [
-  { name: "customer_name", label: "Full name" },
-  { name: "customer_email", label: "Email" },
-  { name: "customer_phone", label: "Phone" },
-  { name: "address_line", label: "Address" },
-  { name: "city", label: "City" },
-  { name: "postal_code", label: "Postal code" },
-  { name: "country", label: "Country" },
+  { name: "customer_name", label: "Full name", autoComplete: "name" },
+  { name: "customer_email", label: "Email", autoComplete: "email" },
+  { name: "customer_phone", label: "Phone", autoComplete: "tel" },
+  { name: "address_line", label: "Address", autoComplete: "street-address" },
+  { name: "city", label: "City", autoComplete: "address-level2" },
+  { name: "postal_code", label: "Postal code", autoComplete: "postal-code" },
+  { name: "country", label: "Country", autoComplete: "country-name" },
 ] as const;
+
+function loadScript(src: string) {
+  return new Promise<void>((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) return resolve();
+    const s = document.createElement("script");
+    s.src = src;
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error("Could not load the payment gateway"));
+    document.body.appendChild(s);
+  });
+}
+
+const steps = ["Details", "Shipping", "Payment"] as const;
 
 function Checkout() {
   const { lines, subtotal, clear } = useCart();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
-  const [placed, setPlaced] = useState<string | null>(null);
+  const [placed, setPlaced] = useState<{ number: string; paid: boolean } | null>(null);
+  const [shipping, setShipping] = useState<ShippingMethod>("standard");
+  const [payment, setPayment] = useState<PaymentMethod>("razorpay");
+  const [config, setConfig] = useState<{
+    razorpay: boolean;
+    cashfree: boolean;
+    razorpayKeyId: string;
+    cashfreeMode: "sandbox" | "production";
+  } | null>(null);
+
+  const readConfig = useServerFn(getPaymentConfig);
+  const createPayment = useServerFn(createPaymentOrder);
+  const confirmPayment = useServerFn(verifyPayment);
+  const notifyOwner = useServerFn(emailOrderToOwner);
+
+  useEffect(() => {
+    readConfig()
+      .then((c) => {
+        setConfig(c);
+        if (!c.razorpay && c.cashfree) setPayment("cashfree");
+        if (!c.razorpay && !c.cashfree) setPayment("cod");
+      })
+      .catch(() => setPayment("cod"));
+  }, [readConfig]);
+
+  const t = totalsFor(subtotal, shipping, payment);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -52,6 +106,7 @@ function Checkout() {
       const next: Record<string, string> = {};
       for (const issue of parsed.error.issues) next[String(issue.path[0])] = issue.message;
       setErrors(next);
+      toast.error("Check the highlighted fields");
       return;
     }
     setErrors({});
@@ -59,7 +114,16 @@ function Checkout() {
     try {
       const { data: order, error } = await supabase
         .from("orders")
-        .insert({ ...parsed.data, total: subtotal, payment_method: "cod" })
+        .insert({
+          ...parsed.data,
+          subtotal,
+          discount: t.discount,
+          shipping_method: shipping,
+          shipping_fee: t.shipping,
+          total: t.total,
+          payment_method: payment,
+          payment_status: payment === "cod" ? "cod_pending" : "pending",
+        })
         .select("id, order_number")
         .single();
       if (error) throw error;
@@ -76,14 +140,109 @@ function Checkout() {
       );
       if (itemsError) throw itemsError;
 
+      let paid = false;
+      if (payment !== "cod") {
+        paid = await runGateway(order.id, order.order_number, parsed.data);
+        if (!paid) {
+          setSubmitting(false);
+          return;
+        }
+      }
+
+      await notifyOwner({ data: { orderId: order.id } }).catch(() => undefined);
       clear();
-      setPlaced(order.order_number);
+      setPlaced({ number: order.order_number, paid });
     } catch (err) {
       console.error(err);
-      toast.error("We couldn't place your order. Please try again.");
+      toast.error(
+        err instanceof Error ? err.message : "We couldn't place your order. Please try again.",
+      );
     } finally {
       setSubmitting(false);
     }
+  }
+
+  async function runGateway(
+    orderId: string,
+    orderNumber: string,
+    who: { customer_name: string; customer_email: string; customer_phone: string },
+  ) {
+    const session = await createPayment({
+      data: {
+        provider: payment as "razorpay" | "cashfree",
+        orderId,
+        orderNumber,
+        amount: t.total,
+        name: who.customer_name,
+        email: who.customer_email,
+        phone: who.customer_phone,
+        returnUrl: `${window.location.origin}/checkout`,
+      },
+    });
+
+    if (session.provider === "razorpay") {
+      await loadScript("https://checkout.razorpay.com/v1/checkout.js");
+      const ok = await new Promise<boolean>((resolve) => {
+        const rzp = new (window as unknown as { Razorpay: new (o: unknown) => { open: () => void } }).Razorpay(
+          {
+            key: session.keyId,
+            amount: session.amount,
+            currency: "INR",
+            name: "unlabelled",
+            description: `Order ${orderNumber}`,
+            order_id: session.gatewayOrderId,
+            prefill: {
+              name: who.customer_name,
+              email: who.customer_email,
+              contact: who.customer_phone,
+            },
+            theme: { color: "#141414" },
+            modal: { ondismiss: () => resolve(false) },
+            handler: async (r: {
+              razorpay_payment_id: string;
+              razorpay_order_id: string;
+              razorpay_signature: string;
+            }) => {
+              const v = await confirmPayment({
+                data: {
+                  provider: "razorpay",
+                  orderId,
+                  gatewayOrderId: r.razorpay_order_id,
+                  paymentId: r.razorpay_payment_id,
+                  signature: r.razorpay_signature,
+                },
+              });
+              resolve(v.paid);
+            },
+          },
+        );
+        rzp.open();
+      });
+      if (!ok) toast.error("Payment was not completed. Your order is saved as unpaid.");
+      return ok;
+    }
+
+    await loadScript("https://sdk.cashfree.com/js/v3/cashfree.js");
+    const cf = (
+      window as unknown as {
+        Cashfree: (o: { mode: string }) => {
+          checkout: (o: unknown) => Promise<{ error?: unknown }>;
+        };
+      }
+    ).Cashfree({ mode: config?.cashfreeMode ?? "production" });
+    const result = await cf.checkout({
+      paymentSessionId: session.paymentSessionId,
+      redirectTarget: "_modal",
+    });
+    if (result?.error) {
+      toast.error("Payment was not completed. Your order is saved as unpaid.");
+      return false;
+    }
+    const v = await confirmPayment({
+      data: { provider: "cashfree", orderId, gatewayOrderId: session.gatewayOrderId },
+    });
+    if (!v.paid) toast.error("We couldn't confirm the payment yet. We'll follow up by email.");
+    return v.paid;
   }
 
   if (placed) {
@@ -92,8 +251,9 @@ function Checkout() {
         <p className="label-xs text-muted-foreground">Order confirmed</p>
         <h1 className="mt-4 text-4xl font-semibold md:text-6xl">THANK YOU</h1>
         <p className="mt-6 text-muted-foreground">
-          Your order <span className="font-mono text-foreground">{placed}</span> is in. We'll email
-          you tracking as soon as it ships. Payment is due on delivery.
+          Your order <span className="font-mono text-foreground">{placed.number}</span> is in
+          {placed.paid ? " and payment is confirmed" : ""}. We pack and dispatch within two working
+          days and email you tracking the moment it leaves the studio.
         </p>
         <Link
           to="/shop"
@@ -119,10 +279,34 @@ function Checkout() {
     );
   }
 
+  const methods: { id: PaymentMethod; label: string; note: string; enabled: boolean }[] = [
+    {
+      id: "razorpay",
+      label: "Razorpay — UPI, cards, netbanking",
+      note: "5% off · instant confirmation",
+      enabled: config?.razorpay ?? false,
+    },
+    {
+      id: "cashfree",
+      label: "Cashfree — UPI, cards, wallets",
+      note: "5% off · instant confirmation",
+      enabled: config?.cashfree ?? false,
+    },
+    { id: "cod", label: "Cash on delivery", note: "Pay the courier", enabled: true },
+  ];
+
   return (
     <div className="mx-auto grid max-w-[1200px] gap-12 px-5 py-14 md:grid-cols-[1.2fr_0.8fr] md:px-10 md:py-20">
       <div>
-        <h1 className="text-4xl font-semibold md:text-6xl">CHECKOUT</h1>
+        <div className="flex gap-6">
+          {steps.map((s, i) => (
+            <span key={s} className="label-xs text-muted-foreground">
+              <span className="font-mono text-foreground">0{i + 1}</span> {s}
+            </span>
+          ))}
+        </div>
+        <h1 className="mt-4 text-4xl font-semibold md:text-6xl">CHECKOUT</h1>
+
         <form onSubmit={onSubmit} className="mt-10 space-y-5">
           {fields.map((f) => (
             <div key={f.name}>
@@ -132,6 +316,7 @@ function Checkout() {
               <input
                 id={f.name}
                 name={f.name}
+                autoComplete={f.autoComplete}
                 className="mt-2 w-full border border-border bg-surface px-4 py-3 text-sm outline-none focus:border-foreground"
               />
               {errors[f.name] && (
@@ -150,36 +335,112 @@ function Checkout() {
               className="mt-2 w-full border border-border bg-surface px-4 py-3 text-sm outline-none focus:border-foreground"
             />
           </div>
-          <div className="border border-border bg-surface px-4 py-3">
-            <p className="label-xs text-muted-foreground">Payment</p>
-            <p className="mt-1 text-sm">Cash on delivery</p>
-          </div>
+
+          <fieldset className="border border-border bg-surface p-4">
+            <legend className="label-xs px-2 text-muted-foreground">Shipping</legend>
+            <div className="space-y-3">
+              {SHIPPING_OPTIONS.map((o) => {
+                const fee = o.freeOver && subtotal >= o.freeOver ? 0 : o.fee;
+                return (
+                  <label
+                    key={o.id}
+                    className="flex cursor-pointer items-center justify-between gap-4 text-sm"
+                  >
+                    <span className="flex items-center gap-3">
+                      <input
+                        type="radio"
+                        name="shipping"
+                        checked={shipping === o.id}
+                        onChange={() => setShipping(o.id)}
+                      />
+                      <span>
+                        {o.label}
+                        <span className="label-xs block text-muted-foreground">{o.eta}</span>
+                      </span>
+                    </span>
+                    <span className="font-mono">{fee === 0 ? "Free" : money(fee)}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>
+
+          <fieldset className="border border-border bg-surface p-4">
+            <legend className="label-xs px-2 text-muted-foreground">Payment</legend>
+            <div className="space-y-3">
+              {methods.map((m) => (
+                <label
+                  key={m.id}
+                  className={`flex items-center justify-between gap-4 text-sm ${m.enabled ? "cursor-pointer" : "cursor-not-allowed opacity-40"}`}
+                >
+                  <span className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="payment"
+                      disabled={!m.enabled}
+                      checked={payment === m.id}
+                      onChange={() => setPayment(m.id)}
+                    />
+                    <span>
+                      {m.label}
+                      <span className="label-xs block text-muted-foreground">{m.note}</span>
+                    </span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
           <button
             type="submit"
             disabled={submitting}
             className="w-full bg-primary px-8 py-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-85 disabled:opacity-50"
           >
-            {submitting ? "Placing order…" : `Place order · ${money(subtotal)}`}
+            {submitting
+              ? "Processing…"
+              : payment === "cod"
+                ? `Place order · ${money(t.total)}`
+                : `Pay ${money(t.total)} securely`}
           </button>
         </form>
       </div>
 
-      <aside className="h-fit border border-border bg-surface p-6">
+      <aside className="h-fit border border-border bg-surface p-6 md:sticky md:top-24">
         <p className="label-xs text-muted-foreground">Order summary</p>
         <div className="mt-5 space-y-4">
           {lines.map((l) => (
             <div key={`${l.productId}-${l.size}`} className="flex justify-between gap-4 text-sm">
               <span>
-                {l.name} <span className="text-muted-foreground">· {l.size} × {l.quantity}</span>
+                {l.name}{" "}
+                <span className="text-muted-foreground">
+                  · {l.size} × {l.quantity}
+                </span>
               </span>
               <span className="font-mono">{money(l.price * l.quantity)}</span>
             </div>
           ))}
         </div>
-        <div className="mt-6 flex justify-between border-t border-border pt-5">
-          <span className="label-xs text-muted-foreground">Total</span>
-          <span className="font-mono text-lg">{money(subtotal)}</span>
+        <div className="mt-6 space-y-2 border-t border-border pt-5 text-sm">
+          <div className="flex justify-between">
+            <span className="label-xs text-muted-foreground">Subtotal</span>
+            <span className="font-mono">{money(subtotal)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="label-xs text-muted-foreground">Prepaid discount (5%)</span>
+            <span className="font-mono">{t.discount ? `− ${money(t.discount)}` : "—"}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="label-xs text-muted-foreground">Shipping</span>
+            <span className="font-mono">{t.shipping ? money(t.shipping) : "Free"}</span>
+          </div>
         </div>
+        <div className="mt-4 flex justify-between border-t border-border pt-4">
+          <span className="label-xs text-muted-foreground">Total</span>
+          <span className="font-mono text-lg">{money(t.total)}</span>
+        </div>
+        <p className="label-xs mt-5 text-muted-foreground">
+          Secure payments · 14-day returns · dispatched in 48h
+        </p>
       </aside>
     </div>
   );

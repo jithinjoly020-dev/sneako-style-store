@@ -21,7 +21,7 @@ export const Route = createFileRoute("/checkout")({
       {
         name: "description",
         content:
-          "Pay securely with UPI, cards or netbanking through Paytm — 5% off every prepaid unlabelled order.",
+          "Pay securely with UPI, cards or netbanking through BharatPe — 5% off every prepaid unlabelled order.",
       },
       { property: "og:title", content: "Checkout — unlabelled" },
       {
@@ -54,16 +54,7 @@ const fields = [
   { name: "country", label: "Country", autoComplete: "country-name" },
 ] as const;
 
-function loadScript(src: string) {
-  return new Promise<void>((resolve, reject) => {
-    if (document.querySelector(`script[src="${src}"]`)) return resolve();
-    const s = document.createElement("script");
-    s.src = src;
-    s.onload = () => resolve();
-    s.onerror = () => reject(new Error("Could not load the payment gateway"));
-    document.body.appendChild(s);
-  });
-}
+const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 const steps = ["Details", "Shipping", "Payment"] as const;
 
@@ -73,12 +64,9 @@ function Checkout() {
   const [submitting, setSubmitting] = useState(false);
   const [placed, setPlaced] = useState<{ number: string; paid: boolean } | null>(null);
   const [shipping, setShipping] = useState<ShippingMethod>("standard");
-  const [payment, setPayment] = useState<PaymentMethod>("paytm");
-  const [config, setConfig] = useState<{
-    paytm: boolean;
-    paytmMid: string;
-    paytmHost: string;
-  } | null>(null);
+  const [payment, setPayment] = useState<PaymentMethod>("bharatpe");
+  const [config, setConfig] = useState<{ bharatpe: boolean } | null>(null);
+  const [paying, setPaying] = useState(false);
 
   const readConfig = useServerFn(getPaymentConfig);
   const createPayment = useServerFn(createPaymentOrder);
@@ -89,7 +77,7 @@ function Checkout() {
     readConfig()
       .then((c) => {
         setConfig(c);
-        if (!c.paytm) setPayment("cod");
+        if (!c.bharatpe) setPayment("cod");
       })
       .catch(() => setPayment("cod"));
   }, [readConfig]);
@@ -177,56 +165,36 @@ function Checkout() {
       },
     });
 
-    await loadScript(
-      `${session.host}/merchantpgpui/checkoutjs/merchants/${session.mid}.js`,
-    );
-    const paytm = (window as unknown as {
-      Paytm?: {
-        CheckoutJS: {
-          onLoad: (cb: () => void) => void;
-          init: (c: unknown) => Promise<void>;
-          invoke: () => void;
-          close: () => void;
-        };
-      };
-    }).Paytm;
-    if (!paytm) throw new Error("Could not load the Paytm checkout");
-
-    const closed = await new Promise<boolean>((resolve) => {
-      paytm.CheckoutJS.onLoad(() => {
-        void paytm.CheckoutJS.init({
-          root: "",
-          flow: "DEFAULT",
-          data: {
-            orderId: session.gatewayOrderId,
-            token: session.txnToken,
-            tokenType: "TXN_TOKEN",
-            amount: session.amount,
-          },
-          merchant: { mid: session.mid, redirect: false },
-          handler: {
-            notifyMerchant: (event: string) => {
-              if (event === "APP_CLOSED" || event === "SESSION_EXPIRED") resolve(true);
-            },
-            transactionStatus: () => resolve(false),
-          },
-        }).then(() => paytm.CheckoutJS.invoke());
-      });
-    });
-    paytm.CheckoutJS.close();
-
-    // Auto-verify with Paytm using the transaction status API (txn id check).
-    const v = await confirmPayment({
-      data: { orderId, gatewayOrderId: session.gatewayOrderId },
-    });
-    if (!v.paid) {
-      toast.error(
-        closed
-          ? "Payment was not completed. Your order is saved as unpaid."
-          : "We couldn't confirm the payment yet. We'll follow up by email.",
-      );
+    // Open the BharatPe hosted checkout and poll our server for the settled txn.
+    const win = window.open(session.paymentUrl, "bharatpe-checkout", "width=480,height=720");
+    if (!win) {
+      toast.error("Allow pop-ups to complete the payment.");
+      return false;
     }
-    return v.paid;
+
+    setPaying(true);
+    let paid = false;
+    try {
+      for (let i = 0; i < 120; i++) {
+        await wait(3000);
+        const v = await confirmPayment({
+          data: { orderId, gatewayOrderId: session.gatewayOrderId },
+        }).catch(() => ({ paid: false as const }));
+        if (v.paid) {
+          paid = true;
+          break;
+        }
+        if (win.closed) break;
+      }
+    } finally {
+      setPaying(false);
+      if (!win.closed) win.close();
+    }
+
+    if (!paid) {
+      toast.error("We couldn't confirm the payment. Your order is saved as unpaid.");
+    }
+    return paid;
   }
 
   if (placed) {
@@ -265,10 +233,10 @@ function Checkout() {
 
   const methods: { id: PaymentMethod; label: string; note: string; enabled: boolean }[] = [
     {
-      id: "paytm",
-      label: "Paytm — UPI, cards, wallet, netbanking",
+      id: "bharatpe",
+      label: "BharatPe — UPI, cards, netbanking",
       note: "5% off · payment auto-verified by transaction ID",
-      enabled: config?.paytm ?? false,
+      enabled: config?.bharatpe ?? false,
     },
     { id: "cod", label: "Cash on delivery", note: "Pay the courier", enabled: true },
   ];
@@ -375,7 +343,9 @@ function Checkout() {
             className="w-full bg-primary px-8 py-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-85 disabled:opacity-50"
           >
             {submitting
-              ? "Processing…"
+              ? paying
+                ? "Waiting for payment confirmation…"
+                : "Processing…"
               : payment === "cod"
                 ? `Place order · ${money(t.total)}`
                 : `Pay ${money(t.total)} securely`}

@@ -21,7 +21,7 @@ export const Route = createFileRoute("/checkout")({
       {
         name: "description",
         content:
-          "Pay securely with UPI, cards or netbanking through Razorpay or Cashfree — 5% off every prepaid unlabelled order.",
+          "Pay securely with UPI, cards or netbanking through Paytm — 5% off every prepaid unlabelled order.",
       },
       { property: "og:title", content: "Checkout — unlabelled" },
       {

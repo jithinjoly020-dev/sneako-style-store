@@ -232,10 +232,10 @@ function Checkout() {
 
   const methods: { id: PaymentMethod; label: string; note: string; enabled: boolean }[] = [
     {
-      id: "paytm",
-      label: "Paytm — UPI, cards, wallet, netbanking",
+      id: "bharatpe",
+      label: "BharatPe — UPI, cards, netbanking",
       note: "5% off · payment auto-verified by transaction ID",
-      enabled: config?.paytm ?? false,
+      enabled: config?.bharatpe ?? false,
     },
     { id: "cod", label: "Cash on delivery", note: "Pay the courier", enabled: true },
   ];

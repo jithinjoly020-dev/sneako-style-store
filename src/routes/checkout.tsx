@@ -71,23 +71,40 @@ function Checkout() {
   const [submitting, setSubmitting] = useState(false);
   const [placed, setPlaced] = useState<{ number: string; paid: boolean } | null>(null);
   const [shipping, setShipping] = useState<ShippingMethod>("standard");
-  const [payment, setPayment] = useState<PaymentMethod>("bharatpe");
+  const [payment, setPayment] = useState<PaymentMethod>("upi");
   const [config, setConfig] = useState<{ bharatpe: boolean } | null>(null);
   const [paying, setPaying] = useState(false);
+  const [upiOrder, setUpiOrder] = useState<{
+    id: string;
+    number: string;
+    amount: number;
+  } | null>(null);
+  const [utr, setUtr] = useState("");
 
   const readConfig = useServerFn(getPaymentConfig);
   const createPayment = useServerFn(createPaymentOrder);
   const confirmPayment = useServerFn(verifyPayment);
   const notifyOwner = useServerFn(emailOrderToOwner);
+  const sendUpiRef = useServerFn(submitUpiReference);
 
   useEffect(() => {
-    readConfig()
-      .then((c) => {
-        setConfig(c);
-        if (!c.bharatpe) setPayment("cod");
-      })
-      .catch(() => setPayment("cod"));
+    readConfig().then(setConfig).catch(() => undefined);
   }, [readConfig]);
+
+  async function confirmUpi() {
+    if (!upiOrder) return;
+    setSubmitting(true);
+    try {
+      await sendUpiRef({ data: { orderId: upiOrder.id, reference: utr } });
+      await notifyOwner({ data: { orderId: upiOrder.id } }).catch(() => undefined);
+      clear();
+      setPlaced({ number: upiOrder.number, paid: true });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not save that reference");
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   const t = totalsFor(subtotal, shipping, payment);
 

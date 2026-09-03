@@ -138,3 +138,25 @@ export const verifyPayment = createServerFn({ method: "POST" })
 
     return { paid: true as const, txnId };
   });
+
+type UpiInput = { orderId: string; reference: string };
+
+/**
+ * Direct UPI: the customer pays to the studio VPA and submits the UPI
+ * transaction reference (UTR). It is stored on the order for reconciliation.
+ */
+export const submitUpiReference = createServerFn({ method: "POST" })
+  .inputValidator((d: UpiInput) => {
+    const reference = d.reference.trim().toUpperCase();
+    if (reference.length < 8) throw new Error("Enter the 12-digit UPI reference / UTR number");
+    return { orderId: d.orderId, reference };
+  })
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("orders")
+      .update({ payment_status: "awaiting_verification", payment_ref: data.reference })
+      .eq("id", data.orderId);
+    if (error) throw new Error(error.message);
+    return { ok: true as const, reference: data.reference };
+  });

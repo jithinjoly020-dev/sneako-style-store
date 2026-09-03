@@ -343,7 +343,9 @@ function Checkout() {
             className="w-full bg-primary px-8 py-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-85 disabled:opacity-50"
           >
             {submitting
-              ? "Processing…"
+              ? paying
+                ? "Waiting for payment confirmation…"
+                : "Processing…"
               : payment === "cod"
                 ? `Place order · ${money(t.total)}`
                 : `Pay ${money(t.total)} securely`}

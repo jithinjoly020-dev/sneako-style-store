@@ -11,8 +11,15 @@ import {
   type PaymentMethod,
   type ShippingMethod,
 } from "@/lib/checkout-options";
-import { createPaymentOrder, getPaymentConfig, verifyPayment } from "@/lib/payments.functions";
+import {
+  createPaymentOrder,
+  getPaymentConfig,
+  submitUpiReference,
+  verifyPayment,
+} from "@/lib/payments.functions";
 import { emailOrderToOwner } from "@/lib/order-email.functions";
+import { QRCodeSVG } from "qrcode.react";
+import { UPI_ID, upiLink } from "@/lib/upi";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -126,8 +133,14 @@ function Checkout() {
       );
       if (itemsError) throw itemsError;
 
+      if (payment === "upi") {
+        setUpiOrder({ id: order.id, number: order.order_number, amount: t.total });
+        setSubmitting(false);
+        return;
+      }
+
       let paid = false;
-      if (payment !== "cod") {
+      if (payment === "bharatpe") {
         paid = await runGateway(order.id, order.order_number, parsed.data);
         if (!paid) {
           setSubmitting(false);

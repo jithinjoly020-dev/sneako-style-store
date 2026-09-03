@@ -167,7 +167,6 @@ function Checkout() {
   ) {
     const session = await createPayment({
       data: {
-        provider: payment as "razorpay" | "cashfree",
         orderId,
         orderNumber,
         amount: t.total,
@@ -178,68 +177,55 @@ function Checkout() {
       },
     });
 
-    if (session.provider === "razorpay") {
-      await loadScript("https://checkout.razorpay.com/v1/checkout.js");
-      const ok = await new Promise<boolean>((resolve) => {
-        const rzp = new (window as unknown as { Razorpay: new (o: unknown) => { open: () => void } }).Razorpay(
-          {
-            key: session.keyId,
-            amount: session.amount,
-            currency: "INR",
-            name: "unlabelled",
-            description: `Order ${orderNumber}`,
-            order_id: session.gatewayOrderId,
-            prefill: {
-              name: who.customer_name,
-              email: who.customer_email,
-              contact: who.customer_phone,
-            },
-            theme: { color: "#141414" },
-            modal: { ondismiss: () => resolve(false) },
-            handler: async (r: {
-              razorpay_payment_id: string;
-              razorpay_order_id: string;
-              razorpay_signature: string;
-            }) => {
-              const v = await confirmPayment({
-                data: {
-                  provider: "razorpay",
-                  orderId,
-                  gatewayOrderId: r.razorpay_order_id,
-                  paymentId: r.razorpay_payment_id,
-                  signature: r.razorpay_signature,
-                },
-              });
-              resolve(v.paid);
-            },
-          },
-        );
-        rzp.open();
-      });
-      if (!ok) toast.error("Payment was not completed. Your order is saved as unpaid.");
-      return ok;
-    }
-
-    await loadScript("https://sdk.cashfree.com/js/v3/cashfree.js");
-    const cf = (
-      window as unknown as {
-        Cashfree: (o: { mode: string }) => {
-          checkout: (o: unknown) => Promise<{ error?: unknown }>;
+    await loadScript(
+      `${session.host}/merchantpgpui/checkoutjs/merchants/${session.mid}.js`,
+    );
+    const paytm = (window as unknown as {
+      Paytm?: {
+        CheckoutJS: {
+          onLoad: (cb: () => void) => void;
+          init: (c: unknown) => Promise<void>;
+          invoke: () => void;
+          close: () => void;
         };
-      }
-    ).Cashfree({ mode: config?.cashfreeMode ?? "production" });
-    const result = await cf.checkout({
-      paymentSessionId: session.paymentSessionId,
-      redirectTarget: "_modal",
+      };
+    }).Paytm;
+    if (!paytm) throw new Error("Could not load the Paytm checkout");
+
+    const closed = await new Promise<boolean>((resolve) => {
+      paytm.CheckoutJS.onLoad(() => {
+        void paytm.CheckoutJS.init({
+          root: "",
+          flow: "DEFAULT",
+          data: {
+            orderId: session.gatewayOrderId,
+            token: session.txnToken,
+            tokenType: "TXN_TOKEN",
+            amount: session.amount,
+          },
+          merchant: { mid: session.mid, redirect: false },
+          handler: {
+            notifyMerchant: (event: string) => {
+              if (event === "APP_CLOSED" || event === "SESSION_EXPIRED") resolve(true);
+            },
+            transactionStatus: () => resolve(false),
+          },
+        }).then(() => paytm.CheckoutJS.invoke());
+      });
     });
-    if (result?.error) {
-      toast.error("Payment was not completed. Your order is saved as unpaid.");
-      return false;
-    }
+    paytm.CheckoutJS.close();
+
+    // Auto-verify with Paytm using the transaction status API (txn id check).
     const v = await confirmPayment({
-      data: { provider: "cashfree", orderId, gatewayOrderId: session.gatewayOrderId },
+      data: { orderId, gatewayOrderId: session.gatewayOrderId },
     });
-    if (!v.paid) toast.error("We couldn't confirm the payment yet. We'll follow up by email.");
+    if (!v.paid) {
+      toast.error(
+        closed
+          ? "Payment was not completed. Your order is saved as unpaid."
+          : "We couldn't confirm the payment yet. We'll follow up by email.",
+      );
+    }
     return v.paid;
   }
 

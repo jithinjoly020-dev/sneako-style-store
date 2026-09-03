@@ -2,7 +2,7 @@
 
 - [x] Storefront + admin (unlabelled), INR pricing, cPanel build
 - [x] Order emails to jithinjoly020@gmail.com (needs RESEND_API_KEY)
-- [ ] Payments: remove Razorpay/Cashfree, use Paytm merchant (MID + merchant key)
-  - [ ] Paytm initiateTransaction + checksum signing
-  - [ ] Auto-verify payment via Paytm order/transaction status (txn id) before confirming order
-  - [ ] Collect PAYTM_MID / PAYTM_MERCHANT_KEY secrets
+- [x] Payments: removed Paytm/Razorpay/Cashfree; BharatPe is the only gateway
+  - [x] BharatPe order creation + HMAC signing, hosted checkout window
+  - [x] Auto-verify via BharatPe order status polling (txn id) before confirming the order
+  - [ ] Add BHARATPE_MERCHANT_ID / BHARATPE_API_KEY / BHARATPE_SECRET (+ BHARATPE_MODE) secrets — checkout stays COD-only until then

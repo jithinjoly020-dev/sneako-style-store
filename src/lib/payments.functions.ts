@@ -1,17 +1,51 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createHmac } from "node:crypto";
+import { createHash, createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 
-type Provider = "razorpay" | "cashfree";
+/** Paytm PG (merchant MID + merchant key) */
+
+const IV = "@@@@&&&&####$$$$";
+
+function aesEncrypt(value: string, key: string) {
+  const c = createCipheriv("aes-128-cbc", key.slice(0, 16), IV);
+  return c.update(value, "utf8", "base64") + c.final("base64");
+}
+
+function aesDecrypt(value: string, key: string) {
+  const d = createDecipheriv("aes-128-cbc", key.slice(0, 16), IV);
+  return d.update(value, "base64", "utf8") + d.final("utf8");
+}
+
+/** Paytm checksum (signature) for a JSON body. */
+function generateSignature(body: unknown, key: string) {
+  const salt = randomBytes(2).toString("hex"); // 4 chars
+  const payload = typeof body === "string" ? body : JSON.stringify(body);
+  const hash = createHash("sha256").update(`${payload}|${salt}`).digest("hex");
+  return aesEncrypt(`${hash}${salt}`, key);
+}
+
+function verifySignature(body: unknown, key: string, signature: string) {
+  try {
+    const decoded = aesDecrypt(signature, key);
+    const salt = decoded.slice(-4);
+    const payload = typeof body === "string" ? body : JSON.stringify(body);
+    const hash = createHash("sha256").update(`${payload}|${salt}`).digest("hex");
+    return `${hash}${salt}` === decoded;
+  } catch {
+    return false;
+  }
+}
+
+const isStaging = () => (process.env["PAYTM_MODE"] ?? "production") === "staging";
+const paytmHost = () => (isStaging() ? "https://securegw-stage.paytm.in" : "https://securegw.paytm.in");
+const paytmWebsite = () => process.env["PAYTM_WEBSITE"] ?? (isStaging() ? "WEBSTAGING" : "DEFAULT");
 
 export const getPaymentConfig = createServerFn({ method: "GET" }).handler(async () => ({
-  razorpay: Boolean(process.env["RAZORPAY_KEY_ID"] && process.env["RAZORPAY_KEY_SECRET"]),
-  cashfree: Boolean(process.env["CASHFREE_APP_ID"] && process.env["CASHFREE_SECRET_KEY"]),
-  razorpayKeyId: process.env["RAZORPAY_KEY_ID"] ?? "",
-  cashfreeMode: (process.env["CASHFREE_MODE"] ?? "production") as "sandbox" | "production",
+  paytm: Boolean(process.env["PAYTM_MID"] && process.env["PAYTM_MERCHANT_KEY"]),
+  paytmMid: process.env["PAYTM_MID"] ?? "",
+  paytmHost: paytmHost(),
 }));
 
 type CreateInput = {
-  provider: Provider;
   orderId: string;
   orderNumber: string;
   amount: number;
@@ -21,121 +55,96 @@ type CreateInput = {
   returnUrl: string;
 };
 
-const cashfreeBase = () =>
-  (process.env["CASHFREE_MODE"] ?? "production") === "sandbox"
-    ? "https://sandbox.cashfree.com/pg"
-    : "https://api.cashfree.com/pg";
-
 export const createPaymentOrder = createServerFn({ method: "POST" })
   .inputValidator((d: CreateInput) => d)
   .handler(async ({ data }) => {
-    const amountPaise = Math.round(data.amount * 100);
+    const mid = process.env["PAYTM_MID"];
+    const key = process.env["PAYTM_MERCHANT_KEY"];
+    if (!mid || !key) throw new Error("Paytm is not configured yet.");
 
-    if (data.provider === "razorpay") {
-      const keyId = process.env["RAZORPAY_KEY_ID"];
-      const keySecret = process.env["RAZORPAY_KEY_SECRET"];
-      if (!keyId || !keySecret) throw new Error("Razorpay is not configured yet.");
-      const res = await fetch("https://api.razorpay.com/v1/orders", {
-        method: "POST",
-        headers: {
-          Authorization: `Basic ${btoa(`${keyId}:${keySecret}`)}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          amount: amountPaise,
-          currency: "INR",
-          receipt: data.orderNumber,
-          notes: { order_id: data.orderId },
-        }),
-      });
-      const json = (await res.json()) as { id?: string; error?: { description?: string } };
-      if (!res.ok || !json.id) throw new Error(json.error?.description ?? "Razorpay order failed");
-      return {
-        provider: "razorpay" as const,
-        keyId,
-        gatewayOrderId: json.id,
-        amount: amountPaise,
-      };
-    }
-
-    const appId = process.env["CASHFREE_APP_ID"];
-    const secret = process.env["CASHFREE_SECRET_KEY"];
-    if (!appId || !secret) throw new Error("Cashfree is not configured yet.");
-    const res = await fetch(`${cashfreeBase()}/orders`, {
-      method: "POST",
-      headers: {
-        "x-client-id": appId,
-        "x-client-secret": secret,
-        "x-api-version": "2023-08-01",
-        "Content-Type": "application/json",
+    const body = {
+      requestType: "Payment",
+      mid,
+      websiteName: paytmWebsite(),
+      orderId: data.orderNumber,
+      callbackUrl: data.returnUrl,
+      txnAmount: { value: data.amount.toFixed(2), currency: "INR" },
+      userInfo: {
+        custId: data.orderId,
+        email: data.email,
+        mobile: data.phone,
+        firstName: data.name,
       },
-      body: JSON.stringify({
-        order_id: data.orderNumber,
-        order_amount: Number(data.amount.toFixed(2)),
-        order_currency: "INR",
-        customer_details: {
-          customer_id: data.orderId,
-          customer_name: data.name,
-          customer_email: data.email,
-          customer_phone: data.phone,
-        },
-        order_meta: { return_url: data.returnUrl },
-      }),
-    });
-    const json = (await res.json()) as { payment_session_id?: string; message?: string };
-    if (!res.ok || !json.payment_session_id)
-      throw new Error(json.message ?? "Cashfree order failed");
+    };
+
+    const res = await fetch(
+      `${paytmHost()}/theia/api/v1/initiateTransaction?mid=${mid}&orderId=${encodeURIComponent(data.orderNumber)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ body, head: { signature: generateSignature(body, key) } }),
+      },
+    );
+    const json = (await res.json()) as {
+      body?: { txnToken?: string; resultInfo?: { resultMsg?: string } };
+    };
+    const txnToken = json.body?.txnToken;
+    if (!txnToken) throw new Error(json.body?.resultInfo?.resultMsg ?? "Paytm order failed");
+
     return {
-      provider: "cashfree" as const,
-      paymentSessionId: json.payment_session_id,
+      provider: "paytm" as const,
+      mid,
+      host: paytmHost(),
       gatewayOrderId: data.orderNumber,
+      txnToken,
+      amount: data.amount.toFixed(2),
     };
   });
 
-type VerifyInput = {
-  provider: Provider;
-  orderId: string;
-  gatewayOrderId: string;
-  paymentId?: string;
-  signature?: string;
-};
+type VerifyInput = { orderId: string; gatewayOrderId: string };
 
+/**
+ * Auto-verifies a payment straight with Paytm's transaction status API and
+ * writes the transaction id back to the order when it is settled.
+ */
 export const verifyPayment = createServerFn({ method: "POST" })
   .inputValidator((d: VerifyInput) => d)
   .handler(async ({ data }) => {
-    let paid = false;
-    let ref = data.paymentId ?? data.gatewayOrderId;
+    const mid = process.env["PAYTM_MID"];
+    const key = process.env["PAYTM_MERCHANT_KEY"];
+    if (!mid || !key) throw new Error("Paytm is not configured yet.");
 
-    if (data.provider === "razorpay") {
-      const secret = process.env["RAZORPAY_KEY_SECRET"];
-      if (!secret || !data.paymentId || !data.signature) throw new Error("Missing payment proof");
-      const expected = createHmac("sha256", secret)
-        .update(`${data.gatewayOrderId}|${data.paymentId}`)
-        .digest("hex");
-      paid = expected === data.signature;
-    } else {
-      const appId = process.env["CASHFREE_APP_ID"];
-      const secret = process.env["CASHFREE_SECRET_KEY"];
-      if (!appId || !secret) throw new Error("Cashfree is not configured yet.");
-      const res = await fetch(`${cashfreeBase()}/orders/${data.gatewayOrderId}`, {
-        headers: {
-          "x-client-id": appId,
-          "x-client-secret": secret,
-          "x-api-version": "2023-08-01",
-        },
-      });
-      const json = (await res.json()) as { order_status?: string; cf_order_id?: string };
-      paid = json.order_status === "PAID";
-      ref = json.cf_order_id ?? ref;
+    const body = { mid, orderId: data.gatewayOrderId };
+    const res = await fetch(`${paytmHost()}/v3/order/status`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ body, head: { signature: generateSignature(body, key) } }),
+    });
+    const json = (await res.json()) as {
+      head?: { signature?: string };
+      body?: {
+        resultInfo?: { resultStatus?: string; resultMsg?: string };
+        txnId?: string;
+        txnAmount?: string;
+      };
+    };
+
+    const signature = json.head?.signature;
+    if (signature && json.body && !verifySignature(json.body, key, signature)) {
+      return { paid: false as const, reason: "Signature mismatch" };
     }
 
-    if (!paid) return { paid: false as const };
+    const status = json.body?.resultInfo?.resultStatus;
+    const txnId = json.body?.txnId ?? data.gatewayOrderId;
+    if (status !== "TXN_SUCCESS") {
+      return { paid: false as const, reason: json.body?.resultInfo?.resultMsg ?? "Not paid yet" };
+    }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await supabaseAdmin
       .from("orders")
-      .update({ payment_status: "paid", payment_ref: ref })
+      .update({ payment_status: "paid", payment_ref: txnId })
       .eq("id", data.orderId);
 
-    return { paid: true as const };
+    return { paid: true as const, txnId };
   });

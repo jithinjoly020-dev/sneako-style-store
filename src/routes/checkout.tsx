@@ -227,6 +227,60 @@ function Checkout() {
     return paid;
   }
 
+  if (upiOrder && !placed) {
+    return (
+      <div className="mx-auto max-w-[620px] px-5 py-20 md:px-10">
+        <p className="label-xs text-muted-foreground">Step 03 · UPI payment</p>
+        <h1 className="mt-4 text-4xl font-semibold md:text-5xl">PAY {money(upiOrder.amount)}</h1>
+        <p className="mt-4 text-sm text-muted-foreground">
+          Order <span className="font-mono text-foreground">{upiOrder.number}</span> is reserved.
+          Scan the code with any UPI app, or tap the button on mobile.
+        </p>
+
+        <div className="mt-8 flex flex-col items-center gap-5 border border-border bg-surface p-8">
+          <div className="bg-white p-4">
+            <QRCodeSVG
+              value={upiLink(upiOrder.amount, `unlabelled ${upiOrder.number}`)}
+              size={200}
+            />
+          </div>
+          <p className="label-xs text-muted-foreground">
+            UPI ID <span className="font-mono text-foreground">{UPI_ID}</span>
+          </p>
+          <a
+            href={upiLink(upiOrder.amount, `unlabelled ${upiOrder.number}`)}
+            className="w-full bg-primary px-6 py-3 text-center text-sm text-primary-foreground md:hidden"
+          >
+            Open UPI app
+          </a>
+        </div>
+
+        <label htmlFor="utr" className="label-xs mt-8 block text-muted-foreground">
+          UPI reference / UTR number
+        </label>
+        <input
+          id="utr"
+          value={utr}
+          onChange={(e) => setUtr(e.target.value)}
+          placeholder="e.g. 402312345678"
+          className="mt-2 w-full border border-border bg-surface px-4 py-3 font-mono text-sm outline-none focus:border-foreground"
+        />
+        <button
+          type="button"
+          disabled={submitting}
+          onClick={() => void confirmUpi()}
+          className="mt-4 w-full bg-primary px-8 py-4 text-sm font-medium text-primary-foreground disabled:opacity-50"
+        >
+          {submitting ? "Saving…" : "I've paid — confirm order"}
+        </button>
+        <p className="label-xs mt-4 text-muted-foreground">
+          We match the reference against the UPI statement and dispatch once it clears — usually
+          within a few minutes.
+        </p>
+      </div>
+    );
+  }
+
   if (placed) {
     return (
       <div className="mx-auto max-w-[700px] px-5 py-24 md:px-10">

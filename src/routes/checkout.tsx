@@ -76,7 +76,7 @@ function Checkout() {
     readConfig()
       .then((c) => {
         setConfig(c);
-        if (!c.paytm) setPayment("cod");
+        if (!c.bharatpe) setPayment("cod");
       })
       .catch(() => setPayment("cod"));
   }, [readConfig]);

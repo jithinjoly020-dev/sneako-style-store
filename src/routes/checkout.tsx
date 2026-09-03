@@ -54,16 +54,7 @@ const fields = [
   { name: "country", label: "Country", autoComplete: "country-name" },
 ] as const;
 
-function loadScript(src: string) {
-  return new Promise<void>((resolve, reject) => {
-    if (document.querySelector(`script[src="${src}"]`)) return resolve();
-    const s = document.createElement("script");
-    s.src = src;
-    s.onload = () => resolve();
-    s.onerror = () => reject(new Error("Could not load the payment gateway"));
-    document.body.appendChild(s);
-  });
-}
+const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 const steps = ["Details", "Shipping", "Payment"] as const;
 

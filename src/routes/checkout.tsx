@@ -317,6 +317,12 @@ function Checkout() {
 
   const methods: { id: PaymentMethod; label: string; note: string; enabled: boolean }[] = [
     {
+      id: "upi",
+      label: "UPI — GPay, PhonePe, Paytm, any app",
+      note: "5% off · scan the QR and confirm with your UTR",
+      enabled: true,
+    },
+    {
       id: "bharatpe",
       label: "BharatPe — UPI, cards, netbanking",
       note: "5% off · payment auto-verified by transaction ID",

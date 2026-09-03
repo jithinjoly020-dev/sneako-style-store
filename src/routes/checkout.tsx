@@ -73,12 +73,11 @@ function Checkout() {
   const [submitting, setSubmitting] = useState(false);
   const [placed, setPlaced] = useState<{ number: string; paid: boolean } | null>(null);
   const [shipping, setShipping] = useState<ShippingMethod>("standard");
-  const [payment, setPayment] = useState<PaymentMethod>("razorpay");
+  const [payment, setPayment] = useState<PaymentMethod>("paytm");
   const [config, setConfig] = useState<{
-    razorpay: boolean;
-    cashfree: boolean;
-    razorpayKeyId: string;
-    cashfreeMode: "sandbox" | "production";
+    paytm: boolean;
+    paytmMid: string;
+    paytmHost: string;
   } | null>(null);
 
   const readConfig = useServerFn(getPaymentConfig);

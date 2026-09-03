@@ -18,7 +18,7 @@ export const SHIPPING_OPTIONS: {
   { id: "pickup", label: "Studio pickup", eta: "Ready in 24h · Unit 14, Grey Yard", fee: 0 },
 ];
 
-export type PaymentMethod = "razorpay" | "cashfree" | "cod";
+export type PaymentMethod = "paytm" | "cod";
 
 /** Prepaid orders get 5% off. Cash on delivery does not. */
 export const PREPAID_DISCOUNT = 0.05;

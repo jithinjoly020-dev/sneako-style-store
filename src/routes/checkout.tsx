@@ -164,56 +164,36 @@ function Checkout() {
       },
     });
 
-    await loadScript(
-      `${session.host}/merchantpgpui/checkoutjs/merchants/${session.mid}.js`,
-    );
-    const paytm = (window as unknown as {
-      Paytm?: {
-        CheckoutJS: {
-          onLoad: (cb: () => void) => void;
-          init: (c: unknown) => Promise<void>;
-          invoke: () => void;
-          close: () => void;
-        };
-      };
-    }).Paytm;
-    if (!paytm) throw new Error("Could not load the Paytm checkout");
-
-    const closed = await new Promise<boolean>((resolve) => {
-      paytm.CheckoutJS.onLoad(() => {
-        void paytm.CheckoutJS.init({
-          root: "",
-          flow: "DEFAULT",
-          data: {
-            orderId: session.gatewayOrderId,
-            token: session.txnToken,
-            tokenType: "TXN_TOKEN",
-            amount: session.amount,
-          },
-          merchant: { mid: session.mid, redirect: false },
-          handler: {
-            notifyMerchant: (event: string) => {
-              if (event === "APP_CLOSED" || event === "SESSION_EXPIRED") resolve(true);
-            },
-            transactionStatus: () => resolve(false),
-          },
-        }).then(() => paytm.CheckoutJS.invoke());
-      });
-    });
-    paytm.CheckoutJS.close();
-
-    // Auto-verify with Paytm using the transaction status API (txn id check).
-    const v = await confirmPayment({
-      data: { orderId, gatewayOrderId: session.gatewayOrderId },
-    });
-    if (!v.paid) {
-      toast.error(
-        closed
-          ? "Payment was not completed. Your order is saved as unpaid."
-          : "We couldn't confirm the payment yet. We'll follow up by email.",
-      );
+    // Open the BharatPe hosted checkout and poll our server for the settled txn.
+    const win = window.open(session.paymentUrl, "bharatpe-checkout", "width=480,height=720");
+    if (!win) {
+      toast.error("Allow pop-ups to complete the payment.");
+      return false;
     }
-    return v.paid;
+
+    setPaying(true);
+    let paid = false;
+    try {
+      for (let i = 0; i < 120; i++) {
+        await wait(3000);
+        const v = await confirmPayment({
+          data: { orderId, gatewayOrderId: session.gatewayOrderId },
+        }).catch(() => ({ paid: false as const }));
+        if (v.paid) {
+          paid = true;
+          break;
+        }
+        if (win.closed) break;
+      }
+    } finally {
+      setPaying(false);
+      if (!win.closed) win.close();
+    }
+
+    if (!paid) {
+      toast.error("We couldn't confirm the payment. Your order is saved as unpaid.");
+    }
+    return paid;
   }
 
   if (placed) {

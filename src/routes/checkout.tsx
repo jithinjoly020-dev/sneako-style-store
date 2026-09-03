@@ -89,8 +89,7 @@ function Checkout() {
     readConfig()
       .then((c) => {
         setConfig(c);
-        if (!c.razorpay && c.cashfree) setPayment("cashfree");
-        if (!c.razorpay && !c.cashfree) setPayment("cod");
+        if (!c.paytm) setPayment("cod");
       })
       .catch(() => setPayment("cod"));
   }, [readConfig]);

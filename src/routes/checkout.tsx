@@ -265,16 +265,10 @@ function Checkout() {
 
   const methods: { id: PaymentMethod; label: string; note: string; enabled: boolean }[] = [
     {
-      id: "razorpay",
-      label: "Razorpay — UPI, cards, netbanking",
-      note: "5% off · instant confirmation",
-      enabled: config?.razorpay ?? false,
-    },
-    {
-      id: "cashfree",
-      label: "Cashfree — UPI, cards, wallets",
-      note: "5% off · instant confirmation",
-      enabled: config?.cashfree ?? false,
+      id: "paytm",
+      label: "Paytm — UPI, cards, wallet, netbanking",
+      note: "5% off · payment auto-verified by transaction ID",
+      enabled: config?.paytm ?? false,
     },
     { id: "cod", label: "Cash on delivery", note: "Pay the courier", enabled: true },
   ];

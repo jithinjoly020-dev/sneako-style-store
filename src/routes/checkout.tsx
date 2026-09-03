@@ -66,6 +66,7 @@ function Checkout() {
   const [shipping, setShipping] = useState<ShippingMethod>("standard");
   const [payment, setPayment] = useState<PaymentMethod>("bharatpe");
   const [config, setConfig] = useState<{ bharatpe: boolean } | null>(null);
+  const [paying, setPaying] = useState(false);
 
   const readConfig = useServerFn(getPaymentConfig);
   const createPayment = useServerFn(createPaymentOrder);

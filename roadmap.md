@@ -13,3 +13,4 @@
 
 - [ ] Get live Paytm Merchant Key (blocked: user must copy it from Paytm dashboard → Developer Settings → API Keys) then save PAYTM_MID + PAYTM_MERCHANT_KEY
 - [x] Add "already paid? enter Paytm Order ID" auto-verify (like PHP example: status check, amount match, no reuse, <24h old)
+- [ ] Remove manual UPI/UTR payment method; keep only Paytm auto-verify + COD

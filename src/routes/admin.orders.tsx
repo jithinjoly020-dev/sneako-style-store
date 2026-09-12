@@ -212,8 +212,32 @@ function AdminOrders() {
                     <p className="label-xs mt-3 text-muted-foreground">Notes: {o.notes}</p>
                   )}
                   <p className="label-xs mt-3 text-muted-foreground">
-                    Payment: {o.payment_method}
+                    Payment: {o.payment_method} · {o.payment_status ?? "unpaid"}
                   </p>
+                  {o.payment_ref && (
+                    <p className="label-xs mt-1 text-muted-foreground">
+                      Reference:{" "}
+                      <span className="font-mono text-foreground">{o.payment_ref}</span>
+                    </p>
+                  )}
+                  {o.payment_status !== "paid" && (
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      <button
+                        type="button"
+                        onClick={() => void setPayment(o.id, "paid")}
+                        className="label-xs bg-primary px-4 py-2.5 text-primary-foreground"
+                      >
+                        Payment received
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void setPayment(o.id, "payment_failed")}
+                        className="label-xs border border-border px-4 py-2.5"
+                      >
+                        Not received
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

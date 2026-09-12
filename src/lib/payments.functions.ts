@@ -1,67 +1,17 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createHmac } from "node:crypto";
 
 /**
- * BharatPe payment gateway.
+ * Paytm Payment Gateway (All-in-One).
  *
- * Env:
- *  - BHARATPE_MERCHANT_ID   merchant id from the BharatPe dashboard
- *  - BHARATPE_API_KEY       api key / client id
- *  - BHARATPE_SECRET        secret used to sign requests
- *  - BHARATPE_MODE          "staging" | "production" (default production)
- *  - BHARATPE_BASE_URL      optional override of the API base url
+ * Env: PAYTM_MID, PAYTM_MERCHANT_KEY, PAYTM_MODE ("production" | "staging").
+ * Payments are auto-verified server-side against Paytm's order status API
+ * before an order is ever marked paid.
  */
 
-const isStaging = () => (process.env["BHARATPE_MODE"] ?? "production") === "staging";
-
-const baseUrl = () =>
-  process.env["BHARATPE_BASE_URL"] ??
-  (isStaging() ? "https://api-staging.bharatpe.in" : "https://api.bharatpe.in");
-
-function creds() {
-  const merchantId = process.env["BHARATPE_MERCHANT_ID"];
-  const apiKey = process.env["BHARATPE_API_KEY"];
-  const secret = process.env["BHARATPE_SECRET"];
-  if (!merchantId || !apiKey || !secret) throw new Error("BharatPe is not configured yet.");
-  return { merchantId, apiKey, secret };
-}
-
-function sign(payload: string, secret: string) {
-  return createHmac("sha256", secret).update(payload).digest("hex");
-}
-
-async function callBharatPe(path: string, method: "GET" | "POST", body?: unknown) {
-  const { apiKey, secret } = creds();
-  const payload = body ? JSON.stringify(body) : "";
-  const res = await fetch(`${baseUrl()}${path}`, {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      "X-API-KEY": apiKey,
-      "X-SIGNATURE": sign(payload || path, secret),
-    },
-    ...(body ? { body: payload } : {}),
-  });
-  const text = await res.text();
-  let json: Record<string, unknown> = {};
-  try {
-    json = text ? (JSON.parse(text) as Record<string, unknown>) : {};
-  } catch {
-    json = { message: text };
-  }
-  if (!res.ok) {
-    throw new Error(`BharatPe request failed [${res.status}]: ${text.slice(0, 400)}`);
-  }
-  return json;
-}
-
-export const getPaymentConfig = createServerFn({ method: "GET" }).handler(async () => ({
-  bharatpe: Boolean(
-    process.env["BHARATPE_MERCHANT_ID"] &&
-      process.env["BHARATPE_API_KEY"] &&
-      process.env["BHARATPE_SECRET"],
-  ),
-}));
+export const getPaymentConfig = createServerFn({ method: "GET" }).handler(async () => {
+  const { paytmConfigured } = await import("@/lib/paytm.server");
+  return { paytm: paytmConfigured() };
+});
 
 type CreateInput = {
   orderId: string;
@@ -76,64 +26,79 @@ type CreateInput = {
 export const createPaymentOrder = createServerFn({ method: "POST" })
   .inputValidator((d: CreateInput) => d)
   .handler(async ({ data }) => {
-    const { merchantId } = creds();
+    const { paytmCreds, paytmPost, paytmWebsite } = await import("@/lib/paytm.server");
+    const { mid } = paytmCreds();
+    const origin = new URL(data.returnUrl).origin;
 
-    const json = (await callBharatPe("/payment-gateway/v1/orders", "POST", {
-      merchantId,
-      orderId: data.orderNumber,
-      amount: Math.round(data.amount * 100), // paise
-      currency: "INR",
-      returnUrl: data.returnUrl,
-      customer: {
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        referenceId: data.orderId,
+    const json = await paytmPost(
+      `/theia/api/v1/initiateTransaction?mid=${encodeURIComponent(mid)}&orderId=${encodeURIComponent(
+        data.orderNumber,
+      )}`,
+      {
+        requestType: "Payment",
+        mid,
+        websiteName: paytmWebsite(),
+        orderId: data.orderNumber,
+        callbackUrl: `${origin}/api/public/paytm-callback`,
+        txnAmount: { value: data.amount.toFixed(2), currency: "INR" },
+        userInfo: {
+          custId: data.orderId,
+          email: data.email,
+          mobile: data.phone,
+          firstName: data.name,
+        },
       },
-    })) as {
-      data?: { paymentUrl?: string; paymentLink?: string; orderId?: string };
-      paymentUrl?: string;
-      message?: string;
-    };
+    );
 
-    const paymentUrl = json.data?.paymentUrl ?? json.data?.paymentLink ?? json.paymentUrl;
-    if (!paymentUrl) throw new Error(json.message ?? "BharatPe order could not be created");
+    const body = (json.body ?? {}) as {
+      txnToken?: string;
+      resultInfo?: { resultMsg?: string; resultStatus?: string };
+    };
+    if (!body.txnToken) {
+      throw new Error(body.resultInfo?.resultMsg ?? "Paytm could not start this payment.");
+    }
 
     return {
-      provider: "bharatpe" as const,
-      gatewayOrderId: json.data?.orderId ?? data.orderNumber,
-      paymentUrl,
+      provider: "paytm" as const,
+      gatewayOrderId: data.orderNumber,
+      paymentUrl: `/api/public/paytm-redirect?orderId=${encodeURIComponent(
+        data.orderNumber,
+      )}&token=${encodeURIComponent(body.txnToken)}`,
     };
   });
 
 type VerifyInput = { orderId: string; gatewayOrderId: string };
 
 /**
- * Auto-verifies the payment against BharatPe's order status API and writes the
- * transaction id onto the order once it is settled.
+ * Auto-verifies against Paytm's order status API and writes the Paytm
+ * transaction id onto the order once the money is actually captured.
  */
 export const verifyPayment = createServerFn({ method: "POST" })
   .inputValidator((d: VerifyInput) => d)
   .handler(async ({ data }) => {
-    const json = (await callBharatPe(
-      `/payment-gateway/v1/orders/${encodeURIComponent(data.gatewayOrderId)}`,
-      "GET",
-    )) as {
-      data?: { status?: string; transactionId?: string; txnId?: string; message?: string };
-      status?: string;
+    const { paytmCreds, paytmPost } = await import("@/lib/paytm.server");
+    const { mid } = paytmCreds();
+
+    const json = await paytmPost("/v3/order/status", { mid, orderId: data.gatewayOrderId });
+    const body = (json.body ?? {}) as {
+      resultInfo?: { resultStatus?: string; resultMsg?: string };
+      txnId?: string;
+      txnAmount?: string;
     };
 
-    const status = (json.data?.status ?? json.status ?? "").toUpperCase();
-    const txnId = json.data?.transactionId ?? json.data?.txnId ?? data.gatewayOrderId;
-
-    if (!["SUCCESS", "PAID", "COMPLETED", "TXN_SUCCESS"].includes(status)) {
-      return { paid: false as const, reason: json.data?.message ?? `Payment ${status || "pending"}` };
+    const status = (body.resultInfo?.resultStatus ?? "").toUpperCase();
+    if (status !== "TXN_SUCCESS") {
+      return {
+        paid: false as const,
+        reason: body.resultInfo?.resultMsg ?? `Payment ${status || "pending"}`,
+      };
     }
 
+    const txnId = body.txnId ?? data.gatewayOrderId;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await supabaseAdmin
       .from("orders")
-      .update({ payment_status: "paid", payment_ref: txnId })
+      .update({ payment_status: "paid", status: "confirmed", payment_ref: txnId })
       .eq("id", data.orderId);
 
     return { paid: true as const, txnId };

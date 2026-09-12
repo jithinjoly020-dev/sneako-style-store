@@ -29,7 +29,7 @@ export const Route = createFileRoute("/checkout")({
       {
         name: "description",
         content:
-          "Pay securely with UPI, cards or netbanking through BharatPe — 5% off every prepaid unlabelled order.",
+          "Pay securely with UPI, cards or netbanking through Paytm — 5% off every prepaid unlabelled order.",
       },
       { property: "og:title", content: "Checkout — unlabelled" },
       {
@@ -73,7 +73,7 @@ function Checkout() {
   const [placed, setPlaced] = useState<{ number: string; paid: boolean } | null>(null);
   const [shipping, setShipping] = useState<ShippingMethod>("standard");
   const [payment, setPayment] = useState<PaymentMethod>("upi");
-  const [config, setConfig] = useState<{ bharatpe: boolean } | null>(null);
+  const [config, setConfig] = useState<{ paytm: boolean } | null>(null);
   const [paying, setPaying] = useState(false);
   const [upiOrder, setUpiOrder] = useState<{
     id: string;
@@ -91,7 +91,12 @@ function Checkout() {
   const readPaymentStatus = useServerFn(getPaymentStatus);
 
   useEffect(() => {
-    readConfig().then(setConfig).catch(() => undefined);
+    readConfig()
+      .then((c) => {
+        setConfig(c);
+        if (c.paytm) setPayment("paytm");
+      })
+      .catch(() => undefined);
   }, [readConfig]);
 
   async function confirmUpi() {
@@ -180,7 +185,7 @@ function Checkout() {
       }
 
       let paid = false;
-      if (payment === "bharatpe") {
+      if (payment === "paytm") {
         paid = await runGateway(order.id, order.order_number, parsed.data);
         if (!paid) {
           setSubmitting(false);
@@ -218,8 +223,8 @@ function Checkout() {
       },
     });
 
-    // Open the BharatPe hosted checkout and poll our server for the settled txn.
-    const win = window.open(session.paymentUrl, "bharatpe-checkout", "width=480,height=720");
+    // Open the Paytm hosted checkout and poll our server for the settled txn.
+    const win = window.open(session.paymentUrl, "paytm-checkout", "width=480,height=720");
     if (!win) {
       toast.error("Allow pop-ups to complete the payment.");
       return false;
@@ -350,10 +355,10 @@ function Checkout() {
       enabled: true,
     },
     {
-      id: "bharatpe",
-      label: "BharatPe — UPI, cards, netbanking",
+      id: "paytm",
+      label: "Paytm — UPI, cards, netbanking, wallet",
       note: "5% off · payment auto-verified by transaction ID",
-      enabled: config?.bharatpe ?? false,
+      enabled: config?.paytm ?? false,
     },
     { id: "cod", label: "Cash on delivery", note: "Pay the courier", enabled: true },
   ];

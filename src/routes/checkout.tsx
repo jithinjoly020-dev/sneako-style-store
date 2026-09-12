@@ -9,7 +9,8 @@ import { SHIPPING_OPTIONS, totalsFor, type ShippingMethod } from "@/lib/checkout
 import { getPaymentStatus, submitUpiReference } from "@/lib/payments.functions";
 import { emailOrderToOwner } from "@/lib/order-email.functions";
 import { QRCodeSVG } from "qrcode.react";
-import { UPI_ID, upiLink } from "@/lib/upi";
+import { useQuery } from "@tanstack/react-query";
+import { UPI_ID, UPI_NAME, upiAccountsQuery, upiLink } from "@/lib/upi";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({

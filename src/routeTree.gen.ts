@@ -21,6 +21,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminCustomersRouteImport } from './routes/admin.customers'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
+import { Route as AdminUpiRouteImport } from './routes/admin.upi'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as ApiPublicPaytmCallbackRouteImport } from './routes/api/public/paytm-callback'
 import { Route as ApiPublicPaytmRedirectRouteImport } from './routes/api/public/paytm-redirect'
@@ -85,6 +86,11 @@ const AdminProductsRoute = AdminProductsRouteImport.update({
   path: '/products',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminUpiRoute = AdminUpiRouteImport.update({
+  id: '/upi',
+  path: '/upi',
+  getParentRoute: () => AdminRoute,
+} as any)
 const ProductSlugRoute = ProductSlugRouteImport.update({
   id: '/product/$slug',
   path: '/product/$slug',
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
+  '/admin/upi': typeof AdminUpiRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/paytm-callback': typeof ApiPublicPaytmCallbackRoute
@@ -129,6 +136,7 @@ export interface FileRoutesByTo {
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
+  '/admin/upi': typeof AdminUpiRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin': typeof AdminIndexRoute
   '/api/public/paytm-callback': typeof ApiPublicPaytmCallbackRoute
@@ -147,6 +155,7 @@ export interface FileRoutesById {
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
+  '/admin/upi': typeof AdminUpiRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/paytm-callback': typeof ApiPublicPaytmCallbackRoute
@@ -166,6 +175,7 @@ export interface FileRouteTypes {
     | '/admin/customers'
     | '/admin/orders'
     | '/admin/products'
+    | '/admin/upi'
     | '/product/$slug'
     | '/admin/'
     | '/api/public/paytm-callback'
@@ -182,6 +192,7 @@ export interface FileRouteTypes {
     | '/admin/customers'
     | '/admin/orders'
     | '/admin/products'
+    | '/admin/upi'
     | '/product/$slug'
     | '/admin'
     | '/api/public/paytm-callback'
@@ -199,6 +210,7 @@ export interface FileRouteTypes {
     | '/admin/customers'
     | '/admin/orders'
     | '/admin/products'
+    | '/admin/upi'
     | '/product/$slug'
     | '/admin/'
     | '/api/public/paytm-callback'
@@ -305,6 +317,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminProductsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/upi': {
+      id: '/admin/upi'
+      path: '/upi'
+      fullPath: '/admin/upi'
+      preLoaderRoute: typeof AdminUpiRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/product/$slug': {
       id: '/product/$slug'
       path: '/product/$slug'
@@ -333,6 +352,7 @@ interface AdminRouteChildren {
   AdminCustomersRoute: typeof AdminCustomersRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
   AdminProductsRoute: typeof AdminProductsRoute
+  AdminUpiRoute: typeof AdminUpiRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -340,6 +360,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCustomersRoute: AdminCustomersRoute,
   AdminOrdersRoute: AdminOrdersRoute,
   AdminProductsRoute: AdminProductsRoute,
+  AdminUpiRoute: AdminUpiRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 

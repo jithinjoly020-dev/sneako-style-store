@@ -14,14 +14,9 @@ import {
 import {
   createPaymentOrder,
   getPaymentConfig,
-  getPaymentStatus,
-  submitUpiReference,
   verifyPayment,
-  verifyPaytmOrderId,
 } from "@/lib/payments.functions";
 import { emailOrderToOwner } from "@/lib/order-email.functions";
-import { QRCodeSVG } from "qrcode.react";
-import { UPI_ID, upiLink } from "@/lib/upi";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -73,41 +68,14 @@ function Checkout() {
   const [submitting, setSubmitting] = useState(false);
   const [placed, setPlaced] = useState<{ number: string; paid: boolean } | null>(null);
   const [shipping, setShipping] = useState<ShippingMethod>("standard");
-  const [payment, setPayment] = useState<PaymentMethod>("upi");
+  const [payment, setPayment] = useState<PaymentMethod>("cod");
   const [config, setConfig] = useState<{ paytm: boolean } | null>(null);
   const [paying, setPaying] = useState(false);
-  const [upiOrder, setUpiOrder] = useState<{
-    id: string;
-    number: string;
-    amount: number;
-  } | null>(null);
-  const [utr, setUtr] = useState("");
-  const [checking, setChecking] = useState(false);
-  const [paytmId, setPaytmId] = useState("");
-  const [verifyingId, setVerifyingId] = useState(false);
 
   const readConfig = useServerFn(getPaymentConfig);
   const createPayment = useServerFn(createPaymentOrder);
   const confirmPayment = useServerFn(verifyPayment);
-  const confirmPaytmId = useServerFn(verifyPaytmOrderId);
   const notifyOwner = useServerFn(emailOrderToOwner);
-  const sendUpiRef = useServerFn(submitUpiReference);
-  const readPaymentStatus = useServerFn(getPaymentStatus);
-
-  async function verifyByOrderId() {
-    if (!upiOrder) return;
-    setVerifyingId(true);
-    try {
-      await confirmPaytmId({ data: { orderId: upiOrder.id, paytmOrderId: paytmId } });
-      await notifyOwner({ data: { orderId: upiOrder.id } }).catch(() => undefined);
-      clear();
-      setPlaced({ number: upiOrder.number, paid: true });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not verify that Order ID");
-    } finally {
-      setVerifyingId(false);
-    }
-  }
 
   useEffect(() => {
     readConfig()
@@ -117,41 +85,6 @@ function Checkout() {
       })
       .catch(() => undefined);
   }, [readConfig]);
-
-  async function confirmUpi() {
-    if (!upiOrder) return;
-    setSubmitting(true);
-    try {
-      await sendUpiRef({ data: { orderId: upiOrder.id, reference: utr } });
-      await notifyOwner({ data: { orderId: upiOrder.id } }).catch(() => undefined);
-      clear();
-      setChecking(true);
-
-      // Wait for the studio to confirm the money actually landed.
-      let paid = false;
-      for (let i = 0; i < 40; i++) {
-        const s = await readPaymentStatus({ data: { orderId: upiOrder.id } }).catch(() => null);
-        if (s?.paid) {
-          paid = true;
-          break;
-        }
-        if (s?.rejected) {
-          setChecking(false);
-          setSubmitting(false);
-          toast.error("We couldn't find that payment. Please check the reference and try again.");
-          return;
-        }
-        await wait(3000);
-      }
-      setChecking(false);
-      setPlaced({ number: upiOrder.number, paid });
-    } catch (err) {
-      setChecking(false);
-      toast.error(err instanceof Error ? err.message : "Could not save that reference");
-    } finally {
-      setSubmitting(false);
-    }
-  }
 
   const t = totalsFor(subtotal, shipping, payment);
 
@@ -197,13 +130,7 @@ function Checkout() {
       );
       if (itemsError) throw itemsError;
 
-      if (payment === "upi") {
-        setUpiOrder({ id: order.id, number: order.order_number, amount: t.total });
-        setSubmitting(false);
-        return;
-      }
-
-      let paid = false;
+      let paid = payment === "cod";
       if (payment === "paytm") {
         paid = await runGateway(order.id, order.order_number, parsed.data);
         if (!paid) {
@@ -274,84 +201,7 @@ function Checkout() {
     return paid;
   }
 
-  if (upiOrder && !placed) {
-    return (
-      <div className="mx-auto max-w-[620px] px-5 py-20 md:px-10">
-        <p className="label-xs text-muted-foreground">Step 03 · UPI payment</p>
-        <h1 className="mt-4 text-4xl font-semibold md:text-5xl">PAY {money(upiOrder.amount)}</h1>
-        <p className="mt-4 text-sm text-muted-foreground">
-          Order <span className="font-mono text-foreground">{upiOrder.number}</span> is reserved.
-          Scan the code with any UPI app, or tap the button on mobile.
-        </p>
-
-        <div className="mt-8 flex flex-col items-center gap-5 border border-border bg-surface p-8">
-          <div className="bg-white p-4">
-            <QRCodeSVG
-              value={upiLink(upiOrder.amount, `unlabelled ${upiOrder.number}`)}
-              size={200}
-            />
-          </div>
-          <p className="label-xs text-muted-foreground">
-            UPI ID <span className="font-mono text-foreground">{UPI_ID}</span>
-          </p>
-          <a
-            href={upiLink(upiOrder.amount, `unlabelled ${upiOrder.number}`)}
-            className="w-full bg-primary px-6 py-3 text-center text-sm text-primary-foreground md:hidden"
-          >
-            Open UPI app
-          </a>
-        </div>
-
-        <label htmlFor="utr" className="label-xs mt-8 block text-muted-foreground">
-          UPI reference / UTR number
-        </label>
-        <input
-          id="utr"
-          value={utr}
-          onChange={(e) => setUtr(e.target.value)}
-          placeholder="e.g. 402312345678"
-          className="mt-2 w-full border border-border bg-surface px-4 py-3 font-mono text-sm outline-none focus:border-foreground"
-        />
-        <button
-          type="button"
-          disabled={submitting}
-          onClick={() => void confirmUpi()}
-          className="mt-4 w-full bg-primary px-8 py-4 text-sm font-medium text-primary-foreground disabled:opacity-50"
-        >
-          {checking ? "Checking payment…" : submitting ? "Saving…" : "I've paid — confirm order"}
-        </button>
-        <p className="label-xs mt-4 text-muted-foreground">
-          {checking
-            ? "We're matching your reference against the UPI account. This usually takes a few minutes — keep this page open."
-            : "Enter the 12-digit reference exactly as it appears in your UPI app. We check it against the UPI account before the order is confirmed."}
-        </p>
-
-        {config?.paytm && (
-          <div className="mt-10 border border-border bg-surface p-6">
-            <p className="label-xs text-muted-foreground">Already paid with Paytm?</p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Paste the Order ID from your Paytm payment and we verify it instantly with Paytm.
-            </p>
-            <input
-              id="paytm-order-id"
-              value={paytmId}
-              onChange={(e) => setPaytmId(e.target.value)}
-              placeholder="Paytm Order ID"
-              className="mt-4 w-full border border-border bg-background px-4 py-3 font-mono text-sm outline-none focus:border-foreground"
-            />
-            <button
-              type="button"
-              disabled={verifyingId || !paytmId.trim()}
-              onClick={() => void verifyByOrderId()}
-              className="mt-3 w-full border border-foreground px-6 py-3 text-sm font-medium disabled:opacity-50"
-            >
-              {verifyingId ? "Verifying with Paytm…" : "Verify payment"}
-            </button>
-          </div>
-        )}
-      </div>
-    );
-  }
+  if (placed) {
 
   if (placed) {
     return (

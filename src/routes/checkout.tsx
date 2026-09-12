@@ -325,6 +325,30 @@ function Checkout() {
             ? "We're matching your reference against the UPI account. This usually takes a few minutes — keep this page open."
             : "Enter the 12-digit reference exactly as it appears in your UPI app. We check it against the UPI account before the order is confirmed."}
         </p>
+
+        {config?.paytm && (
+          <div className="mt-10 border border-border bg-surface p-6">
+            <p className="label-xs text-muted-foreground">Already paid with Paytm?</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Paste the Order ID from your Paytm payment and we verify it instantly with Paytm.
+            </p>
+            <input
+              id="paytm-order-id"
+              value={paytmId}
+              onChange={(e) => setPaytmId(e.target.value)}
+              placeholder="Paytm Order ID"
+              className="mt-4 w-full border border-border bg-background px-4 py-3 font-mono text-sm outline-none focus:border-foreground"
+            />
+            <button
+              type="button"
+              disabled={verifyingId || !paytmId.trim()}
+              onClick={() => void verifyByOrderId()}
+              className="mt-3 w-full border border-foreground px-6 py-3 text-sm font-medium disabled:opacity-50"
+            >
+              {verifyingId ? "Verifying with Paytm…" : "Verify payment"}
+            </button>
+          </div>
+        )}
       </div>
     );
   }

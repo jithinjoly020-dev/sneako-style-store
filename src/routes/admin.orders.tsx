@@ -51,6 +51,19 @@ function AdminOrders() {
     .filter((o) => o.status !== "cancelled")
     .reduce((n, o) => n + Number(o.total), 0);
 
+  async function setPayment(id: string, payment_status: "paid" | "payment_failed") {
+    const { error } = await supabase.from("orders").update({ payment_status }).eq("id", id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    if (payment_status === "paid") {
+      await supabase.from("orders").update({ status: "confirmed" }).eq("id", id);
+    }
+    toast.success(payment_status === "paid" ? "Payment confirmed" : "Payment marked not received");
+    qc.invalidateQueries({ queryKey: ["admin-orders"] });
+  }
+
   async function updateStatus(id: string, status: Status) {
     const { error } = await supabase.from("orders").update({ status }).eq("id", id);
     if (error) {
@@ -136,6 +149,15 @@ function AdminOrders() {
                 <p className="text-sm">{o.customer_name}</p>
                 <p className="label-xs text-muted-foreground">{o.customer_email}</p>
               </div>
+              <span className="label-xs text-muted-foreground">
+                {o.payment_status === "paid"
+                  ? "paid"
+                  : o.payment_status === "awaiting_verification"
+                    ? "check payment"
+                    : o.payment_status === "payment_failed"
+                      ? "not received"
+                      : (o.payment_status ?? "unpaid")}
+              </span>
               <span className="font-mono text-sm">{money(Number(o.total))}</span>
               <select
                 value={o.status}
@@ -190,8 +212,32 @@ function AdminOrders() {
                     <p className="label-xs mt-3 text-muted-foreground">Notes: {o.notes}</p>
                   )}
                   <p className="label-xs mt-3 text-muted-foreground">
-                    Payment: {o.payment_method}
+                    Payment: {o.payment_method} · {o.payment_status ?? "unpaid"}
                   </p>
+                  {o.payment_ref && (
+                    <p className="label-xs mt-1 text-muted-foreground">
+                      Reference:{" "}
+                      <span className="font-mono text-foreground">{o.payment_ref}</span>
+                    </p>
+                  )}
+                  {o.payment_status !== "paid" && (
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      <button
+                        type="button"
+                        onClick={() => void setPayment(o.id, "paid")}
+                        className="label-xs bg-primary px-4 py-2.5 text-primary-foreground"
+                      >
+                        Payment received
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void setPayment(o.id, "payment_failed")}
+                        className="label-xs border border-border px-4 py-2.5"
+                      >
+                        Not received
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

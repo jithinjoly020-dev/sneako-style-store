@@ -14,6 +14,7 @@ import {
 import {
   createPaymentOrder,
   getPaymentConfig,
+  getPaymentStatus,
   submitUpiReference,
   verifyPayment,
 } from "@/lib/payments.functions";
@@ -80,12 +81,14 @@ function Checkout() {
     amount: number;
   } | null>(null);
   const [utr, setUtr] = useState("");
+  const [checking, setChecking] = useState(false);
 
   const readConfig = useServerFn(getPaymentConfig);
   const createPayment = useServerFn(createPaymentOrder);
   const confirmPayment = useServerFn(verifyPayment);
   const notifyOwner = useServerFn(emailOrderToOwner);
   const sendUpiRef = useServerFn(submitUpiReference);
+  const readPaymentStatus = useServerFn(getPaymentStatus);
 
   useEffect(() => {
     readConfig().then(setConfig).catch(() => undefined);
@@ -98,8 +101,28 @@ function Checkout() {
       await sendUpiRef({ data: { orderId: upiOrder.id, reference: utr } });
       await notifyOwner({ data: { orderId: upiOrder.id } }).catch(() => undefined);
       clear();
-      setPlaced({ number: upiOrder.number, paid: true });
+      setChecking(true);
+
+      // Wait for the studio to confirm the money actually landed.
+      let paid = false;
+      for (let i = 0; i < 40; i++) {
+        const s = await readPaymentStatus({ data: { orderId: upiOrder.id } }).catch(() => null);
+        if (s?.paid) {
+          paid = true;
+          break;
+        }
+        if (s?.rejected) {
+          setChecking(false);
+          setSubmitting(false);
+          toast.error("We couldn't find that payment. Please check the reference and try again.");
+          return;
+        }
+        await wait(3000);
+      }
+      setChecking(false);
+      setPlaced({ number: upiOrder.number, paid });
     } catch (err) {
+      setChecking(false);
       toast.error(err instanceof Error ? err.message : "Could not save that reference");
     } finally {
       setSubmitting(false);
@@ -271,11 +294,12 @@ function Checkout() {
           onClick={() => void confirmUpi()}
           className="mt-4 w-full bg-primary px-8 py-4 text-sm font-medium text-primary-foreground disabled:opacity-50"
         >
-          {submitting ? "Saving…" : "I've paid — confirm order"}
+          {checking ? "Checking payment…" : submitting ? "Saving…" : "I've paid — confirm order"}
         </button>
         <p className="label-xs mt-4 text-muted-foreground">
-          We match the reference against the UPI statement and dispatch once it clears — usually
-          within a few minutes.
+          {checking
+            ? "We're matching your reference against the UPI account. This usually takes a few minutes — keep this page open."
+            : "Enter the 12-digit reference exactly as it appears in your UPI app. We check it against the UPI account before the order is confirmed."}
         </p>
       </div>
     );
@@ -284,12 +308,15 @@ function Checkout() {
   if (placed) {
     return (
       <div className="mx-auto max-w-[700px] px-5 py-24 md:px-10">
-        <p className="label-xs text-muted-foreground">Order confirmed</p>
+        <p className="label-xs text-muted-foreground">
+          {placed.paid ? "Payment received" : "Order received"}
+        </p>
         <h1 className="mt-4 text-4xl font-semibold md:text-6xl">THANK YOU</h1>
         <p className="mt-6 text-muted-foreground">
           Your order <span className="font-mono text-foreground">{placed.number}</span> is in
-          {placed.paid ? " and payment is confirmed" : ""}. We pack and dispatch within two working
-          days and email you tracking the moment it leaves the studio.
+          {placed.paid
+            ? " and your payment has been confirmed. We pack and dispatch within two working days and email you tracking the moment it leaves the studio."
+            : ". We're still matching your payment reference — you'll get an email the moment it's confirmed, and we dispatch right after."}
         </p>
         <Link
           to="/shop"

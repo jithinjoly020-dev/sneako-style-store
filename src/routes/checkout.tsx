@@ -65,6 +65,18 @@ function Checkout() {
   } | null>(null);
   const [utr, setUtr] = useState("");
   const [checking, setChecking] = useState(false);
+  const [payTo, setPayTo] = useState<string | null>(null);
+
+  const { data: upiAccounts = [] } = useQuery(upiAccountsQuery);
+  const activeUpi = upiAccounts.filter((a) => a.is_active);
+  const selectedUpi =
+    activeUpi.find((a) => a.upi_id === payTo) ??
+    activeUpi.find((a) => a.is_default) ??
+    activeUpi[0] ??
+    null;
+  const payVpa = selectedUpi?.upi_id ?? UPI_ID;
+  const payName = selectedUpi?.payee_name ?? UPI_NAME;
+
 
   const notifyOwner = useServerFn(emailOrderToOwner);
   const sendUpiRef = useServerFn(submitUpiReference);

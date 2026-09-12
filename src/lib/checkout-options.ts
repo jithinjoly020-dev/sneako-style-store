@@ -18,7 +18,7 @@ export const SHIPPING_OPTIONS: {
   { id: "pickup", label: "Studio pickup", eta: "Ready in 24h · Unit 14, Grey Yard", fee: 0 },
 ];
 
-export type PaymentMethod = "upi" | "bharatpe" | "cod";
+export type PaymentMethod = "upi" | "paytm" | "cod";
 
 /** Prepaid orders get 5% off. Cash on delivery does not. */
 export const PREPAID_DISCOUNT = 0.05;

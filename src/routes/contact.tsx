@@ -46,7 +46,7 @@ const faqs = [
   },
   {
     q: "Which payments do you accept?",
-    a: "UPI, cards and netbanking through BharatPe — every prepaid order gets 5% off. Cash on delivery is available at full price.",
+    a: "UPI, cards and netbanking through Paytm — every prepaid order gets 5% off. Cash on delivery is available at full price.",
   },
   {
     q: "Can I change or cancel an order?",

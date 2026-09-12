@@ -81,12 +81,14 @@ function Checkout() {
     amount: number;
   } | null>(null);
   const [utr, setUtr] = useState("");
+  const [checking, setChecking] = useState(false);
 
   const readConfig = useServerFn(getPaymentConfig);
   const createPayment = useServerFn(createPaymentOrder);
   const confirmPayment = useServerFn(verifyPayment);
   const notifyOwner = useServerFn(emailOrderToOwner);
   const sendUpiRef = useServerFn(submitUpiReference);
+  const readPaymentStatus = useServerFn(getPaymentStatus);
 
   useEffect(() => {
     readConfig().then(setConfig).catch(() => undefined);
@@ -99,8 +101,28 @@ function Checkout() {
       await sendUpiRef({ data: { orderId: upiOrder.id, reference: utr } });
       await notifyOwner({ data: { orderId: upiOrder.id } }).catch(() => undefined);
       clear();
-      setPlaced({ number: upiOrder.number, paid: true });
+      setChecking(true);
+
+      // Wait for the studio to confirm the money actually landed.
+      let paid = false;
+      for (let i = 0; i < 40; i++) {
+        const s = await readPaymentStatus({ data: { orderId: upiOrder.id } }).catch(() => null);
+        if (s?.paid) {
+          paid = true;
+          break;
+        }
+        if (s?.rejected) {
+          setChecking(false);
+          setSubmitting(false);
+          toast.error("We couldn't find that payment. Please check the reference and try again.");
+          return;
+        }
+        await wait(3000);
+      }
+      setChecking(false);
+      setPlaced({ number: upiOrder.number, paid });
     } catch (err) {
+      setChecking(false);
       toast.error(err instanceof Error ? err.message : "Could not save that reference");
     } finally {
       setSubmitting(false);

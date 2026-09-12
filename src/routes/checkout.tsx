@@ -9,7 +9,8 @@ import { SHIPPING_OPTIONS, totalsFor, type ShippingMethod } from "@/lib/checkout
 import { getPaymentStatus, submitUpiReference } from "@/lib/payments.functions";
 import { emailOrderToOwner } from "@/lib/order-email.functions";
 import { QRCodeSVG } from "qrcode.react";
-import { UPI_ID, upiLink } from "@/lib/upi";
+import { useQuery } from "@tanstack/react-query";
+import { UPI_ID, UPI_NAME, upiAccountsQuery, upiLink } from "@/lib/upi";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -64,6 +65,18 @@ function Checkout() {
   } | null>(null);
   const [utr, setUtr] = useState("");
   const [checking, setChecking] = useState(false);
+  const [payTo, setPayTo] = useState<string | null>(null);
+
+  const { data: upiAccounts = [] } = useQuery(upiAccountsQuery);
+  const activeUpi = upiAccounts.filter((a) => a.is_active);
+  const selectedUpi =
+    activeUpi.find((a) => a.upi_id === payTo) ??
+    activeUpi.find((a) => a.is_default) ??
+    activeUpi[0] ??
+    null;
+  const payVpa = selectedUpi?.upi_id ?? UPI_ID;
+  const payName = selectedUpi?.payee_name ?? UPI_NAME;
+
 
   const notifyOwner = useServerFn(emailOrderToOwner);
   const sendUpiRef = useServerFn(submitUpiReference);
@@ -169,23 +182,46 @@ function Checkout() {
           Scan the code with any UPI app, or tap the button on mobile.
         </p>
 
+        {activeUpi.length > 1 && (
+          <div className="mt-6 space-y-2 border border-border bg-surface p-4">
+            <p className="label-xs text-muted-foreground">Choose where to pay</p>
+            {activeUpi.map((a) => (
+              <label key={a.id} className="flex cursor-pointer items-center gap-3 text-sm">
+                <input
+                  type="radio"
+                  name="upi-account"
+                  checked={payVpa === a.upi_id}
+                  onChange={() => setPayTo(a.upi_id)}
+                />
+                <span>
+                  <span className="font-mono">{a.upi_id}</span>
+                  {a.label && (
+                    <span className="label-xs block text-muted-foreground">{a.label}</span>
+                  )}
+                </span>
+              </label>
+            ))}
+          </div>
+        )}
+
         <div className="mt-8 flex flex-col items-center gap-5 border border-border bg-surface p-8">
           <div className="bg-white p-4">
             <QRCodeSVG
-              value={upiLink(upiOrder.amount, `unlabelled ${upiOrder.number}`)}
+              value={upiLink(upiOrder.amount, `unlabelled ${upiOrder.number}`, payVpa, payName)}
               size={200}
             />
           </div>
           <p className="label-xs text-muted-foreground">
-            UPI ID <span className="font-mono text-foreground">{UPI_ID}</span>
+            UPI ID <span className="font-mono text-foreground">{payVpa}</span>
           </p>
           <a
-            href={upiLink(upiOrder.amount, `unlabelled ${upiOrder.number}`)}
+            href={upiLink(upiOrder.amount, `unlabelled ${upiOrder.number}`, payVpa, payName)}
             className="w-full bg-primary px-6 py-3 text-center text-sm text-primary-foreground md:hidden"
           >
             Open UPI app
           </a>
         </div>
+
 
         <label htmlFor="utr" className="label-xs mt-8 block text-muted-foreground">
           UPI reference / UTR number

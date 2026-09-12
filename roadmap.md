@@ -12,3 +12,4 @@
   - [x] Set the studio UPI ID in src/lib/upi.ts
 
 - [ ] Get live Paytm Merchant Key (blocked: user must copy it from Paytm dashboard → Developer Settings → API Keys) then save PAYTM_MID + PAYTM_MERCHANT_KEY
+- [ ] Add "already paid? enter Paytm Order ID" auto-verify (like PHP example: status check, amount match, no reuse, <24h old)

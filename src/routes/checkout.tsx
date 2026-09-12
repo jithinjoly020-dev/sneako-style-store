@@ -91,7 +91,12 @@ function Checkout() {
   const readPaymentStatus = useServerFn(getPaymentStatus);
 
   useEffect(() => {
-    readConfig().then(setConfig).catch(() => undefined);
+    readConfig()
+      .then((c) => {
+        setConfig(c);
+        if (c.paytm) setPayment("paytm");
+      })
+      .catch(() => undefined);
   }, [readConfig]);
 
   async function confirmUpi() {

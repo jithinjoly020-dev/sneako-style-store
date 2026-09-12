@@ -308,12 +308,15 @@ function Checkout() {
   if (placed) {
     return (
       <div className="mx-auto max-w-[700px] px-5 py-24 md:px-10">
-        <p className="label-xs text-muted-foreground">Order confirmed</p>
+        <p className="label-xs text-muted-foreground">
+          {placed.paid ? "Payment received" : "Order received"}
+        </p>
         <h1 className="mt-4 text-4xl font-semibold md:text-6xl">THANK YOU</h1>
         <p className="mt-6 text-muted-foreground">
           Your order <span className="font-mono text-foreground">{placed.number}</span> is in
-          {placed.paid ? " and payment is confirmed" : ""}. We pack and dispatch within two working
-          days and email you tracking the moment it leaves the studio.
+          {placed.paid
+            ? " and your payment has been confirmed. We pack and dispatch within two working days and email you tracking the moment it leaves the studio."
+            : ". We're still matching your payment reference — you'll get an email the moment it's confirmed, and we dispatch right after."}
         </p>
         <Link
           to="/shop"

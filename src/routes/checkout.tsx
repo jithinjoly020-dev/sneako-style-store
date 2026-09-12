@@ -202,8 +202,6 @@ function Checkout() {
   }
 
   if (placed) {
-
-  if (placed) {
     return (
       <div className="mx-auto max-w-[700px] px-5 py-24 md:px-10">
         <p className="label-xs text-muted-foreground">
@@ -214,7 +212,7 @@ function Checkout() {
           Your order <span className="font-mono text-foreground">{placed.number}</span> is in
           {placed.paid
             ? " and your payment has been confirmed. We pack and dispatch within two working days and email you tracking the moment it leaves the studio."
-            : ". We're still matching your payment reference — you'll get an email the moment it's confirmed, and we dispatch right after."}
+            : ". You'll get an email with the details, and we pack and dispatch within two working days."}
         </p>
         <Link
           to="/shop"
@@ -241,12 +239,6 @@ function Checkout() {
   }
 
   const methods: { id: PaymentMethod; label: string; note: string; enabled: boolean }[] = [
-    {
-      id: "upi",
-      label: "UPI — GPay, PhonePe, Paytm, any app",
-      note: "5% off · scan the QR and confirm with your UTR",
-      enabled: true,
-    },
     {
       id: "paytm",
       label: "Paytm — UPI, cards, netbanking, wallet",

@@ -147,16 +147,48 @@ type UpiInput = { orderId: string; reference: string };
  */
 export const submitUpiReference = createServerFn({ method: "POST" })
   .inputValidator((d: UpiInput) => {
-    const reference = d.reference.trim().toUpperCase();
-    if (reference.length < 8) throw new Error("Enter the 12-digit UPI reference / UTR number");
+    const reference = d.reference.trim().toUpperCase().replace(/\s+/g, "");
+    if (!/^\d{12}$/.test(reference)) {
+      throw new Error("Enter the 12-digit UPI reference / UTR number from your payment app");
+    }
     return { orderId: d.orderId, reference };
   })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin
+
+    // A reference can only ever belong to one payment — reject reuse.
+    const { data: clash } = await supabaseAdmin
+      .from("orders")
+      .select("id")
+      .eq("payment_ref", data.reference)
+      .neq("id", data.orderId)
+      .maybeSingle();
+    if (clash) {
+      throw new Error("That UPI reference is already used on another order.");
+    }
+
+    const { data: order, error } = await supabaseAdmin
       .from("orders")
       .update({ payment_status: "awaiting_verification", payment_ref: data.reference })
-      .eq("id", data.orderId);
+      .eq("id", data.orderId)
+      .select("total")
+      .single();
     if (error) throw new Error(error.message);
-    return { ok: true as const, reference: data.reference };
+    return { ok: true as const, reference: data.reference, amount: Number(order.total) };
+  });
+
+type PaidStatusInput = { orderId: string };
+
+/** Lets the checkout screen poll until the studio confirms the money landed. */
+export const getPaymentStatus = createServerFn({ method: "POST" })
+  .inputValidator((d: PaidStatusInput) => d)
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: order } = await supabaseAdmin
+      .from("orders")
+      .select("payment_status")
+      .eq("id", data.orderId)
+      .maybeSingle();
+    const status = order?.payment_status ?? "pending";
+    return { status, paid: status === "paid", rejected: status === "payment_failed" };
   });

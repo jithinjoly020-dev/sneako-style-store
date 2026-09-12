@@ -1,22 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { money, useCart } from "@/lib/cart";
-import {
-  SHIPPING_OPTIONS,
-  totalsFor,
-  type PaymentMethod,
-  type ShippingMethod,
-} from "@/lib/checkout-options";
-import {
-  createPaymentOrder,
-  getPaymentConfig,
-  verifyPayment,
-} from "@/lib/payments.functions";
+import { SHIPPING_OPTIONS, totalsFor, type ShippingMethod } from "@/lib/checkout-options";
+import { getPaymentStatus, submitUpiReference } from "@/lib/payments.functions";
 import { emailOrderToOwner } from "@/lib/order-email.functions";
+import { QRCodeSVG } from "qrcode.react";
+import { UPI_ID, upiLink } from "@/lib/upi";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -24,14 +17,10 @@ export const Route = createFileRoute("/checkout")({
       { title: "Checkout — unlabelled" },
       {
         name: "description",
-        content:
-          "Pay securely with UPI, cards or netbanking through Paytm — 5% off every prepaid unlabelled order.",
+        content: "Pay by UPI — scan the QR with GPay, PhonePe or Paytm. 5% off every unlabelled order.",
       },
       { property: "og:title", content: "Checkout — unlabelled" },
-      {
-        property: "og:description",
-        content: "Secure UPI, card and netbanking payments. 5% off prepaid orders.",
-      },
+      { property: "og:description", content: "Pay by UPI. 5% off every order." },
     ],
   }),
   component: Checkout,
@@ -68,25 +57,54 @@ function Checkout() {
   const [submitting, setSubmitting] = useState(false);
   const [placed, setPlaced] = useState<{ number: string; paid: boolean } | null>(null);
   const [shipping, setShipping] = useState<ShippingMethod>("standard");
-  const [payment, setPayment] = useState<PaymentMethod>("cod");
-  const [config, setConfig] = useState<{ paytm: boolean } | null>(null);
-  const [paying, setPaying] = useState(false);
+  const [upiOrder, setUpiOrder] = useState<{
+    id: string;
+    number: string;
+    amount: number;
+  } | null>(null);
+  const [utr, setUtr] = useState("");
+  const [checking, setChecking] = useState(false);
 
-  const readConfig = useServerFn(getPaymentConfig);
-  const createPayment = useServerFn(createPaymentOrder);
-  const confirmPayment = useServerFn(verifyPayment);
   const notifyOwner = useServerFn(emailOrderToOwner);
+  const sendUpiRef = useServerFn(submitUpiReference);
+  const readPaymentStatus = useServerFn(getPaymentStatus);
 
-  useEffect(() => {
-    readConfig()
-      .then((c) => {
-        setConfig(c);
-        if (c.paytm) setPayment("paytm");
-      })
-      .catch(() => undefined);
-  }, [readConfig]);
+  async function confirmUpi() {
+    if (!upiOrder) return;
+    setSubmitting(true);
+    try {
+      await sendUpiRef({ data: { orderId: upiOrder.id, reference: utr } });
+      await notifyOwner({ data: { orderId: upiOrder.id } }).catch(() => undefined);
+      clear();
+      setChecking(true);
 
-  const t = totalsFor(subtotal, shipping, payment);
+      // Wait for the studio to confirm the money actually landed.
+      let paid = false;
+      for (let i = 0; i < 40; i++) {
+        const s = await readPaymentStatus({ data: { orderId: upiOrder.id } }).catch(() => null);
+        if (s?.paid) {
+          paid = true;
+          break;
+        }
+        if (s?.rejected) {
+          setChecking(false);
+          setSubmitting(false);
+          toast.error("We couldn't find that payment. Please check the reference and try again.");
+          return;
+        }
+        await wait(3000);
+      }
+      setChecking(false);
+      setPlaced({ number: upiOrder.number, paid });
+    } catch (err) {
+      setChecking(false);
+      toast.error(err instanceof Error ? err.message : "Could not save that reference");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  const t = totalsFor(subtotal, shipping, "upi");
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -111,8 +129,8 @@ function Checkout() {
           shipping_method: shipping,
           shipping_fee: t.shipping,
           total: t.total,
-          payment_method: payment,
-          payment_status: payment === "cod" ? "cod_pending" : "pending",
+          payment_method: "upi",
+          payment_status: "pending",
         })
         .select("id, order_number")
         .single();
@@ -130,18 +148,7 @@ function Checkout() {
       );
       if (itemsError) throw itemsError;
 
-      let paid = payment === "cod";
-      if (payment === "paytm") {
-        paid = await runGateway(order.id, order.order_number, parsed.data);
-        if (!paid) {
-          setSubmitting(false);
-          return;
-        }
-      }
-
-      await notifyOwner({ data: { orderId: order.id } }).catch(() => undefined);
-      clear();
-      setPlaced({ number: order.order_number, paid });
+      setUpiOrder({ id: order.id, number: order.order_number, amount: t.total });
     } catch (err) {
       console.error(err);
       toast.error(
@@ -152,53 +159,59 @@ function Checkout() {
     }
   }
 
-  async function runGateway(
-    orderId: string,
-    orderNumber: string,
-    who: { customer_name: string; customer_email: string; customer_phone: string },
-  ) {
-    const session = await createPayment({
-      data: {
-        orderId,
-        orderNumber,
-        amount: t.total,
-        name: who.customer_name,
-        email: who.customer_email,
-        phone: who.customer_phone,
-        returnUrl: `${window.location.origin}/checkout`,
-      },
-    });
+  if (upiOrder && !placed) {
+    return (
+      <div className="mx-auto max-w-[620px] px-5 py-20 md:px-10">
+        <p className="label-xs text-muted-foreground">Step 03 · UPI payment</p>
+        <h1 className="mt-4 text-4xl font-semibold md:text-5xl">PAY {money(upiOrder.amount)}</h1>
+        <p className="mt-4 text-sm text-muted-foreground">
+          Order <span className="font-mono text-foreground">{upiOrder.number}</span> is reserved.
+          Scan the code with any UPI app, or tap the button on mobile.
+        </p>
 
-    // Open the Paytm hosted checkout and poll our server for the settled txn.
-    const win = window.open(session.paymentUrl, "paytm-checkout", "width=480,height=720");
-    if (!win) {
-      toast.error("Allow pop-ups to complete the payment.");
-      return false;
-    }
+        <div className="mt-8 flex flex-col items-center gap-5 border border-border bg-surface p-8">
+          <div className="bg-white p-4">
+            <QRCodeSVG
+              value={upiLink(upiOrder.amount, `unlabelled ${upiOrder.number}`)}
+              size={200}
+            />
+          </div>
+          <p className="label-xs text-muted-foreground">
+            UPI ID <span className="font-mono text-foreground">{UPI_ID}</span>
+          </p>
+          <a
+            href={upiLink(upiOrder.amount, `unlabelled ${upiOrder.number}`)}
+            className="w-full bg-primary px-6 py-3 text-center text-sm text-primary-foreground md:hidden"
+          >
+            Open UPI app
+          </a>
+        </div>
 
-    setPaying(true);
-    let paid = false;
-    try {
-      for (let i = 0; i < 120; i++) {
-        await wait(3000);
-        const v = await confirmPayment({
-          data: { orderId, gatewayOrderId: session.gatewayOrderId },
-        }).catch(() => ({ paid: false as const }));
-        if (v.paid) {
-          paid = true;
-          break;
-        }
-        if (win.closed) break;
-      }
-    } finally {
-      setPaying(false);
-      if (!win.closed) win.close();
-    }
-
-    if (!paid) {
-      toast.error("We couldn't confirm the payment. Your order is saved as unpaid.");
-    }
-    return paid;
+        <label htmlFor="utr" className="label-xs mt-8 block text-muted-foreground">
+          UPI reference / UTR number
+        </label>
+        <input
+          id="utr"
+          value={utr}
+          onChange={(e) => setUtr(e.target.value)}
+          placeholder="e.g. 402312345678"
+          className="mt-2 w-full border border-border bg-surface px-4 py-3 font-mono text-sm outline-none focus:border-foreground"
+        />
+        <button
+          type="button"
+          disabled={submitting}
+          onClick={() => void confirmUpi()}
+          className="mt-4 w-full bg-primary px-8 py-4 text-sm font-medium text-primary-foreground disabled:opacity-50"
+        >
+          {checking ? "Checking payment…" : submitting ? "Saving…" : "I've paid — confirm order"}
+        </button>
+        <p className="label-xs mt-4 text-muted-foreground">
+          {checking
+            ? "We're matching your reference against the UPI account. This usually takes a few minutes — keep this page open."
+            : "Enter the 12-digit reference exactly as it appears in your UPI app. We check it against the UPI account before the order is confirmed."}
+        </p>
+      </div>
+    );
   }
 
   if (placed) {
@@ -212,7 +225,7 @@ function Checkout() {
           Your order <span className="font-mono text-foreground">{placed.number}</span> is in
           {placed.paid
             ? " and your payment has been confirmed. We pack and dispatch within two working days and email you tracking the moment it leaves the studio."
-            : ". You'll get an email with the details, and we pack and dispatch within two working days."}
+            : ". We're still matching your payment reference — you'll get an email the moment it's confirmed, and we dispatch right after."}
         </p>
         <Link
           to="/shop"
@@ -237,16 +250,6 @@ function Checkout() {
       </div>
     );
   }
-
-  const methods: { id: PaymentMethod; label: string; note: string; enabled: boolean }[] = [
-    {
-      id: "paytm",
-      label: "Paytm — UPI, cards, netbanking, wallet",
-      note: "5% off · payment auto-verified by transaction ID",
-      enabled: config?.paytm ?? false,
-    },
-    { id: "cod", label: "Cash on delivery", note: "Pay the courier", enabled: true },
-  ];
 
   return (
     <div className="mx-auto grid max-w-[1200px] gap-12 px-5 py-14 md:grid-cols-[1.2fr_0.8fr] md:px-10 md:py-20">
@@ -320,28 +323,12 @@ function Checkout() {
 
           <fieldset className="border border-border bg-surface p-4">
             <legend className="label-xs px-2 text-muted-foreground">Payment</legend>
-            <div className="space-y-3">
-              {methods.map((m) => (
-                <label
-                  key={m.id}
-                  className={`flex items-center justify-between gap-4 text-sm ${m.enabled ? "cursor-pointer" : "cursor-not-allowed opacity-40"}`}
-                >
-                  <span className="flex items-center gap-3">
-                    <input
-                      type="radio"
-                      name="payment"
-                      disabled={!m.enabled}
-                      checked={payment === m.id}
-                      onChange={() => setPayment(m.id)}
-                    />
-                    <span>
-                      {m.label}
-                      <span className="label-xs block text-muted-foreground">{m.note}</span>
-                    </span>
-                  </span>
-                </label>
-              ))}
-            </div>
+            <p className="text-sm">
+              UPI — GPay, PhonePe, Paytm, any app
+              <span className="label-xs block text-muted-foreground">
+                5% off · scan the QR on the next step and confirm with your UTR
+              </span>
+            </p>
           </fieldset>
 
           <button
@@ -349,13 +336,7 @@ function Checkout() {
             disabled={submitting}
             className="w-full bg-primary px-8 py-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-85 disabled:opacity-50"
           >
-            {submitting
-              ? paying
-                ? "Waiting for payment confirmation…"
-                : "Processing…"
-              : payment === "cod"
-                ? `Place order · ${money(t.total)}`
-                : `Pay ${money(t.total)} securely`}
+            {submitting ? "Processing…" : `Continue to UPI payment · ${money(t.total)}`}
           </button>
         </form>
       </div>

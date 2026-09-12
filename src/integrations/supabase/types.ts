@@ -209,6 +209,42 @@ export type Database = {
         }
         Relationships: []
       }
+      upi_accounts: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          is_default: boolean
+          label: string
+          payee_name: string
+          sort_order: number
+          updated_at: string
+          upi_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          label?: string
+          payee_name?: string
+          sort_order?: number
+          updated_at?: string
+          upi_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          label?: string
+          payee_name?: string
+          sort_order?: number
+          updated_at?: string
+          upi_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

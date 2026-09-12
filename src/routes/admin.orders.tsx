@@ -51,6 +51,19 @@ function AdminOrders() {
     .filter((o) => o.status !== "cancelled")
     .reduce((n, o) => n + Number(o.total), 0);
 
+  async function setPayment(id: string, payment_status: "paid" | "payment_failed") {
+    const { error } = await supabase.from("orders").update({ payment_status }).eq("id", id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    if (payment_status === "paid") {
+      await supabase.from("orders").update({ status: "confirmed" }).eq("id", id);
+    }
+    toast.success(payment_status === "paid" ? "Payment confirmed" : "Payment marked not received");
+    qc.invalidateQueries({ queryKey: ["admin-orders"] });
+  }
+
   async function updateStatus(id: string, status: Status) {
     const { error } = await supabase.from("orders").update({ status }).eq("id", id);
     if (error) {

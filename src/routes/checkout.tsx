@@ -294,11 +294,12 @@ function Checkout() {
           onClick={() => void confirmUpi()}
           className="mt-4 w-full bg-primary px-8 py-4 text-sm font-medium text-primary-foreground disabled:opacity-50"
         >
-          {submitting ? "Saving…" : "I've paid — confirm order"}
+          {checking ? "Checking payment…" : submitting ? "Saving…" : "I've paid — confirm order"}
         </button>
         <p className="label-xs mt-4 text-muted-foreground">
-          We match the reference against the UPI statement and dispatch once it clears — usually
-          within a few minutes.
+          {checking
+            ? "We're matching your reference against the UPI account. This usually takes a few minutes — keep this page open."
+            : "Enter the 12-digit reference exactly as it appears in your UPI app. We check it against the UPI account before the order is confirmed."}
         </p>
       </div>
     );

@@ -17,6 +17,7 @@ import {
   getPaymentStatus,
   submitUpiReference,
   verifyPayment,
+  verifyPaytmOrderId,
 } from "@/lib/payments.functions";
 import { emailOrderToOwner } from "@/lib/order-email.functions";
 import { QRCodeSVG } from "qrcode.react";
@@ -82,13 +83,31 @@ function Checkout() {
   } | null>(null);
   const [utr, setUtr] = useState("");
   const [checking, setChecking] = useState(false);
+  const [paytmId, setPaytmId] = useState("");
+  const [verifyingId, setVerifyingId] = useState(false);
 
   const readConfig = useServerFn(getPaymentConfig);
   const createPayment = useServerFn(createPaymentOrder);
   const confirmPayment = useServerFn(verifyPayment);
+  const confirmPaytmId = useServerFn(verifyPaytmOrderId);
   const notifyOwner = useServerFn(emailOrderToOwner);
   const sendUpiRef = useServerFn(submitUpiReference);
   const readPaymentStatus = useServerFn(getPaymentStatus);
+
+  async function verifyByOrderId() {
+    if (!upiOrder) return;
+    setVerifyingId(true);
+    try {
+      await confirmPaytmId({ data: { orderId: upiOrder.id, paytmOrderId: paytmId } });
+      await notifyOwner({ data: { orderId: upiOrder.id } }).catch(() => undefined);
+      clear();
+      setPlaced({ number: upiOrder.number, paid: true });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not verify that Order ID");
+    } finally {
+      setVerifyingId(false);
+    }
+  }
 
   useEffect(() => {
     readConfig()
@@ -306,6 +325,30 @@ function Checkout() {
             ? "We're matching your reference against the UPI account. This usually takes a few minutes — keep this page open."
             : "Enter the 12-digit reference exactly as it appears in your UPI app. We check it against the UPI account before the order is confirmed."}
         </p>
+
+        {config?.paytm && (
+          <div className="mt-10 border border-border bg-surface p-6">
+            <p className="label-xs text-muted-foreground">Already paid with Paytm?</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Paste the Order ID from your Paytm payment and we verify it instantly with Paytm.
+            </p>
+            <input
+              id="paytm-order-id"
+              value={paytmId}
+              onChange={(e) => setPaytmId(e.target.value)}
+              placeholder="Paytm Order ID"
+              className="mt-4 w-full border border-border bg-background px-4 py-3 font-mono text-sm outline-none focus:border-foreground"
+            />
+            <button
+              type="button"
+              disabled={verifyingId || !paytmId.trim()}
+              onClick={() => void verifyByOrderId()}
+              className="mt-3 w-full border border-foreground px-6 py-3 text-sm font-medium disabled:opacity-50"
+            >
+              {verifyingId ? "Verifying with Paytm…" : "Verify payment"}
+            </button>
+          </div>
+        )}
       </div>
     );
   }

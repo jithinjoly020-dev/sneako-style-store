@@ -149,6 +149,15 @@ function AdminOrders() {
                 <p className="text-sm">{o.customer_name}</p>
                 <p className="label-xs text-muted-foreground">{o.customer_email}</p>
               </div>
+              <span className="label-xs text-muted-foreground">
+                {o.payment_status === "paid"
+                  ? "paid"
+                  : o.payment_status === "awaiting_verification"
+                    ? "check payment"
+                    : o.payment_status === "payment_failed"
+                      ? "not received"
+                      : (o.payment_status ?? "unpaid")}
+              </span>
               <span className="font-mono text-sm">{money(Number(o.total))}</span>
               <select
                 value={o.status}

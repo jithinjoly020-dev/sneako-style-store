@@ -104,6 +104,75 @@ export const verifyPayment = createServerFn({ method: "POST" })
     return { paid: true as const, txnId };
   });
 
+type PaytmIdInput = { orderId: string; paytmOrderId: string };
+
+/**
+ * "Already paid?" flow (like the classic add-funds script): the customer
+ * paid the merchant directly and pastes the Paytm Order ID. We ask Paytm's
+ * status API whether the money really arrived before confirming the order.
+ * The Order ID is rejected if it is already used, older than 24 hours, or
+ * paid for a smaller amount than the order total.
+ */
+export const verifyPaytmOrderId = createServerFn({ method: "POST" })
+  .inputValidator((d: PaytmIdInput) => {
+    const paytmOrderId = d.paytmOrderId.trim();
+    if (!paytmOrderId) throw new Error("Enter the Order ID from your Paytm payment");
+    return { orderId: d.orderId, paytmOrderId };
+  })
+  .handler(async ({ data }) => {
+    const { paytmCreds, paytmPost } = await import("@/lib/paytm.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { mid } = paytmCreds();
+
+    // This Paytm Order ID can only ever be attached to one order.
+    const { data: clash } = await supabaseAdmin
+      .from("orders")
+      .select("id")
+      .eq("payment_ref", data.paytmOrderId)
+      .maybeSingle();
+    if (clash) throw new Error("This Order ID has already been used.");
+
+    const json = await paytmPost("/v3/order/status", { mid, orderId: data.paytmOrderId });
+    const body = (json.body ?? {}) as {
+      resultInfo?: { resultStatus?: string; resultMsg?: string };
+      txnDate?: string;
+      txnAmount?: string;
+      txnId?: string;
+    };
+
+    const status = (body.resultInfo?.resultStatus ?? "").toUpperCase();
+    if (status === "TXN_FAILURE") {
+      throw new Error(body.resultInfo?.resultMsg ?? "That payment failed on Paytm.");
+    }
+    if (status !== "TXN_SUCCESS") {
+      throw new Error("We could not find a completed payment for that Order ID yet.");
+    }
+
+    if (body.txnDate) {
+      const hours = (Date.now() - new Date(body.txnDate).getTime()) / 3_600_000;
+      if (hours > 24) throw new Error("That transaction is older than 24 hours.");
+    }
+
+    const { data: order } = await supabaseAdmin
+      .from("orders")
+      .select("total")
+      .eq("id", data.orderId)
+      .single();
+    const paidAmount = Number(body.txnAmount ?? 0);
+    if (order && paidAmount + 0.01 < Number(order.total)) {
+      throw new Error(
+        `That payment was for ₹${paidAmount.toFixed(2)} but this order needs ₹${Number(order.total).toFixed(2)}.`,
+      );
+    }
+
+    await supabaseAdmin
+      .from("orders")
+      .update({ payment_status: "paid", status: "confirmed", payment_ref: data.paytmOrderId })
+      .eq("id", data.orderId);
+
+    return { ok: true as const, txnId: body.txnId ?? data.paytmOrderId };
+  });
+
 type UpiInput = { orderId: string; reference: string };
 
 /**

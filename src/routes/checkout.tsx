@@ -17,6 +17,7 @@ import {
   getPaymentStatus,
   submitUpiReference,
   verifyPayment,
+  verifyPaytmOrderId,
 } from "@/lib/payments.functions";
 import { emailOrderToOwner } from "@/lib/order-email.functions";
 import { QRCodeSVG } from "qrcode.react";
@@ -82,13 +83,31 @@ function Checkout() {
   } | null>(null);
   const [utr, setUtr] = useState("");
   const [checking, setChecking] = useState(false);
+  const [paytmId, setPaytmId] = useState("");
+  const [verifyingId, setVerifyingId] = useState(false);
 
   const readConfig = useServerFn(getPaymentConfig);
   const createPayment = useServerFn(createPaymentOrder);
   const confirmPayment = useServerFn(verifyPayment);
+  const confirmPaytmId = useServerFn(verifyPaytmOrderId);
   const notifyOwner = useServerFn(emailOrderToOwner);
   const sendUpiRef = useServerFn(submitUpiReference);
   const readPaymentStatus = useServerFn(getPaymentStatus);
+
+  async function verifyByOrderId() {
+    if (!upiOrder) return;
+    setVerifyingId(true);
+    try {
+      await confirmPaytmId({ data: { orderId: upiOrder.id, paytmOrderId: paytmId } });
+      await notifyOwner({ data: { orderId: upiOrder.id } }).catch(() => undefined);
+      clear();
+      setPlaced({ number: upiOrder.number, paid: true });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not verify that Order ID");
+    } finally {
+      setVerifyingId(false);
+    }
+  }
 
   useEffect(() => {
     readConfig()

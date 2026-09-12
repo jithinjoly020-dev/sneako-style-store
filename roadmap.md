@@ -9,4 +9,6 @@
 - [ ] Direct UPI checkout (works with no gateway keys)
   - [x] UPI intent link + QR on checkout, customer submits UTR / txn reference
   - [x] Reference saved to the order, owner emailed for confirmation
-  - [ ] Set the studio UPI ID in src/lib/upi.ts
+  - [x] Set the studio UPI ID in src/lib/upi.ts
+
+- [ ] Get live Paytm Merchant Key (blocked: user must copy it from Paytm dashboard → Developer Settings → API Keys) then save PAYTM_MID + PAYTM_MERCHANT_KEY

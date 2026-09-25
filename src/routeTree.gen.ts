@@ -22,6 +22,7 @@ import { Route as AdminCustomersRouteImport } from './routes/admin.customers'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminUpiRouteImport } from './routes/admin.upi'
+import { Route as ApiVirtualTryOnRouteImport } from './routes/api/virtual-try-on'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as ApiPublicPaytmCallbackRouteImport } from './routes/api/public/paytm-callback'
 import { Route as ApiPublicPaytmRedirectRouteImport } from './routes/api/public/paytm-redirect'
@@ -91,6 +92,11 @@ const AdminUpiRoute = AdminUpiRouteImport.update({
   path: '/upi',
   getParentRoute: () => AdminRoute,
 } as any)
+const ApiVirtualTryOnRoute = ApiVirtualTryOnRouteImport.update({
+  id: '/api/virtual-try-on',
+  path: '/api/virtual-try-on',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductSlugRoute = ProductSlugRouteImport.update({
   id: '/product/$slug',
   path: '/product/$slug',
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/upi': typeof AdminUpiRoute
+  '/api/virtual-try-on': typeof ApiVirtualTryOnRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/paytm-callback': typeof ApiPublicPaytmCallbackRoute
@@ -137,6 +144,7 @@ export interface FileRoutesByTo {
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/upi': typeof AdminUpiRoute
+  '/api/virtual-try-on': typeof ApiVirtualTryOnRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin': typeof AdminIndexRoute
   '/api/public/paytm-callback': typeof ApiPublicPaytmCallbackRoute
@@ -156,6 +164,7 @@ export interface FileRoutesById {
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/upi': typeof AdminUpiRoute
+  '/api/virtual-try-on': typeof ApiVirtualTryOnRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/paytm-callback': typeof ApiPublicPaytmCallbackRoute
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/products'
     | '/admin/upi'
+    | '/api/virtual-try-on'
     | '/product/$slug'
     | '/admin/'
     | '/api/public/paytm-callback'
@@ -193,6 +203,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/products'
     | '/admin/upi'
+    | '/api/virtual-try-on'
     | '/product/$slug'
     | '/admin'
     | '/api/public/paytm-callback'
@@ -211,6 +222,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/products'
     | '/admin/upi'
+    | '/api/virtual-try-on'
     | '/product/$slug'
     | '/admin/'
     | '/api/public/paytm-callback'
@@ -226,6 +238,7 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
   ShopRoute: typeof ShopRoute
+  ApiVirtualTryOnRoute: typeof ApiVirtualTryOnRoute
   ProductSlugRoute: typeof ProductSlugRoute
   ApiPublicPaytmCallbackRoute: typeof ApiPublicPaytmCallbackRoute
   ApiPublicPaytmRedirectRoute: typeof ApiPublicPaytmRedirectRoute
@@ -324,6 +337,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUpiRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/api/virtual-try-on': {
+      id: '/api/virtual-try-on'
+      path: '/api/virtual-try-on'
+      fullPath: '/api/virtual-try-on'
+      preLoaderRoute: typeof ApiVirtualTryOnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/product/$slug': {
       id: '/product/$slug'
       path: '/product/$slug'
@@ -375,6 +395,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
   ShopRoute: ShopRoute,
+  ApiVirtualTryOnRoute: ApiVirtualTryOnRoute,
   ProductSlugRoute: ProductSlugRoute,
   ApiPublicPaytmCallbackRoute: ApiPublicPaytmCallbackRoute,
   ApiPublicPaytmRedirectRoute: ApiPublicPaytmRedirectRoute,

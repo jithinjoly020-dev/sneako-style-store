@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { VirtualTryOn } from "@/components/virtual-try-on";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -56,25 +57,26 @@ const values = [
 
 function About() {
   return (
-    <div className="mx-auto max-w-[1000px] px-5 py-16 md:px-10 md:py-24">
-      <p className="label-xs text-muted-foreground">The studio</p>
-      <h1 className="mt-4 text-4xl font-semibold md:text-7xl">MADE PLAINLY</h1>
-      <p className="mt-10 max-w-[720px] text-xl leading-relaxed text-muted-foreground md:text-2xl">
-        unlabelled makes one thing properly: heavy cotton bodies that keep their shape after fifty
-        washes. No seasonal churn, no logos, no story we can't back up on the label.
-      </p>
+    <div className="py-16 md:py-24">
+      <div className="mx-auto max-w-[1000px] px-5 md:px-10">
+        <p className="label-xs text-muted-foreground">The studio</p>
+        <h1 className="mt-4 text-4xl font-semibold md:text-7xl">MADE PLAINLY</h1>
+        <p className="mt-10 max-w-[720px] text-xl leading-relaxed text-muted-foreground md:text-2xl">
+          unlabelled makes one thing properly: heavy cotton bodies that keep their shape after fifty
+          washes. No seasonal churn, no logos, no story we can't back up on the label.
+        </p>
 
-      <div className="mt-16 grid gap-px bg-border md:grid-cols-2">
+        <div className="mt-16 grid gap-px bg-border md:grid-cols-2">
         {specs.map((b) => (
           <div key={b.k} className="bg-background p-8">
             <p className="label-xs text-muted-foreground">{b.k}</p>
             <p className="mt-3 leading-relaxed">{b.v}</p>
           </div>
         ))}
-      </div>
+        </div>
 
-      <h2 className="mt-24 text-2xl font-semibold md:text-4xl">HOW A RUN IS MADE</h2>
-      <div className="mt-10 border-t border-border">
+        <h2 className="mt-24 text-2xl font-semibold md:text-4xl">HOW A RUN IS MADE</h2>
+        <div className="mt-10 border-t border-border">
         {timeline.map((s) => (
           <div
             key={s.y}
@@ -85,19 +87,22 @@ function About() {
             <span className="text-sm leading-relaxed text-muted-foreground">{s.d}</span>
           </div>
         ))}
-      </div>
+        </div>
 
-      <h2 className="mt-24 text-2xl font-semibold md:text-4xl">WHAT WE HOLD TO</h2>
-      <div className="mt-10 grid gap-px bg-border md:grid-cols-2">
+        <h2 className="mt-24 text-2xl font-semibold md:text-4xl">WHAT WE HOLD TO</h2>
+        <div className="mt-10 grid gap-px bg-border md:grid-cols-2">
         {values.map((v) => (
           <div key={v.k} className="bg-background p-8">
             <p className="label-xs text-muted-foreground">{v.k}</p>
             <p className="mt-3 leading-relaxed">{v.v}</p>
           </div>
         ))}
+        </div>
       </div>
 
-      <div className="mt-24 border border-border bg-surface p-8 md:p-12">
+      <VirtualTryOn />
+
+      <div className="mx-auto mt-24 max-w-[1000px] border border-border bg-surface p-8 md:p-12">
         <h2 className="text-2xl font-semibold md:text-4xl">SIZING, PLAINLY</h2>
         <p className="mt-4 max-w-[640px] leading-relaxed text-muted-foreground">
           Measurements are flat, in inches, taken on a finished garment. If you are between sizes,

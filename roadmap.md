@@ -15,3 +15,6 @@
 - [x] Add "already paid? enter Paytm Order ID" auto-verify (like PHP example: status check, amount match, no reuse, <24h old)
 - [x] Remove manual UPI/UTR payment method; keep only Paytm auto-verify + COD
 - [x] Checkout: manual UPI (QR + UTR) as the ONLY payment method; Paytm and COD removed
+- [x] Studio virtual try-on using active shop products
+  - [x] Live camera preview with movable and resizable shirt layer
+  - [x] Realistic AI photo try-on with streamed previews and download

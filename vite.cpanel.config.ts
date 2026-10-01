@@ -12,7 +12,15 @@ export default defineConfig({
   envDir: process.cwd(),
   plugins: [react(), tailwindcss(), tsconfigPaths({ root: process.cwd() })],
   resolve: {
-    alias: { "@": resolve(process.cwd(), "src") },
+    alias: {
+      "@": resolve(process.cwd(), "src"),
+      // TanStack Start's client runtime needs a browser-safe AsyncLocalStorage.
+      "node:async_hooks": resolve(process.cwd(), "cpanel/shims/async-hooks.ts"),
+      // Server-only modules are dead code in the static build; stub them out so
+      // no Node built-ins leak into the browser bundle.
+      "@/lib/paytm.server": resolve(process.cwd(), "cpanel/shims/empty.ts"),
+      "@/integrations/supabase/client.server": resolve(process.cwd(), "cpanel/shims/empty.ts"),
+    },
   },
   build: {
     outDir: resolve(process.cwd(), "dist-cpanel"),

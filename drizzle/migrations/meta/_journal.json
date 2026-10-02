@@ -15,6 +15,13 @@
       "when": 1790968809254,
       "tag": "0001_upi_reference_rpcs",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790970011207,
+      "tag": "0002_cpanel_gateway_functions",
+      "breakpoints": true
     }
   ]
 }

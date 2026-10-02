@@ -26,7 +26,7 @@ export async function verifySmbOrder(orderId: string) {
   // The live API reports the result as `payment_status` (docs say `status`).
   const status = String(json.data?.payment_status ?? json.data?.status ?? "pending").toLowerCase();
 
-  if (status === "success") {
+  if (status === "success" || status === "paid" || status === "completed") {
     const paid = Number(json.data?.amount ?? 0);
     if (paid + 0.01 < Number(order.total)) {
       return { status: "failed" as const, number: order.order_number };

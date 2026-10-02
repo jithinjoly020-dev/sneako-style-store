@@ -254,7 +254,7 @@ function Checkout() {
           Order <span className="font-mono text-foreground">{upiOrder.number}</span> is reserved.
         </p>
 
-        {!STATIC_HOST && (<>
+        <>
         <button
           type="button"
           disabled={submitting}
@@ -267,8 +267,8 @@ function Checkout() {
           Pay with any UPI app. Your order is confirmed automatically once the payment lands.
         </p>
 
-        </>)}
-        <p className="label-xs mt-10 text-muted-foreground">{STATIC_HOST ? "Pay by UPI" : "Or pay manually"}</p>
+        </>
+        <p className="label-xs mt-10 text-muted-foreground">Or pay manually</p>
         <p className="mt-2 text-sm text-muted-foreground">
           Scan the code with any UPI app, or tap the button on mobile.
         </p>

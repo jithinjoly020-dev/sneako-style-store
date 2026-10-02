@@ -8,6 +8,13 @@
       "when": 1790968771081,
       "tag": "0000_place_order_rpc",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790968809254,
+      "tag": "0001_upi_reference_rpcs",
+      "breakpoints": true
     }
   ]
 }

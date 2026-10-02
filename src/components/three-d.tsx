@@ -157,7 +157,14 @@ export function PageDepth({ children, routeKey }: { children: ReactNode; routeKe
     };
   }, [routeKey]);
 
-  if (phase === "done") return <div>{children}</div>;
+  if (phase === "done") {
+    // Same element tree as below so the page is not remounted.
+    return (
+      <div>
+        <div>{children}</div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ perspective: "1400px", perspectiveOrigin: "50% 0%" }}>

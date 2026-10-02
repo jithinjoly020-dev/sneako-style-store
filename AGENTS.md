@@ -14,3 +14,4 @@
 
 - The cPanel SPA entry (`cpanel/spa-entry.tsx`) replaces the root `shellComponent` with a fragment wrapper. Why: the SSR shell renders `<html>/<body>` inside `#root`, nesting a second document that freezes the browser on the first keystroke.
 - Checkout places orders and saves UPI references through database functions (`place_order`, `submit_upi_reference`, `order_payment_status`), not direct table writes or server functions. Why: customers cannot read the orders table, and the static cPanel copy has no server.
+- On cPanel, SMB UPI auto-verify runs through PHP files in `cpanel/api/` (copied into `dist-cpanel/api/` with a generated `config.php` holding keys, never committed). They reach orders only via token-checked DB functions `gateway_order_info` / `gateway_mark_paid`. Why: cPanel has no Node server and no service-role key.

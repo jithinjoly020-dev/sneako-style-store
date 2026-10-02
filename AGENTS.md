@@ -12,3 +12,4 @@
 - The cPanel static build (`bun run build:cpanel`, plain Vite) must not ship Node built-ins or server-only modules to the browser. TanStack Start's client runtime needs `node:async_hooks` — `vite.cpanel.config.ts` aliases it to `cpanel/shims/async-hooks.ts` and stubs `@/lib/paytm.server` / `@/integrations/supabase/client.server` to `cpanel/shims/empty.ts`. Why: a plain Vite client build otherwise externalizes Node built-ins into broken stubs and the page renders blank (`AsyncLocalStorage is not a constructor`).
 - The build's `emptyOutDir: true` deletes `dist-cpanel/.htaccess` on every rebuild — always re-copy it before zipping the cPanel package. Why: without it, refreshing `/shop` etc. 404s on Apache.
 
+- The cPanel SPA entry (`cpanel/spa-entry.tsx`) replaces the root `shellComponent` with a fragment wrapper. Why: the SSR shell renders `<html>/<body>` inside `#root`, nesting a second document that freezes the browser on the first keystroke.

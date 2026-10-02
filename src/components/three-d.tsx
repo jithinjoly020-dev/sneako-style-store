@@ -144,20 +144,27 @@ export function Parallax3D({
  * PageDepth — wraps a whole page so every route enters with the same 3D flow.
  */
 export function PageDepth({ children, routeKey }: { children: ReactNode; routeKey: string }) {
-  const [ready, setReady] = useState(false);
+  // "enter" -> animating in, "done" -> plain flat layout (no 3D layers left
+  // behind; a lingering 3D context made long forms like checkout freeze).
+  const [phase, setPhase] = useState<"start" | "enter" | "done">("done");
   useEffect(() => {
-    setReady(false);
-    const t = setTimeout(() => setReady(true), 20);
-    return () => clearTimeout(t);
+    setPhase("start");
+    const a = setTimeout(() => setPhase("enter"), 20);
+    const b = setTimeout(() => setPhase("done"), 850);
+    return () => {
+      clearTimeout(a);
+      clearTimeout(b);
+    };
   }, [routeKey]);
+
+  if (phase === "done") return <div>{children}</div>;
 
   return (
     <div style={{ perspective: "1400px", perspectiveOrigin: "50% 0%" }}>
       <div
         style={{
-          transformStyle: "preserve-3d",
-          opacity: ready ? 1 : 0,
-          transform: ready ? "rotateX(0deg) translateZ(0)" : "rotateX(6deg) translateZ(-90px)",
+          opacity: phase === "enter" ? 1 : 0,
+          transform: phase === "enter" ? "rotateX(0deg) translateZ(0)" : "rotateX(6deg) translateZ(-90px)",
           transition: "opacity 500ms ease, transform 800ms cubic-bezier(.16,1,.3,1)",
         }}
       >

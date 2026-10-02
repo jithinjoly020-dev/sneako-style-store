@@ -271,6 +271,27 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      gateway_check_token: { Args: { _token: string }; Returns: boolean }
+      gateway_mark_paid: {
+        Args: {
+          _amount: number
+          _order_id: string
+          _ref: string
+          _token: string
+        }
+        Returns: string
+      }
+      gateway_order_info: {
+        Args: { _order_id: string; _token: string }
+        Returns: {
+          customer_name: string
+          customer_phone: string
+          id: string
+          order_number: string
+          payment_status: string
+          total: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

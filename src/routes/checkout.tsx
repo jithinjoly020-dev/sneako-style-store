@@ -49,8 +49,21 @@ const fields = [
   { name: "country", label: "Country", autoComplete: "country-name" },
 ] as const;
 
-// Set only in the cPanel copy, which has no server for the auto-verified gateway.
+// Set only in the cPanel copy; there the gateway runs through the PHP helper in /api.
 const STATIC_HOST = import.meta.env["VITE_STATIC_HOST"] === "1";
+
+async function phpCall(file: string, body: Record<string, string>) {
+  const res = await fetch(`/api/${file}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const json = (await res.json().catch(() => ({}))) as {
+    status?: string; number?: string; payment_url?: string; error?: string;
+  };
+  if (!res.ok) throw new Error(json.error ?? "Payment service unavailable");
+  return json;
+}
 
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
@@ -96,11 +109,13 @@ function Checkout() {
     setReturning(true);
     (async () => {
       for (let i = 0; i < 10; i++) {
-        const r = await verifySmb({ data: { orderId: id } }).catch(() => null);
+        const r = STATIC_HOST
+          ? await phpCall("check-status.php", { order_id: id }).catch(() => null)
+          : await verifySmb({ data: { orderId: id } }).catch(() => null);
         if (r?.status === "success") {
           clear();
           await notifyOwner({ data: { orderId: id } }).catch(() => undefined);
-          setPlaced({ number: r.number, paid: true });
+          setPlaced({ number: String(r.number ?? ""), paid: true });
           setReturning(false);
           return;
         }
@@ -117,9 +132,10 @@ function Checkout() {
     if (!upiOrder) return;
     setSubmitting(true);
     try {
-      const { paymentUrl } = await createSmb({
-        data: { orderId: upiOrder.id, returnUrl: window.location.href },
-      });
+      const paymentUrl = STATIC_HOST
+        ? String((await phpCall("create-order.php", { order_id: upiOrder.id })).payment_url ?? "")
+        : (await createSmb({ data: { orderId: upiOrder.id, returnUrl: window.location.href } })).paymentUrl;
+      if (!paymentUrl.startsWith("https://smbupi.com/")) throw new Error("Could not start payment");
       window.location.href = paymentUrl;
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not start payment");
@@ -238,7 +254,7 @@ function Checkout() {
           Order <span className="font-mono text-foreground">{upiOrder.number}</span> is reserved.
         </p>
 
-        {!STATIC_HOST && (<>
+        <>
         <button
           type="button"
           disabled={submitting}
@@ -251,8 +267,8 @@ function Checkout() {
           Pay with any UPI app. Your order is confirmed automatically once the payment lands.
         </p>
 
-        </>)}
-        <p className="label-xs mt-10 text-muted-foreground">{STATIC_HOST ? "Pay by UPI" : "Or pay manually"}</p>
+        </>
+        <p className="label-xs mt-10 text-muted-foreground">Or pay manually</p>
         <p className="mt-2 text-sm text-muted-foreground">
           Scan the code with any UPI app, or tap the button on mobile.
         </p>

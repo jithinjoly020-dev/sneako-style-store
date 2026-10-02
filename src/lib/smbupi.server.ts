@@ -21,11 +21,12 @@ export async function verifySmbOrder(orderId: string) {
     body: JSON.stringify({ order_id: orderId }),
   });
   const json = (await res.json().catch(() => ({}))) as {
-    data?: { status?: string; amount?: number | string; utr?: string };
+    data?: { status?: string; payment_status?: string; amount?: number | string; utr?: string | null };
   };
-  const status = String(json.data?.status ?? "pending").toLowerCase();
+  // The live API reports the result as `payment_status` (docs say `status`).
+  const status = String(json.data?.payment_status ?? json.data?.status ?? "pending").toLowerCase();
 
-  if (status === "success") {
+  if (status === "success" || status === "paid" || status === "completed") {
     const paid = Number(json.data?.amount ?? 0);
     if (paid + 0.01 < Number(order.total)) {
       return { status: "failed" as const, number: order.order_number };
@@ -35,7 +36,7 @@ export async function verifySmbOrder(orderId: string) {
       .update({
         payment_status: "paid",
         status: "confirmed",
-        payment_ref: json.data?.utr ?? orderId,
+        payment_ref: json.data?.utr || orderId,
       })
       .eq("id", orderId);
     return { status: "success" as const, number: order.order_number };

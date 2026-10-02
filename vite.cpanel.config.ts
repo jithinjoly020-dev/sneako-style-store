@@ -23,7 +23,7 @@ export default defineConfig({
       "@/lib/smbupi.server": resolve(process.cwd(), "cpanel/shims/empty.ts"),
     },
   },
-  define: { "import.meta.env.VITE_STATIC_HOST": JSON.stringify("1") },
+  define: { "import.meta.env.VITE_STATIC_HOST": JSON.stringify("1"), "import.meta.env[\"VITE_STATIC_HOST\"]": JSON.stringify("1") },
   build: {
     outDir: resolve(process.cwd(), "dist-cpanel"),
     emptyOutDir: true,

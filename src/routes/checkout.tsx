@@ -50,7 +50,7 @@ const fields = [
 ] as const;
 
 // Set only in the cPanel copy, which has no server for the auto-verified gateway.
-const STATIC_HOST = import.meta.env.VITE_STATIC_HOST === "1";
+const STATIC_HOST = import.meta.env["VITE_STATIC_HOST"] === "1";
 
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 

@@ -129,7 +129,12 @@ function Checkout() {
     if (!upiOrder) return;
     setSubmitting(true);
     try {
-      await sendUpiRef({ data: { orderId: upiOrder.id, reference: utr } });
+      // Database functions work on both the hosted site and the cPanel copy.
+      const { error: refError } = await supabase.rpc("submit_upi_reference", {
+        _order_id: upiOrder.id,
+        _reference: utr,
+      });
+      if (refError) throw new Error(refError.message);
       await notifyOwner({ data: { orderId: upiOrder.id } }).catch(() => undefined);
       clear();
       setChecking(true);
@@ -137,7 +142,8 @@ function Checkout() {
       // Wait for the studio to confirm the money actually landed.
       let paid = false;
       for (let i = 0; i < 40; i++) {
-        const s = await readPaymentStatus({ data: { orderId: upiOrder.id } }).catch(() => null);
+        const { data: st } = await supabase.rpc("order_payment_status", { _order_id: upiOrder.id });
+        const s = st ? { paid: st === "paid", rejected: st === "payment_failed" } : null;
         if (s?.paid) {
           paid = true;
           break;

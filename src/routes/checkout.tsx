@@ -49,6 +49,9 @@ const fields = [
   { name: "country", label: "Country", autoComplete: "country-name" },
 ] as const;
 
+// Set only in the cPanel copy, which has no server for the auto-verified gateway.
+const STATIC_HOST = import.meta.env["VITE_STATIC_HOST"] === "1";
+
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 const steps = ["Details", "Shipping", "Payment"] as const;
@@ -129,7 +132,12 @@ function Checkout() {
     if (!upiOrder) return;
     setSubmitting(true);
     try {
-      await sendUpiRef({ data: { orderId: upiOrder.id, reference: utr } });
+      // Database functions work on both the hosted site and the cPanel copy.
+      const { error: refError } = await supabase.rpc("submit_upi_reference", {
+        _order_id: upiOrder.id,
+        _reference: utr,
+      });
+      if (refError) throw new Error(refError.message);
       await notifyOwner({ data: { orderId: upiOrder.id } }).catch(() => undefined);
       clear();
       setChecking(true);
@@ -137,7 +145,8 @@ function Checkout() {
       // Wait for the studio to confirm the money actually landed.
       let paid = false;
       for (let i = 0; i < 40; i++) {
-        const s = await readPaymentStatus({ data: { orderId: upiOrder.id } }).catch(() => null);
+        const { data: st } = await supabase.rpc("order_payment_status", { _order_id: upiOrder.id });
+        const s = st ? { paid: st === "paid", rejected: st === "payment_failed" } : null;
         if (s?.paid) {
           paid = true;
           break;
@@ -176,33 +185,28 @@ function Checkout() {
     setErrors({});
     setSubmitting(true);
     try {
-      const { data: order, error } = await supabase
-        .from("orders")
-        .insert({
+      // Customers can't read the orders table, so place the order through a
+      // database function that returns the new order's id and number.
+      const { data: rows, error } = await supabase.rpc("place_order", {
+        _order: {
           ...parsed.data,
           subtotal,
           discount: t.discount,
           shipping_method: shipping,
           shipping_fee: t.shipping,
           total: t.total,
-          payment_method: "upi",
-          payment_status: "pending",
-        })
-        .select("id, order_number")
-        .single();
-      if (error) throw error;
-
-      const { error: itemsError } = await supabase.from("order_items").insert(
-        lines.map((l) => ({
-          order_id: order.id,
+        },
+        _items: lines.map((l) => ({
           product_id: l.productId,
           product_name: l.name,
           size: l.size,
           quantity: l.quantity,
           unit_price: l.price,
         })),
-      );
-      if (itemsError) throw itemsError;
+      });
+      if (error) throw error;
+      const order = Array.isArray(rows) ? rows[0] : rows;
+      if (!order) throw new Error("We couldn't place your order. Please try again.");
 
       setUpiOrder({ id: order.id, number: order.order_number, amount: t.total });
     } catch (err) {
@@ -234,6 +238,7 @@ function Checkout() {
           Order <span className="font-mono text-foreground">{upiOrder.number}</span> is reserved.
         </p>
 
+        {!STATIC_HOST && (<>
         <button
           type="button"
           disabled={submitting}
@@ -246,7 +251,8 @@ function Checkout() {
           Pay with any UPI app. Your order is confirmed automatically once the payment lands.
         </p>
 
-        <p className="label-xs mt-10 text-muted-foreground">Or pay manually</p>
+        </>)}
+        <p className="label-xs mt-10 text-muted-foreground">{STATIC_HOST ? "Pay by UPI" : "Or pay manually"}</p>
         <p className="mt-2 text-sm text-muted-foreground">
           Scan the code with any UPI app, or tap the button on mobile.
         </p>

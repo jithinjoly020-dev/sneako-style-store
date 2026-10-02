@@ -278,6 +278,18 @@ export type Database = {
         }
         Returns: boolean
       }
+      order_payment_status: { Args: { _order_id: string }; Returns: string }
+      place_order: {
+        Args: { _items: Json; _order: Json }
+        Returns: {
+          id: string
+          order_number: string
+        }[]
+      }
+      submit_upi_reference: {
+        Args: { _order_id: string; _reference: string }
+        Returns: number
+      }
     }
     Enums: {
       app_role: "admin" | "customer"

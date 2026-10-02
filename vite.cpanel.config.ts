@@ -6,6 +6,9 @@ import tailwindcss from "@tailwindcss/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { resolve } from "node:path";
 
+// Tells the app it is running as the static cPanel copy (no server).
+process.env.VITE_STATIC_HOST = "1";
+
 export default defineConfig({
   root: resolve(process.cwd(), "cpanel"),
   publicDir: resolve(process.cwd(), "public"),

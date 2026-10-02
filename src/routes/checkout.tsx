@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { smbCreateOrder, smbVerifyOrder } from "@/lib/smbupi.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -81,6 +82,48 @@ function Checkout() {
   const notifyOwner = useServerFn(emailOrderToOwner);
   const sendUpiRef = useServerFn(submitUpiReference);
   const readPaymentStatus = useServerFn(getPaymentStatus);
+  const createSmb = useServerFn(smbCreateOrder);
+  const verifySmb = useServerFn(smbVerifyOrder);
+  const [returning, setReturning] = useState(false);
+
+  // Customer is back from the gateway: verify on the server, never trust the URL.
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("smb");
+    if (!id) return;
+    setReturning(true);
+    (async () => {
+      for (let i = 0; i < 10; i++) {
+        const r = await verifySmb({ data: { orderId: id } }).catch(() => null);
+        if (r?.status === "success") {
+          clear();
+          await notifyOwner({ data: { orderId: id } }).catch(() => undefined);
+          setPlaced({ number: r.number, paid: true });
+          setReturning(false);
+          return;
+        }
+        if (r?.status === "failed") break;
+        await wait(3000);
+      }
+      setReturning(false);
+      toast.error("Payment not confirmed yet. If money was debited, contact us with your order number.");
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function payInstantly() {
+    if (!upiOrder) return;
+    setSubmitting(true);
+    try {
+      const { paymentUrl } = await createSmb({
+        data: { orderId: upiOrder.id, returnUrl: window.location.href },
+      });
+      window.location.href = paymentUrl;
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not start payment");
+      setSubmitting(false);
+    }
+  }
+
 
   async function confirmUpi() {
     if (!upiOrder) return;
@@ -172,6 +215,16 @@ function Checkout() {
     }
   }
 
+  if (returning && !placed) {
+    return (
+      <div className="mx-auto max-w-[620px] px-5 py-24 md:px-10">
+        <p className="label-xs text-muted-foreground">Verifying payment</p>
+        <h1 className="mt-4 text-4xl font-semibold">CHECKING…</h1>
+        <p className="mt-4 text-sm text-muted-foreground">Confirming your UPI payment with the bank. Keep this page open.</p>
+      </div>
+    );
+  }
+
   if (upiOrder && !placed) {
     return (
       <div className="mx-auto max-w-[620px] px-5 py-20 md:px-10">
@@ -179,8 +232,25 @@ function Checkout() {
         <h1 className="mt-4 text-4xl font-semibold md:text-5xl">PAY {money(upiOrder.amount)}</h1>
         <p className="mt-4 text-sm text-muted-foreground">
           Order <span className="font-mono text-foreground">{upiOrder.number}</span> is reserved.
+        </p>
+
+        <button
+          type="button"
+          disabled={submitting}
+          onClick={() => void payInstantly()}
+          className="mt-8 w-full bg-primary px-8 py-4 text-sm font-medium text-primary-foreground disabled:opacity-50"
+        >
+          {submitting ? "Opening payment…" : `Pay ${money(upiOrder.amount)} — auto-verified`}
+        </button>
+        <p className="label-xs mt-3 text-muted-foreground">
+          Pay with any UPI app. Your order is confirmed automatically once the payment lands.
+        </p>
+
+        <p className="label-xs mt-10 text-muted-foreground">Or pay manually</p>
+        <p className="mt-2 text-sm text-muted-foreground">
           Scan the code with any UPI app, or tap the button on mobile.
         </p>
+
 
         {activeUpi.length > 1 && (
           <div className="mt-6 space-y-2 border border-border bg-surface p-4">

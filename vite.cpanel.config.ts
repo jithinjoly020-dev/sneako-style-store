@@ -20,6 +20,7 @@ export default defineConfig({
       // no Node built-ins leak into the browser bundle.
       "@/lib/paytm.server": resolve(process.cwd(), "cpanel/shims/empty.ts"),
       "@/integrations/supabase/client.server": resolve(process.cwd(), "cpanel/shims/empty.ts"),
+      "@/lib/smbupi.server": resolve(process.cwd(), "cpanel/shims/empty.ts"),
     },
   },
   build: {

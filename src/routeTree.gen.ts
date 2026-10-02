@@ -26,6 +26,7 @@ import { Route as ApiVirtualTryOnRouteImport } from './routes/api/virtual-try-on
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as ApiPublicPaytmCallbackRouteImport } from './routes/api/public/paytm-callback'
 import { Route as ApiPublicPaytmRedirectRouteImport } from './routes/api/public/paytm-redirect'
+import { Route as ApiPublicSmbUpiWebhookRouteImport } from './routes/api/public/smb-upi-webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -112,6 +113,11 @@ const ApiPublicPaytmRedirectRoute = ApiPublicPaytmRedirectRouteImport.update({
   path: '/api/public/paytm-redirect',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicSmbUpiWebhookRoute = ApiPublicSmbUpiWebhookRouteImport.update({
+  id: '/api/public/smb-upi-webhook',
+  path: '/api/public/smb-upi-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -131,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/api/public/paytm-callback': typeof ApiPublicPaytmCallbackRoute
   '/api/public/paytm-redirect': typeof ApiPublicPaytmRedirectRoute
+  '/api/public/smb-upi-webhook': typeof ApiPublicSmbUpiWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -149,6 +156,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/api/public/paytm-callback': typeof ApiPublicPaytmCallbackRoute
   '/api/public/paytm-redirect': typeof ApiPublicPaytmRedirectRoute
+  '/api/public/smb-upi-webhook': typeof ApiPublicSmbUpiWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -169,6 +177,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/api/public/paytm-callback': typeof ApiPublicPaytmCallbackRoute
   '/api/public/paytm-redirect': typeof ApiPublicPaytmRedirectRoute
+  '/api/public/smb-upi-webhook': typeof ApiPublicSmbUpiWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -190,6 +199,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/api/public/paytm-callback'
     | '/api/public/paytm-redirect'
+    | '/api/public/smb-upi-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -208,6 +218,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/api/public/paytm-callback'
     | '/api/public/paytm-redirect'
+    | '/api/public/smb-upi-webhook'
   id:
     | '__root__'
     | '/'
@@ -227,6 +238,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/api/public/paytm-callback'
     | '/api/public/paytm-redirect'
+    | '/api/public/smb-upi-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -242,6 +254,7 @@ export interface RootRouteChildren {
   ProductSlugRoute: typeof ProductSlugRoute
   ApiPublicPaytmCallbackRoute: typeof ApiPublicPaytmCallbackRoute
   ApiPublicPaytmRedirectRoute: typeof ApiPublicPaytmRedirectRoute
+  ApiPublicSmbUpiWebhookRoute: typeof ApiPublicSmbUpiWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -365,6 +378,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaytmRedirectRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/smb-upi-webhook': {
+      id: '/api/public/smb-upi-webhook'
+      path: '/api/public/smb-upi-webhook'
+      fullPath: '/api/public/smb-upi-webhook'
+      preLoaderRoute: typeof ApiPublicSmbUpiWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -399,6 +419,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProductSlugRoute: ProductSlugRoute,
   ApiPublicPaytmCallbackRoute: ApiPublicPaytmCallbackRoute,
   ApiPublicPaytmRedirectRoute: ApiPublicPaytmRedirectRoute,
+  ApiPublicSmbUpiWebhookRoute: ApiPublicSmbUpiWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

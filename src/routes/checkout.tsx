@@ -215,6 +215,16 @@ function Checkout() {
     }
   }
 
+  if (returning && !placed) {
+    return (
+      <div className="mx-auto max-w-[620px] px-5 py-24 md:px-10">
+        <p className="label-xs text-muted-foreground">Verifying payment</p>
+        <h1 className="mt-4 text-4xl font-semibold">CHECKING…</h1>
+        <p className="mt-4 text-sm text-muted-foreground">Confirming your UPI payment with the bank. Keep this page open.</p>
+      </div>
+    );
+  }
+
   if (upiOrder && !placed) {
     return (
       <div className="mx-auto max-w-[620px] px-5 py-20 md:px-10">

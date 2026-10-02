@@ -176,33 +176,28 @@ function Checkout() {
     setErrors({});
     setSubmitting(true);
     try {
-      const { data: order, error } = await supabase
-        .from("orders")
-        .insert({
+      // Customers can't read the orders table, so place the order through a
+      // database function that returns the new order's id and number.
+      const { data: rows, error } = await supabase.rpc("place_order", {
+        _order: {
           ...parsed.data,
           subtotal,
           discount: t.discount,
           shipping_method: shipping,
           shipping_fee: t.shipping,
           total: t.total,
-          payment_method: "upi",
-          payment_status: "pending",
-        })
-        .select("id, order_number")
-        .single();
-      if (error) throw error;
-
-      const { error: itemsError } = await supabase.from("order_items").insert(
-        lines.map((l) => ({
-          order_id: order.id,
+        },
+        _items: lines.map((l) => ({
           product_id: l.productId,
           product_name: l.name,
           size: l.size,
           quantity: l.quantity,
           unit_price: l.price,
         })),
-      );
-      if (itemsError) throw itemsError;
+      });
+      if (error) throw error;
+      const order = Array.isArray(rows) ? rows[0] : rows;
+      if (!order) throw new Error("We couldn't place your order. Please try again.");
 
       setUpiOrder({ id: order.id, number: order.order_number, amount: t.total });
     } catch (err) {

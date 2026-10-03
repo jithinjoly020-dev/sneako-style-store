@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import logoAsset from "@/assets/unlabelled-logo.png.asset.json";
+import { EditableText } from "@/lib/site-content";
 
 export function SiteFooter() {
   return (
@@ -7,7 +8,7 @@ export function SiteFooter() {
       <div className="site-container mx-auto flex max-w-[1400px] flex-col gap-8 px-5 py-14 md:flex-row md:items-end md:justify-between md:px-10">
         <div>
           <img src={logoAsset.url} alt="UNLABELLED" className="brand-logo h-auto w-[min(72vw,360px)]" />
-          <p className="label-xs mt-3 text-muted-foreground">Heavyweight basics. Nothing extra.</p>
+          <EditableText as="p" contentKey="contact.footer" fallback="Heavyweight basics. Nothing extra." className="label-xs mt-3 text-muted-foreground" />
         </div>
         <div className="flex gap-10">
           <Link to="/shop" className="label-xs text-muted-foreground hover:text-foreground">

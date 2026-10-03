@@ -6,7 +6,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { money, useCart } from "@/lib/cart";
-import { SHIPPING_OPTIONS, totalsFor, type ShippingMethod } from "@/lib/checkout-options";
+import { SHIPPING_OPTIONS, totalsFor, type PaymentMethod, type ShippingMethod } from "@/lib/checkout-options";
 import { getPaymentStatus, submitUpiReference } from "@/lib/payments.functions";
 import { emailOrderToOwner } from "@/lib/order-email.functions";
 import { QRCodeSVG } from "qrcode.react";
@@ -19,10 +19,12 @@ export const Route = createFileRoute("/checkout")({
       { title: "Checkout — unlabelled" },
       {
         name: "description",
-        content: "Pay by UPI — scan the QR with GPay, PhonePe or Paytm. 5% off every unlabelled order.",
+        content: "Secure checkout with UPI or cash on delivery for unlabelled orders.",
       },
       { property: "og:title", content: "Checkout — unlabelled" },
-      { property: "og:description", content: "Pay by UPI. 5% off every order." },
+      { property: "og:description", content: "Secure checkout with UPI or cash on delivery." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Checkout,
@@ -73,8 +75,9 @@ function Checkout() {
   const { lines, subtotal, clear } = useCart();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
-  const [placed, setPlaced] = useState<{ number: string; paid: boolean } | null>(null);
+  const [placed, setPlaced] = useState<{ number: string; paid: boolean; cod?: boolean } | null>(null);
   const [shipping, setShipping] = useState<ShippingMethod>("standard");
+  const [payment, setPayment] = useState<PaymentMethod>("upi");
   const [upiOrder, setUpiOrder] = useState<{
     id: string;
     number: string;
@@ -185,7 +188,7 @@ function Checkout() {
     }
   }
 
-  const t = totalsFor(subtotal, shipping, "upi");
+  const t = totalsFor(subtotal, shipping, payment);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -211,6 +214,7 @@ function Checkout() {
           shipping_method: shipping,
           shipping_fee: t.shipping,
           total: t.total,
+          payment_method: payment,
         },
         _items: lines.map((l) => ({
           product_id: l.productId,
@@ -224,7 +228,13 @@ function Checkout() {
       const order = Array.isArray(rows) ? rows[0] : rows;
       if (!order) throw new Error("We couldn't place your order. Please try again.");
 
-      setUpiOrder({ id: order.id, number: order.order_number, amount: t.total });
+      if (payment === "cod") {
+        await notifyOwner({ data: { orderId: order.id } }).catch(() => undefined);
+        clear();
+        setPlaced({ number: order.order_number, paid: false, cod: true });
+      } else {
+        setUpiOrder({ id: order.id, number: order.order_number, amount: t.total });
+      }
     } catch (err) {
       console.error(err);
       toast.error(
@@ -346,13 +356,15 @@ function Checkout() {
     return (
       <div className="mx-auto max-w-[700px] px-5 py-24 md:px-10">
         <p className="label-xs text-muted-foreground">
-          {placed.paid ? "Payment received" : "Order received"}
+          {placed.paid ? "Payment received" : placed.cod ? "Cash on delivery confirmed" : "Order received"}
         </p>
         <h1 className="mt-4 text-4xl font-semibold md:text-6xl">THANK YOU</h1>
         <p className="mt-6 text-muted-foreground">
           Your order <span className="font-mono text-foreground">{placed.number}</span> is in
           {placed.paid
             ? " and your payment has been confirmed. We pack and dispatch within two working days and email you tracking the moment it leaves the studio."
+            : placed.cod
+              ? ". Pay the delivery partner when it arrives. We pack and dispatch within two working days and email you tracking the moment it leaves the studio."
             : ". We're still matching your payment reference — you'll get an email the moment it's confirmed, and we dispatch right after."}
         </p>
         <Link
@@ -451,12 +463,16 @@ function Checkout() {
 
           <fieldset className="border border-border bg-surface p-4">
             <legend className="label-xs px-2 text-muted-foreground">Payment</legend>
-            <p className="text-sm">
-              UPI — GPay, PhonePe, Paytm, any app
-              <span className="label-xs block text-muted-foreground">
-                5% off · scan the QR on the next step and confirm with your UTR
-              </span>
-            </p>
+            <div className="space-y-4">
+              <label className="flex cursor-pointer items-start gap-3 text-sm">
+                <input type="radio" name="payment" checked={payment === "upi"} onChange={() => setPayment("upi")} />
+                <span>UPI — GPay, PhonePe, Paytm, any app<span className="label-xs mt-1 block text-muted-foreground">5% off · instant auto-verification or manual QR</span></span>
+              </label>
+              <label className="flex cursor-pointer items-start gap-3 text-sm">
+                <input type="radio" name="payment" checked={payment === "cod"} onChange={() => setPayment("cod")} />
+                <span>Cash on delivery<span className="label-xs mt-1 block text-muted-foreground">Pay when your order arrives · no prepaid discount</span></span>
+              </label>
+            </div>
           </fieldset>
 
           <button
@@ -464,7 +480,7 @@ function Checkout() {
             disabled={submitting}
             className="w-full bg-primary px-8 py-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-85 disabled:opacity-50"
           >
-            {submitting ? "Processing…" : `Continue to UPI payment · ${money(t.total)}`}
+            {submitting ? "Processing…" : payment === "upi" ? `Continue to UPI payment · ${money(t.total)}` : `Place cash on delivery order · ${money(t.total)}`}
           </button>
         </form>
       </div>
@@ -490,7 +506,7 @@ function Checkout() {
             <span className="font-mono">{money(subtotal)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="label-xs text-muted-foreground">Prepaid discount (5%)</span>
+            <span className="label-xs text-muted-foreground">{payment === "upi" ? "Prepaid discount (5%)" : "Prepaid discount"}</span>
             <span className="font-mono">{t.discount ? `− ${money(t.discount)}` : "—"}</span>
           </div>
           <div className="flex justify-between">
@@ -503,7 +519,7 @@ function Checkout() {
           <span className="font-mono text-lg">{money(t.total)}</span>
         </div>
         <p className="label-xs mt-5 text-muted-foreground">
-          Secure payments · 14-day returns · dispatched in 48h
+          {payment === "upi" ? "Secure UPI payment" : "Cash on delivery"} · 14-day returns · dispatched in 48h
         </p>
       </aside>
     </div>

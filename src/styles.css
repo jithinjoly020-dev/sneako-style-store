@@ -74,6 +74,11 @@
     -webkit-font-smoothing: antialiased;
   }
 
+  ::selection {
+    background: var(--selection);
+    color: var(--foreground);
+  }
+
   h1,
   h2,
   h3 {
@@ -81,6 +86,36 @@
     letter-spacing: -0.03em;
   }
 }
+
+.brand-logo {
+  filter: none;
+}
+
+html[data-theme="dark"] .brand-logo {
+  filter: invert(1);
+}
+
+html[data-container-width="compact"] .site-container { max-width: 1120px; }
+html[data-container-width="wide"] .site-container { max-width: 1600px; }
+html[data-density="compact"] .site-section { padding-block: 2.5rem; }
+html[data-density="airy"] .site-section { padding-block: 7rem; }
+html[data-header-style="solid"] .site-header { background: var(--background); backdrop-filter: none; }
+html[data-header-style="borderless"] .site-header { border-color: transparent; background: color-mix(in oklab, var(--background) 72%, transparent); }
+html[data-product-ratio="square"] .product-media { aspect-ratio: 1 / 1; }
+html[data-product-ratio="landscape"] .product-media { aspect-ratio: 4 / 3; }
+html[data-heading-weight="medium"] h1, html[data-heading-weight="medium"] h2, html[data-heading-weight="medium"] h3 { font-weight: 500; }
+html[data-heading-weight="semibold"] h1, html[data-heading-weight="semibold"] h2, html[data-heading-weight="semibold"] h3 { font-weight: 600; }
+html[data-heading-weight="bold"] h1, html[data-heading-weight="bold"] h2, html[data-heading-weight="bold"] h3 { font-weight: 700; }
+html[data-heading-style="editorial"] h1, html[data-heading-style="editorial"] h2, html[data-heading-style="editorial"] h3 { letter-spacing: 0; text-transform: none; }
+html[data-heading-style="mono"] h1, html[data-heading-style="mono"] h2, html[data-heading-style="mono"] h3 { font-family: var(--font-mono); letter-spacing: 0; }
+html[data-label-spacing="tight"] .label-xs { letter-spacing: 0.08em; }
+html[data-label-spacing="wide"] .label-xs { letter-spacing: 0.26em; }
+html[data-body-scale="compact"] body { font-size: 0.9375rem; }
+html[data-body-scale="large"] body { font-size: 1.0625rem; }
+html[data-shadow="soft"] .theme-surface { box-shadow: 0 14px 34px color-mix(in oklab, var(--foreground) 10%, transparent); }
+html[data-shadow="strong"] .theme-surface { box-shadow: 0 20px 50px color-mix(in oklab, var(--foreground) 20%, transparent); }
+html[data-button-style="outline"] .theme-button { background: transparent; color: var(--foreground); border: 1px solid var(--primary); }
+html[data-button-style="soft"] .theme-button { background: var(--accent); color: var(--foreground); }
 
 @utility label-xs {
   font-family: var(--font-mono);

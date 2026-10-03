@@ -1,13 +1,12 @@
 import { Link } from "@tanstack/react-router";
+import logoAsset from "@/assets/unlabelled-logo.png.asset.json";
 
 export function SiteFooter() {
   return (
     <footer className="border-t border-border">
-      <div className="mx-auto flex max-w-[1400px] flex-col gap-8 px-5 py-14 md:flex-row md:items-end md:justify-between md:px-10">
+      <div className="site-container mx-auto flex max-w-[1400px] flex-col gap-8 px-5 py-14 md:flex-row md:items-end md:justify-between md:px-10">
         <div>
-          <p className="font-display text-4xl font-semibold tracking-[-0.05em] md:text-6xl">
-            UNLABELLED
-          </p>
+          <img src={logoAsset.url} alt="UNLABELLED" className="brand-logo h-auto w-[min(72vw,360px)]" />
           <p className="label-xs mt-3 text-muted-foreground">Heavyweight basics. Nothing extra.</p>
         </div>
         <div className="flex gap-10">
@@ -24,7 +23,7 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-border px-5 py-5 md:px-10">
         <p className="label-xs text-muted-foreground">
-          © {new Date().getFullYear()} unlabelled · Secure payments · Free shipping over ₹2,999
+          © {new Date().getFullYear()} unlabelled · UPI & cash on delivery · Free shipping over ₹2,999
         </p>
       </div>
     </footer>

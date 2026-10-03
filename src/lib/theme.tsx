@@ -13,6 +13,9 @@ export type ThemePalette = {
   primary: string;
   primaryForeground: string;
   destructive: string;
+  accent: string;
+  selection: string;
+  ring: string;
 };
 export type StoreTheme = {
   defaultMode: ThemeMode;
@@ -23,19 +26,32 @@ export type StoreTheme = {
   radius: "square" | "soft" | "rounded";
   motion: "full" | "subtle" | "off";
   grain: boolean;
+  headingWeight: "medium" | "semibold" | "bold";
+  bodyScale: "compact" | "standard" | "large";
+  headingStyle: "tight" | "editorial" | "mono";
+  labelSpacing: "tight" | "standard" | "wide";
+  containerWidth: "compact" | "standard" | "wide";
+  density: "compact" | "comfortable" | "airy";
+  headerStyle: "solid" | "glass" | "borderless";
+  productRatio: "portrait" | "square" | "landscape";
+  buttonStyle: "solid" | "outline" | "soft";
+  shadow: "none" | "soft" | "strong";
 };
 
 export const DEFAULT_THEME: StoreTheme = {
   defaultMode: "dark",
   light: {
     background: "#F5F5F3", foreground: "#141414", surface: "#FFFFFF", muted: "#E7E7E3",
-    mutedForeground: "#666666", border: "#D2D2CC", primary: "#141414", primaryForeground: "#F5F5F3", destructive: "#B42318",
+    mutedForeground: "#666666", border: "#D2D2CC", primary: "#141414", primaryForeground: "#F5F5F3", destructive: "#B42318", accent: "#DCDCD6", selection: "#C9E2FF", ring: "#2563EB",
   },
   dark: {
     background: "#141414", foreground: "#EDEDED", surface: "#202020", muted: "#2B2B2B",
-    mutedForeground: "#9B9B9B", border: "#383838", primary: "#EDEDED", primaryForeground: "#141414", destructive: "#D95C57",
+    mutedForeground: "#9B9B9B", border: "#383838", primary: "#EDEDED", primaryForeground: "#141414", destructive: "#D95C57", accent: "#353535", selection: "#294D78", ring: "#7DB7FF",
   },
   headingFont: "Archivo", bodyFont: "Archivo", radius: "square", motion: "full", grain: true,
+  headingWeight: "semibold", bodyScale: "standard", headingStyle: "tight", labelSpacing: "standard",
+  containerWidth: "standard", density: "comfortable", headerStyle: "glass", productRatio: "portrait",
+  buttonStyle: "solid", shadow: "none",
 };
 
 export const themeQuery = {
@@ -67,6 +83,16 @@ export function normalizeTheme(value: unknown): StoreTheme {
     radius: ["square", "soft", "rounded"].includes(String(source["radius"])) ? source["radius"] as StoreTheme["radius"] : DEFAULT_THEME.radius,
     motion: ["full", "subtle", "off"].includes(String(source["motion"])) ? source["motion"] as StoreTheme["motion"] : DEFAULT_THEME.motion,
     grain: source["grain"] !== false,
+    headingWeight: ["medium", "semibold", "bold"].includes(String(source["headingWeight"])) ? source["headingWeight"] as StoreTheme["headingWeight"] : DEFAULT_THEME.headingWeight,
+    bodyScale: ["compact", "standard", "large"].includes(String(source["bodyScale"])) ? source["bodyScale"] as StoreTheme["bodyScale"] : DEFAULT_THEME.bodyScale,
+    headingStyle: ["tight", "editorial", "mono"].includes(String(source["headingStyle"])) ? source["headingStyle"] as StoreTheme["headingStyle"] : DEFAULT_THEME.headingStyle,
+    labelSpacing: ["tight", "standard", "wide"].includes(String(source["labelSpacing"])) ? source["labelSpacing"] as StoreTheme["labelSpacing"] : DEFAULT_THEME.labelSpacing,
+    containerWidth: ["compact", "standard", "wide"].includes(String(source["containerWidth"])) ? source["containerWidth"] as StoreTheme["containerWidth"] : DEFAULT_THEME.containerWidth,
+    density: ["compact", "comfortable", "airy"].includes(String(source["density"])) ? source["density"] as StoreTheme["density"] : DEFAULT_THEME.density,
+    headerStyle: ["solid", "glass", "borderless"].includes(String(source["headerStyle"])) ? source["headerStyle"] as StoreTheme["headerStyle"] : DEFAULT_THEME.headerStyle,
+    productRatio: ["portrait", "square", "landscape"].includes(String(source["productRatio"])) ? source["productRatio"] as StoreTheme["productRatio"] : DEFAULT_THEME.productRatio,
+    buttonStyle: ["solid", "outline", "soft"].includes(String(source["buttonStyle"])) ? source["buttonStyle"] as StoreTheme["buttonStyle"] : DEFAULT_THEME.buttonStyle,
+    shadow: ["none", "soft", "strong"].includes(String(source["shadow"])) ? source["shadow"] as StoreTheme["shadow"] : DEFAULT_THEME.shadow,
   };
 }
 
@@ -109,6 +135,16 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     root.dataset["theme"] = resolvedMode;
     root.dataset["motion"] = data.motion;
     root.dataset["grain"] = String(data.grain);
+    root.dataset["headingWeight"] = data.headingWeight;
+    root.dataset["bodyScale"] = data.bodyScale;
+    root.dataset["headingStyle"] = data.headingStyle;
+    root.dataset["labelSpacing"] = data.labelSpacing;
+    root.dataset["containerWidth"] = data.containerWidth;
+    root.dataset["density"] = data.density;
+    root.dataset["headerStyle"] = data.headerStyle;
+    root.dataset["productRatio"] = data.productRatio;
+    root.dataset["buttonStyle"] = data.buttonStyle;
+    root.dataset["shadow"] = data.shadow;
     root.style.setProperty("--background", colors.background);
     root.style.setProperty("--foreground", colors.foreground);
     root.style.setProperty("--surface", colors.surface);
@@ -123,12 +159,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     root.style.setProperty("--secondary-foreground", colors.foreground);
     root.style.setProperty("--muted", colors.muted);
     root.style.setProperty("--muted-foreground", colors.mutedForeground);
-    root.style.setProperty("--accent", colors.muted);
+    root.style.setProperty("--accent", colors.accent);
     root.style.setProperty("--accent-foreground", colors.foreground);
     root.style.setProperty("--destructive", colors.destructive);
     root.style.setProperty("--border", colors.border);
     root.style.setProperty("--input", colors.border);
-    root.style.setProperty("--ring", colors.primary);
+    root.style.setProperty("--ring", colors.ring);
+    root.style.setProperty("--selection", colors.selection);
     root.style.setProperty("--font-display", `"${data.headingFont}", ui-sans-serif, system-ui, sans-serif`);
     root.style.setProperty("--font-sans", `"${data.bodyFont}", ui-sans-serif, system-ui, sans-serif`);
     root.style.setProperty("--radius", data.radius === "square" ? "0px" : data.radius === "soft" ? "4px" : "10px");

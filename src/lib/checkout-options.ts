@@ -18,9 +18,9 @@ export const SHIPPING_OPTIONS: {
   { id: "pickup", label: "Studio pickup", eta: "Ready in 24h · Unit 14, Grey Yard", fee: 0 },
 ];
 
-export type PaymentMethod = "upi";
+export type PaymentMethod = "upi" | "cod";
 
-/** Every order is prepaid by UPI and gets 5% off. */
+/** Prepaid UPI orders get 5% off; COD orders do not. */
 export const PREPAID_DISCOUNT = 0.05;
 
 export function shippingFeeFor(method: ShippingMethod, subtotal: number) {
@@ -29,8 +29,8 @@ export function shippingFeeFor(method: ShippingMethod, subtotal: number) {
   return opt.fee;
 }
 
-export function totalsFor(subtotal: number, method: ShippingMethod, _payment: PaymentMethod) {
+export function totalsFor(subtotal: number, method: ShippingMethod, payment: PaymentMethod) {
   const shipping = shippingFeeFor(method, subtotal);
-  const discount = Math.round(subtotal * PREPAID_DISCOUNT);
+  const discount = payment === "upi" ? Math.round(subtotal * PREPAID_DISCOUNT) : 0;
   return { shipping, discount, total: Math.max(0, subtotal - discount + shipping) };
 }

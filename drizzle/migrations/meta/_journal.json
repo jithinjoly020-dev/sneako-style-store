@@ -36,6 +36,13 @@
       "when": 1791053874793,
       "tag": "0004_add_storefront_theme_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791054872115,
+      "tag": "0005_allow_cod_orders",
+      "breakpoints": true
     }
   ]
 }

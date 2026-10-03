@@ -2,17 +2,18 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { productsQuery } from "@/lib/products";
 import { ProductCard } from "@/components/product-card";
-import { Reveal3D, Parallax3D, Tilt3D } from "@/components/three-d";
+import { Reveal3D, Tilt3D } from "@/components/three-d";
 import { CollectibleCard } from "@/components/collectible-card";
 import {
   SplitText,
   Marquee,
   Magnetic,
-  ScaleReveal,
   ScrollProgress,
   Counter,
 } from "@/components/motion";
 import { EditableBackground, EditableText, EditTarget, useSiteContent } from "@/lib/site-content";
+import homeHeroVideo from "@/assets/home-hero-fashion-web.mp4.asset.json";
+import homeHeroVideoWebm from "@/assets/home-hero-fashion.webm.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -28,6 +29,8 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "Heavyweight cotton tees in a tight, unbranded palette.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Index,
@@ -122,11 +125,19 @@ function Index() {
       <ScrollProgress />
       <section className="relative">
         <EditableBackground contentKey="home.hero" fallbackImage="/images/hero.jpg" className="h-[78vh] min-h-[520px] w-full overflow-hidden">
-          <Parallax3D speed={0.14} className="absolute inset-0">
-            <ScaleReveal from={1.22} className="h-full">
-              <div className="h-[120%] w-full" />
-            </ScaleReveal>
-          </Parallax3D>
+          <video
+            className="absolute inset-0 h-full w-full scale-[1.03] object-cover"
+            poster="/images/hero.jpg"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-hidden="true"
+          >
+            <source src={homeHeroVideoWebm.url} type="video/webm" />
+            <source src={homeHeroVideo.url} type="video/mp4" />
+          </video>
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/45 to-background/10" />
           <div
             aria-hidden

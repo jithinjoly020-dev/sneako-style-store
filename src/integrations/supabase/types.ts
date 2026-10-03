@@ -90,6 +90,7 @@ export type Database = {
           id: number
           notes: string
           sizes: string[]
+          theme: Json
           updated_at: string
         }
         Insert: {
@@ -101,6 +102,7 @@ export type Database = {
           id?: number
           notes?: string
           sizes?: string[]
+          theme?: Json
           updated_at?: string
         }
         Update: {
@@ -112,6 +114,7 @@ export type Database = {
           id?: number
           notes?: string
           sizes?: string[]
+          theme?: Json
           updated_at?: string
         }
         Relationships: []

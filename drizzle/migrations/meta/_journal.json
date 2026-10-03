@@ -29,6 +29,13 @@
       "when": 1791046651267,
       "tag": "0003_custom_designs",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791053874793,
+      "tag": "0004_add_storefront_theme_settings",
+      "breakpoints": true
     }
   ]
 }

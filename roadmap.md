@@ -17,3 +17,4 @@
 
 - [x] Visual site editor for text and backgrounds on Lovable and cPanel
 - [x] Rebuild and deliver updated private cPanel package
+- [x] Self-host the animated homepage video in the cPanel package

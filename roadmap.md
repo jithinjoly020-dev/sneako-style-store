@@ -15,5 +15,5 @@
 - [x] Advanced admin theme controls for typography, layout, product media, buttons, header and effects
 - [x] Uploaded UNLABELLED logo in customer header/footer and matching favicon
 
-- [ ] Visual site editor for text and backgrounds on Lovable and cPanel
+- [x] Visual site editor for text and backgrounds on Lovable and cPanel
 - [ ] Rebuild and deliver updated private cPanel package

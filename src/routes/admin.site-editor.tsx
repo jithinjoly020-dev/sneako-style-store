@@ -46,7 +46,7 @@ function SiteEditor() {
   const [saving, setSaving] = useState(false);
   const iframe = useRef<HTMLIFrameElement>(null);
   useEffect(() => { if (data && !form) setForm(data); }, [data, form]);
-  const page = pages[pageIndex];
+  const page = pages[pageIndex] ?? pages[0];
   const fields: Field[] = [
     ...page.texts.map(([key, fallback]) => ({ key, fallback, label: key.split(".").at(-1) ?? key, kind: "text" as const })),
     ...page.backgrounds.map(([key, label]) => ({ key, label, kind: "background" as const })),

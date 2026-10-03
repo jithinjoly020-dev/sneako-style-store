@@ -14,3 +14,6 @@
 - [x] Admin theme editor with published colors, fonts, corners, motion and grain controls
 - [x] Advanced admin theme controls for typography, layout, product media, buttons, header and effects
 - [x] Uploaded UNLABELLED logo in customer header/footer and matching favicon
+
+- [ ] Visual site editor for text and backgrounds on Lovable and cPanel
+- [ ] Rebuild and deliver updated private cPanel package

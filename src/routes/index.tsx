@@ -15,6 +15,10 @@ import { EditableBackground, EditableText, EditTarget, useSiteContent } from "@/
 import homeHeroVideo from "@/assets/home-hero-fashion-web.mp4.asset.json";
 import homeHeroVideoWebm from "@/assets/home-hero-fashion.webm.asset.json";
 
+const STATIC_HOST = import.meta.env["VITE_STATIC_HOST"] === "1";
+const heroVideoMp4 = STATIC_HOST ? "/videos/home-hero-fashion.mp4" : homeHeroVideo.url;
+const heroVideoWebm = STATIC_HOST ? "/videos/home-hero-fashion.webm" : homeHeroVideoWebm.url;
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -127,7 +131,7 @@ function Index() {
         <EditableBackground contentKey="home.hero" fallbackImage="/images/hero.jpg" className="h-[78vh] min-h-[520px] w-full overflow-hidden">
           <video
             className="absolute inset-0 h-full w-full scale-[1.03] object-cover"
-            poster="/images/hero.jpg"
+            poster={STATIC_HOST ? undefined : "/images/hero.jpg"}
             autoPlay
             muted
             loop
@@ -135,8 +139,8 @@ function Index() {
             preload="metadata"
             aria-hidden="true"
           >
-            <source src={homeHeroVideoWebm.url} type="video/webm" />
-            <source src={homeHeroVideo.url} type="video/mp4" />
+            <source src={heroVideoWebm} type="video/webm" />
+            <source src={heroVideoMp4} type="video/mp4" />
           </video>
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/45 to-background/10" />
           <div

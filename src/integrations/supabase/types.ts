@@ -14,6 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
+      custom_orders: {
+        Row: {
+          address: string
+          admin_notes: string
+          color: string
+          created_at: string
+          customer_email: string
+          customer_name: string
+          customer_phone: string
+          design_path: string
+          design_text: string
+          estimated_total: number
+          id: string
+          notes: string
+          placement: string
+          quantity: number
+          quoted_price: number | null
+          request_number: string
+          size: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string
+          admin_notes?: string
+          color?: string
+          created_at?: string
+          customer_email: string
+          customer_name: string
+          customer_phone?: string
+          design_path?: string
+          design_text?: string
+          estimated_total?: number
+          id?: string
+          notes?: string
+          placement?: string
+          quantity?: number
+          quoted_price?: number | null
+          request_number?: string
+          size?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          admin_notes?: string
+          color?: string
+          created_at?: string
+          customer_email?: string
+          customer_name?: string
+          customer_phone?: string
+          design_path?: string
+          design_text?: string
+          estimated_total?: number
+          id?: string
+          notes?: string
+          placement?: string
+          quantity?: number
+          quoted_price?: number | null
+          request_number?: string
+          size?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      custom_settings: {
+        Row: {
+          back_print_price: number
+          base_price: number
+          colors: string[]
+          enabled: boolean
+          front_print_price: number
+          id: number
+          notes: string
+          sizes: string[]
+          updated_at: string
+        }
+        Insert: {
+          back_print_price?: number
+          base_price?: number
+          colors?: string[]
+          enabled?: boolean
+          front_print_price?: number
+          id?: number
+          notes?: string
+          sizes?: string[]
+          updated_at?: string
+        }
+        Update: {
+          back_print_price?: number
+          base_price?: number
+          colors?: string[]
+          enabled?: boolean
+          front_print_price?: number
+          id?: number
+          notes?: string
+          sizes?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string

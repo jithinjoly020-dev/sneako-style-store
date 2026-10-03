@@ -131,6 +131,6 @@ export function EditableBackground({ contentKey, children, className, fallbackIm
     window.parent.postMessage({ type: "site-editor:select", key: contentKey, kind: "background" }, window.location.origin);
   }}>
     {image && (value?.overlay ?? 0) > 0 && <span aria-hidden className="pointer-events-none absolute inset-0 bg-background" style={{ opacity: (value?.overlay ?? 0) / 100 }} />}
-    <div className="relative">{children}</div>
+    <div className="relative h-full">{children}</div>
   </div>;
 }

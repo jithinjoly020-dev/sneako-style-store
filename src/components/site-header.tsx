@@ -4,7 +4,6 @@ import { Menu, X } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
-import logoAsset from "@/assets/unlabelled-logo.png.asset.json";
 
 const links = [
   { to: "/shop", label: "Shop" },
@@ -21,7 +20,7 @@ export function SiteHeader() {
     <header className="site-header sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md">
       <div className="site-container mx-auto flex h-16 max-w-[1400px] items-center justify-between px-5 md:px-10">
         <Link to="/" aria-label="unlabelled home" className="block">
-          <img src={logoAsset.url} alt="UNLABELLED" className="brand-logo h-auto w-[148px]" />
+          <img src="/images/unlabelled-logo.png" alt="UNLABELLED" className="brand-logo h-auto w-[148px]" />
         </Link>
 
         <nav className="hidden items-center gap-10 md:flex">

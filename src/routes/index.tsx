@@ -116,28 +116,25 @@ const collectibles = [
 
 function Index() {
   const { data: products = [] } = useQuery(productsQuery);
-  const { text, background } = useSiteContent();
+  const { text } = useSiteContent();
   const featured = products.filter((p) => p.featured && p.is_active).slice(0, 4);
-  const customHeroBackground = background("home.hero")?.image;
 
   return (
     <div>
       <ScrollProgress />
       <section className="relative">
         <EditableBackground contentKey="home.hero" fallbackImage="/images/hero.jpg" className="h-[78vh] min-h-[520px] w-full overflow-hidden">
-          {!customHeroBackground && (
-            <video
-              className="absolute inset-0 h-full w-full scale-[1.03] object-cover"
-              src={homeHeroVideo.url}
-              poster="/images/hero.jpg"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              aria-hidden="true"
-            />
-          )}
+          <video
+            className="absolute inset-0 h-full w-full scale-[1.03] object-cover"
+            src={homeHeroVideo.url}
+            poster="/images/hero.jpg"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-hidden="true"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/45 to-background/10" />
           <div
             aria-hidden

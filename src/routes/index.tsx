@@ -12,7 +12,7 @@ import {
   Counter,
 } from "@/components/motion";
 import { EditableBackground, EditableText, EditTarget, useSiteContent } from "@/lib/site-content";
-import homeHeroVideo from "@/assets/home-hero-fashion.mp4.asset.json";
+import homeHeroVideo from "@/assets/home-hero-fashion-web.mp4.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({

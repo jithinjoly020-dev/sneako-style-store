@@ -16,4 +16,4 @@
 - [x] Uploaded UNLABELLED logo in customer header/footer and matching favicon
 
 - [x] Visual site editor for text and backgrounds on Lovable and cPanel
-- [ ] Rebuild and deliver updated private cPanel package
+- [x] Rebuild and deliver updated private cPanel package

@@ -23,7 +23,7 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-border px-5 py-5 md:px-10">
         <p className="label-xs text-muted-foreground">
-          © {new Date().getFullYear()} unlabelled · Secure payments · Free shipping over ₹2,999
+          © {new Date().getFullYear()} unlabelled · UPI & cash on delivery · Free shipping over ₹2,999
         </p>
       </div>
     </footer>

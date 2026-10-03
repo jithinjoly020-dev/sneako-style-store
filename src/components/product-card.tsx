@@ -9,7 +9,7 @@ export function ProductCard({ product }: { product: Product }) {
       <Link
         to="/product/$slug"
         params={{ slug: product.slug }}
-        className="group block h-full border border-border bg-surface"
+        className="theme-surface group block h-full border border-border bg-surface"
       >
         <div className="product-media aspect-[4/5] overflow-hidden bg-muted">
           <img

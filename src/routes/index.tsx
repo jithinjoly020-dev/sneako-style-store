@@ -13,6 +13,7 @@ import {
 } from "@/components/motion";
 import { EditableBackground, EditableText, EditTarget, useSiteContent } from "@/lib/site-content";
 import homeHeroVideo from "@/assets/home-hero-fashion-web.mp4.asset.json";
+import homeHeroVideoWebm from "@/assets/home-hero-fashion.webm.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -126,7 +127,6 @@ function Index() {
         <EditableBackground contentKey="home.hero" fallbackImage="/images/hero.jpg" className="h-[78vh] min-h-[520px] w-full overflow-hidden">
           <video
             className="absolute inset-0 h-full w-full scale-[1.03] object-cover"
-            src={homeHeroVideo.url}
             poster="/images/hero.jpg"
             autoPlay
             muted
@@ -134,7 +134,10 @@ function Index() {
             playsInline
             preload="metadata"
             aria-hidden="true"
-          />
+          >
+            <source src={homeHeroVideoWebm.url} type="video/webm" />
+            <source src={homeHeroVideo.url} type="video/mp4" />
+          </video>
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/45 to-background/10" />
           <div
             aria-hidden

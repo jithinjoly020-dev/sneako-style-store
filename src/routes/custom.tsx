@@ -95,7 +95,7 @@ function CustomPage() {
   }, [settings, color, size]);
 
   useEffect(() => {
-    if (!file) return setPreview(null);
+    if (!file) return void setPreview(null);
     const url = URL.createObjectURL(file);
     setPreview(url);
     return () => URL.revokeObjectURL(url);
@@ -105,18 +105,18 @@ function CustomPage() {
 
   function pick(f: File | undefined) {
     if (!f) return;
-    if (!ALLOWED.includes(f.type)) return toast.error("Use a PNG, JPG, WEBP or SVG file");
-    if (f.size > 10 * 1024 * 1024) return toast.error("File must be under 10 MB");
+    if (!ALLOWED.includes(f.type)) return void toast.error("Use a PNG, JPG, WEBP or SVG file");
+    if (f.size > 10 * 1024 * 1024) return void toast.error("File must be under 10 MB");
     setFile(f);
   }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!settings) return;
-    if (!file && !text.trim()) return toast.error("Upload a design or add text");
-    if (form.name.trim().length < 2) return toast.error("Enter your name");
-    if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) return toast.error("Enter a valid email");
-    if (!/^\d{10}$/.test(form.phone.replace(/\D/g, "").slice(-10))) return toast.error("Enter a 10-digit phone number");
+    if (!file && !text.trim()) return void toast.error("Upload a design or add text");
+    if (form.name.trim().length < 2) return void toast.error("Enter your name");
+    if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) return void toast.error("Enter a valid email");
+    if (!/^\d{10}$/.test(form.phone.replace(/\D/g, "").slice(-10))) return void toast.error("Enter a 10-digit phone number");
     setSending(true);
     try {
       let design_path = "";

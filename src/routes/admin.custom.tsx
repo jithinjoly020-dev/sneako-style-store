@@ -69,7 +69,7 @@ function Orders() {
 
   async function update(id: string, values: Partial<CustomOrder>) {
     const { error } = await supabase.from("custom_orders").update(values).eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return void toast.error(error.message);
     toast.success("Saved");
     qc.invalidateQueries({ queryKey: ["custom-orders"] });
   }
@@ -78,7 +78,7 @@ function Orders() {
     if (!confirm(`Delete ${o.request_number}?`)) return;
     if (o.design_path) await supabase.storage.from("custom-designs").remove([o.design_path]);
     const { error } = await supabase.from("custom_orders").delete().eq("id", o.id);
-    if (error) return toast.error(error.message);
+    if (error) return void toast.error(error.message);
     qc.invalidateQueries({ queryKey: ["custom-orders"] });
   }
 
@@ -228,7 +228,7 @@ function Setup() {
   async function save(e: React.FormEvent) {
     e.preventDefault();
     if (!form) return;
-    if (!list(form.colors).length || !list(form.sizes).length) return toast.error("Add at least one colour and one size");
+    if (!list(form.colors).length || !list(form.sizes).length) return void toast.error("Add at least one colour and one size");
     const { error } = await supabase
       .from("custom_settings")
       .update({
@@ -242,7 +242,7 @@ function Setup() {
         updated_at: new Date().toISOString(),
       })
       .eq("id", 1);
-    if (error) return toast.error(error.message);
+    if (error) return void toast.error(error.message);
     toast.success("Custom setup saved");
     qc.invalidateQueries({ queryKey: ["custom-settings"] });
   }

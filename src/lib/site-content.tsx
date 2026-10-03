@@ -64,7 +64,10 @@ const SiteContentContext = createContext<SiteContentContextValue | null>(null);
 export function SiteContentProvider({ children }: { children: ReactNode }) {
   const { data = DEFAULT_SITE_CONTENT } = useQuery(siteContentQuery);
   const [preview, setPreview] = useState<SiteContent | null>(null);
-  const editorPreview = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("site-editor-preview") === "1";
+  const [editorPreview, setEditorPreview] = useState(false);
+  useEffect(() => {
+    setEditorPreview(new URLSearchParams(window.location.search).get("site-editor-preview") === "1");
+  }, []);
   useEffect(() => {
     if (!editorPreview) return;
     const receive = (event: MessageEvent) => {

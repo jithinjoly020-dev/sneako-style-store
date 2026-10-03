@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { EditableBackground, EditableText } from "@/lib/site-content";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -60,12 +61,10 @@ const faqs = [
 
 function Contact() {
   return (
-    <div className="mx-auto max-w-[1000px] px-5 py-16 md:px-10 md:py-24">
-      <p className="label-xs text-muted-foreground">Talk to us</p>
-      <h1 className="mt-4 text-4xl font-semibold md:text-7xl">CONTACT</h1>
-      <p className="mt-8 max-w-[680px] text-xl leading-relaxed text-muted-foreground">
-        A real person reads every message. We answer within one working day, usually much sooner.
-      </p>
+    <EditableBackground contentKey="contact.hero" className="mx-auto max-w-[1000px] px-5 py-16 md:px-10 md:py-24">
+      <EditableText as="p" contentKey="contact.eyebrow" fallback="Talk to us" className="label-xs text-muted-foreground" />
+      <EditableText as="h1" contentKey="contact.title" fallback="CONTACT" className="mt-4 text-4xl font-semibold md:text-7xl" />
+      <EditableText as="p" contentKey="contact.intro" fallback="A real person reads every message. We answer within one working day, usually much sooner." className="mt-8 max-w-[680px] text-xl leading-relaxed text-muted-foreground" />
 
       <div className="mt-12 grid gap-px bg-border md:grid-cols-3">
         {channels.map((c) => (
@@ -104,7 +103,7 @@ function Contact() {
         </div>
       </div>
 
-      <h2 className="mt-24 text-2xl font-semibold md:text-4xl">COMMON QUESTIONS</h2>
+      <EditableText as="h2" contentKey="contact.questions" fallback="COMMON QUESTIONS" className="mt-24 text-2xl font-semibold md:text-4xl" />
       <div className="mt-8 border-t border-border">
         {faqs.map((f) => (
           <details key={f.q} className="group border-b border-border py-5">
@@ -124,6 +123,6 @@ function Contact() {
           About the studio
         </Link>
       </div>
-    </div>
+    </EditableBackground>
   );
 }

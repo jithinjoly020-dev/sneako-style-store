@@ -107,6 +107,16 @@ export function EditableText({ as = "span", contentKey, fallback, className }: {
   return createElement(as, { className, "data-site-edit": editorPreview ? contentKey : undefined, onClick: select }, text(contentKey, fallback));
 }
 
+export function EditTarget({ contentKey, children, className }: { contentKey: string; children: ReactNode; className?: string }) {
+  const { editorPreview } = useSiteContent();
+  return <div className={className} data-site-edit={editorPreview ? contentKey : undefined} onClick={(event) => {
+    if (!editorPreview) return;
+    event.preventDefault();
+    event.stopPropagation();
+    window.parent.postMessage({ type: "site-editor:select", key: contentKey, kind: "text" }, window.location.origin);
+  }}>{children}</div>;
+}
+
 export function EditableBackground({ contentKey, children, className, fallbackImage }: { contentKey: string; children: ReactNode; className?: string; fallbackImage?: string }) {
   const { background, editorPreview } = useSiteContent();
   const value = background(contentKey);

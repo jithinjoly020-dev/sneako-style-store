@@ -117,6 +117,17 @@ html[data-shadow="strong"] .theme-surface { box-shadow: 0 20px 50px color-mix(in
 html[data-button-style="outline"] .theme-button { background: transparent; color: var(--foreground); border: 1px solid var(--primary); }
 html[data-button-style="soft"] .theme-button { background: var(--accent); color: var(--foreground); }
 
+[data-site-edit] {
+  cursor: pointer;
+  outline: 1px dashed color-mix(in oklab, var(--ring) 70%, transparent);
+  outline-offset: 3px;
+}
+
+[data-site-edit]:hover {
+  outline-style: solid;
+  outline-width: 2px;
+}
+
 @utility label-xs {
   font-family: var(--font-mono);
   font-size: 0.6875rem;

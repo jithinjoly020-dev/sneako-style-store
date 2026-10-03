@@ -12,6 +12,7 @@ import {
   ScrollProgress,
   Counter,
 } from "@/components/motion";
+import { EditableBackground, EditableText, EditTarget, useSiteContent } from "@/lib/site-content";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -113,22 +114,17 @@ const collectibles = [
 
 function Index() {
   const { data: products = [] } = useQuery(productsQuery);
+  const { text } = useSiteContent();
   const featured = products.filter((p) => p.featured && p.is_active).slice(0, 4);
 
   return (
     <div>
       <ScrollProgress />
       <section className="relative">
-        <div className="relative h-[78vh] min-h-[520px] w-full overflow-hidden">
+        <EditableBackground contentKey="home.hero" fallbackImage="/images/hero.jpg" className="h-[78vh] min-h-[520px] w-full overflow-hidden">
           <Parallax3D speed={0.14} className="absolute inset-0">
             <ScaleReveal from={1.22} className="h-full">
-              <img
-                src="/images/hero.jpg"
-                alt="Model wearing an oversized heavyweight grey t-shirt against a concrete wall"
-                width={1920}
-                height={1200}
-                className="h-[120%] w-full object-cover"
-              />
+              <div className="h-[120%] w-full" />
             </ScaleReveal>
           </Parallax3D>
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/45 to-background/10" />
@@ -150,27 +146,27 @@ function Index() {
           />
           <div className="film-grain pointer-events-none absolute inset-0" aria-hidden />
           <div className="absolute inset-0 mx-auto flex max-w-[1400px] flex-col justify-end px-5 pb-14 md:px-10 md:pb-20">
-            <p className="label-xs fade-up text-muted-foreground">Collection 01 — unlabelled</p>
-            <SplitText
+            <EditableText as="p" contentKey="home.eyebrow" fallback="Collection 01 — unlabelled" className="label-xs fade-up text-muted-foreground" />
+            <EditTarget contentKey="home.title"><SplitText
               as="h1"
-              text="WEIGHT OVER NOISE"
+              text={text("home.title", "WEIGHT OVER NOISE")}
               stagger={90}
               delay={120}
               className="mt-4 block max-w-4xl text-[13vw] leading-[0.86] font-semibold tracking-[-0.05em] md:text-[7rem]"
-            />
-            <SplitText
-              text="Heavyweight cotton basics built in a grey-only palette. Made to be worn every day, washed hard, and to still look like itself two years from now."
+            /></EditTarget>
+            <EditTarget contentKey="home.intro"><SplitText
+              text={text("home.intro", "Heavyweight cotton basics built in a grey-only palette. Made to be worn every day, washed hard, and to still look like itself two years from now.")}
               stagger={14}
               delay={500}
               className="mt-6 block max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg"
-            />
+            /></EditTarget>
             <div className="fade-up mt-8 flex flex-wrap gap-3">
               <Magnetic>
                 <Link
                   to="/shop"
                   className="inline-flex items-center bg-primary px-8 py-4 text-sm font-medium tracking-wide text-primary-foreground transition-opacity hover:opacity-85"
                 >
-                  Shop the collection
+                   <EditableText contentKey="home.primaryCta" fallback="Shop the collection" />
                 </Link>
               </Magnetic>
               <Magnetic>
@@ -178,12 +174,12 @@ function Index() {
                   to="/about"
                   className="inline-flex items-center border border-border px-8 py-4 text-sm font-medium tracking-wide transition-colors hover:bg-accent"
                 >
-                  The studio
+                   <EditableText contentKey="home.secondaryCta" fallback="The studio" />
                 </Link>
               </Magnetic>
             </div>
           </div>
-        </div>
+        </EditableBackground>
       </section>
 
       <section className="border-y border-border py-4">
@@ -202,13 +198,13 @@ function Index() {
 
       <section className="mx-auto max-w-[1400px] px-5 py-16 md:px-10 md:py-24">
         <Reveal3D>
-          <p className="label-xs text-muted-foreground">Manifesto</p>
-          <SplitText
+          <EditableText as="p" contentKey="home.manifestoLabel" fallback="Manifesto" className="label-xs text-muted-foreground" />
+          <EditTarget contentKey="home.manifesto"><SplitText
             as="p"
-            text="Most t-shirts are a billboard with sleeves. We took the graphics off, doubled the fabric weight, and spent the difference on cotton. What's left is a shirt that does one job properly — and gets out of the way."
+            text={text("home.manifesto", "Most t-shirts are a billboard with sleeves. We took the graphics off, doubled the fabric weight, and spent the difference on cotton. What's left is a shirt that does one job properly — and gets out of the way.")}
             stagger={18}
             className="mt-6 block max-w-4xl text-2xl leading-[1.25] font-medium tracking-[-0.02em] md:text-[2.75rem]"
-          />
+          /></EditTarget>
         </Reveal3D>
         <div className="mt-14 grid gap-px bg-border sm:grid-cols-3">
           {[
@@ -229,7 +225,7 @@ function Index() {
       <section className="mx-auto max-w-[1400px] px-5 pb-16 md:px-10 md:pb-24">
         <Reveal3D>
           <div className="hairline flex items-end justify-between pb-5">
-            <h2 className="text-2xl font-semibold md:text-4xl">Featured</h2>
+            <EditableText as="h2" contentKey="home.featured" fallback="Featured" className="text-2xl font-semibold md:text-4xl" />
             <Link to="/shop" className="label-xs text-muted-foreground hover:text-foreground">
               All products
             </Link>
@@ -244,7 +240,7 @@ function Index() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden border-t border-border">
+      <EditableBackground contentKey="home.collectiblesBg" className="overflow-hidden border-t border-border">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 opacity-70"
@@ -264,9 +260,7 @@ function Index() {
         <div className="relative mx-auto max-w-[1400px] px-5 py-20 md:px-10 md:py-28">
           <Reveal3D>
             <p className="label-xs text-muted-foreground">Collectibles</p>
-            <h2 className="mt-4 max-w-3xl text-3xl font-semibold md:text-5xl">
-              Every drop ships with a digital card
-            </h2>
+            <EditableText as="h2" contentKey="home.collectibles" fallback="Every drop ships with a digital card" className="mt-4 max-w-3xl text-3xl font-semibold md:text-5xl" />
             <p className="mt-5 max-w-xl text-sm leading-relaxed text-muted-foreground">
               Each shirt is minted to a numbered collectible — beveled edge, glass layers, and the
               full spec of the garment you own. Move your cursor across a card to light it.
@@ -280,7 +274,7 @@ function Index() {
             ))}
           </div>
         </div>
-      </section>
+      </EditableBackground>
 
       <section className="border-t border-border">
         <div className="mx-auto grid max-w-[1400px] gap-px bg-border px-0 md:grid-cols-3">
@@ -299,7 +293,7 @@ function Index() {
         <div className="mx-auto max-w-[1400px] px-5 py-16 md:px-10 md:py-24">
           <Reveal3D>
             <p className="label-xs text-muted-foreground">How it's made</p>
-            <h2 className="mt-4 text-3xl font-semibold md:text-5xl">Four steps, no shortcuts</h2>
+            <EditableText as="h2" contentKey="home.process" fallback="Four steps, no shortcuts" className="mt-4 text-3xl font-semibold md:text-5xl" />
           </Reveal3D>
           <div className="mt-10 grid gap-px bg-border md:grid-cols-2">
             {process.map((s, i) => (
@@ -320,11 +314,7 @@ function Index() {
       <section className="border-t border-border">
         <div className="mx-auto grid max-w-[1400px] gap-10 px-5 py-16 md:grid-cols-2 md:px-10 md:py-24">
           <Reveal3D>
-            <h2 className="text-3xl font-semibold md:text-5xl">
-              Questions,
-              <br />
-              answered plainly
-            </h2>
+            <EditableText as="h2" contentKey="home.questions" fallback="Questions, answered plainly" className="text-3xl font-semibold md:text-5xl" />
             <p className="mt-5 max-w-md text-sm leading-relaxed text-muted-foreground">
               Anything not covered here, write to us from the contact page. A person reads every
               message, usually the same day.
@@ -346,12 +336,12 @@ function Index() {
       <section className="border-t border-border">
         <div className="mx-auto max-w-[1400px] px-5 py-20 text-center md:px-10 md:py-28">
           <Reveal3D>
-            <SplitText
+            <EditTarget contentKey="home.finalCta"><SplitText
               as="h2"
-              text="BUY ONE. WEAR IT OUT."
+              text={text("home.finalCta", "BUY ONE. WEAR IT OUT.")}
               stagger={90}
               className="block text-[11vw] leading-[0.9] font-semibold tracking-[-0.05em] md:text-[6rem]"
-            />
+            /></EditTarget>
             <div className="mt-10">
               <Magnetic>
                 <Link

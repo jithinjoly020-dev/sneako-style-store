@@ -13,6 +13,7 @@ import {
   Counter,
 } from "@/components/motion";
 import { EditableBackground, EditableText, EditTarget, useSiteContent } from "@/lib/site-content";
+import homeHeroVideo from "@/assets/home-hero-fashion.mp4.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -28,6 +29,8 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "Heavyweight cotton tees in a tight, unbranded palette.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Index,
@@ -114,8 +117,9 @@ const collectibles = [
 
 function Index() {
   const { data: products = [] } = useQuery(productsQuery);
-  const { text } = useSiteContent();
+  const { text, background } = useSiteContent();
   const featured = products.filter((p) => p.featured && p.is_active).slice(0, 4);
+  const customHeroBackground = background("home.hero")?.image;
 
   return (
     <div>
@@ -124,7 +128,21 @@ function Index() {
         <EditableBackground contentKey="home.hero" fallbackImage="/images/hero.jpg" className="h-[78vh] min-h-[520px] w-full overflow-hidden">
           <Parallax3D speed={0.14} className="absolute inset-0">
             <ScaleReveal from={1.22} className="h-full">
-              <div className="h-[120%] w-full" />
+              <div className="relative h-[120%] w-full">
+                {!customHeroBackground && (
+                  <video
+                    className="absolute inset-0 h-full w-full object-cover"
+                    src={homeHeroVideo.url}
+                    poster="/images/hero.jpg"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
+                    aria-hidden="true"
+                  />
+                )}
+              </div>
             </ScaleReveal>
           </Parallax3D>
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/45 to-background/10" />

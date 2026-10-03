@@ -17,6 +17,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Toaster } from "@/components/ui/sonner";
 import { PageDepth } from "@/components/three-d";
+import { ThemeProvider } from "@/lib/theme";
 
 
 function NotFoundComponent() {
@@ -131,6 +132,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <CartProvider>
+        <ThemeProvider>
         <div className="flex min-h-screen flex-col">
           {!isAdmin && <SiteHeader />}
           <main className="flex-1">
@@ -142,6 +144,7 @@ function RootComponent() {
           {!isAdmin && <SiteFooter />}
         </div>
         <Toaster />
+        </ThemeProvider>
       </CartProvider>
     </QueryClientProvider>
   );

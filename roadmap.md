@@ -10,3 +10,5 @@
 - [x] Studio virtual try-on using active shop products
   - [x] Live camera preview with movable and resizable shirt layer
   - [x] Realistic AI photo try-on with streamed previews and download
+- [x] Customer light/dark/system theme switch with saved preference
+- [x] Admin theme editor with published colors, fonts, corners, motion and grain controls

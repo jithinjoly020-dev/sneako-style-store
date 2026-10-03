@@ -59,14 +59,14 @@ function palette(value: unknown, fallback: ThemePalette): ThemePalette {
 export function normalizeTheme(value: unknown): StoreTheme {
   const source = value && typeof value === "object" ? value as Record<string, unknown> : {};
   return {
-    defaultMode: ["light", "dark", "system"].includes(String(source.defaultMode)) ? source.defaultMode as ThemeMode : DEFAULT_THEME.defaultMode,
-    light: palette(source.light, DEFAULT_THEME.light),
-    dark: palette(source.dark, DEFAULT_THEME.dark),
-    headingFont: source.headingFont === "JetBrains Mono" ? "JetBrains Mono" : "Archivo",
-    bodyFont: source.bodyFont === "JetBrains Mono" ? "JetBrains Mono" : "Archivo",
-    radius: ["square", "soft", "rounded"].includes(String(source.radius)) ? source.radius as StoreTheme["radius"] : DEFAULT_THEME.radius,
-    motion: ["full", "subtle", "off"].includes(String(source.motion)) ? source.motion as StoreTheme["motion"] : DEFAULT_THEME.motion,
-    grain: source.grain !== false,
+    defaultMode: ["light", "dark", "system"].includes(String(source["defaultMode"])) ? source["defaultMode"] as ThemeMode : DEFAULT_THEME.defaultMode,
+    light: palette(source["light"], DEFAULT_THEME.light),
+    dark: palette(source["dark"], DEFAULT_THEME.dark),
+    headingFont: source["headingFont"] === "JetBrains Mono" ? "JetBrains Mono" : "Archivo",
+    bodyFont: source["bodyFont"] === "JetBrains Mono" ? "JetBrains Mono" : "Archivo",
+    radius: ["square", "soft", "rounded"].includes(String(source["radius"])) ? source["radius"] as StoreTheme["radius"] : DEFAULT_THEME.radius,
+    motion: ["full", "subtle", "off"].includes(String(source["motion"])) ? source["motion"] as StoreTheme["motion"] : DEFAULT_THEME.motion,
+    grain: source["grain"] !== false,
   };
 }
 
@@ -106,9 +106,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const root = document.documentElement;
     const colors = data[resolvedMode];
     root.classList.toggle("dark", resolvedMode === "dark");
-    root.dataset.theme = resolvedMode;
-    root.dataset.motion = data.motion;
-    root.dataset.grain = String(data.grain);
+    root.dataset["theme"] = resolvedMode;
+    root.dataset["motion"] = data.motion;
+    root.dataset["grain"] = String(data.grain);
     root.style.setProperty("--background", colors.background);
     root.style.setProperty("--foreground", colors.foreground);
     root.style.setProperty("--surface", colors.surface);

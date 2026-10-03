@@ -37,7 +37,7 @@ function ThemeEditor() {
   useEffect(() => { if (data && !form) setForm(data); }, [data, form]);
   if (!form) return <p className="label-xs text-muted-foreground">Loading theme…</p>;
 
-  const changed = JSON.stringify(form) !== JSON.stringify(data);
+  const changed = Boolean(data) && JSON.stringify(form) !== JSON.stringify(data);
   const colors = form[previewMode];
   const setPalette = (key: keyof ThemePalette, value: string) => setForm({ ...form, [previewMode]: { ...colors, [key]: value } });
   async function save() {
@@ -46,6 +46,7 @@ function ThemeEditor() {
     setSaving(false);
     if (error) return void toast.error(error.message);
     await refresh();
+    setForm(form);
     toast.success("Storefront theme published");
   }
 
@@ -75,7 +76,7 @@ function ThemeEditor() {
           <label className="flex items-center justify-between border-y border-border py-4"><span><strong className="block text-sm">Film grain</strong><span className="text-sm text-muted-foreground">Keep the editorial texture on visual areas.</span></span><input type="checkbox" checked={form.grain} onChange={(e) => setForm({ ...form, grain: e.target.checked })} className="size-5 accent-current" /></label>
         </div>
 
-        <aside className="xl:sticky xl:top-8 xl:self-start"><p className="label-xs mb-3 text-muted-foreground">Live preview · {previewMode}</p><div className="overflow-hidden border p-5" style={{ background: colors.background, color: colors.foreground, borderColor: colors.border, borderRadius: form.radius === "square" ? 0 : form.radius === "soft" ? 4 : 10, fontFamily: form.bodyFont }}><div className="flex items-center justify-between border-b pb-4" style={{ borderColor: colors.border }}><strong style={{ fontFamily: form.headingFont }}>UNLABELLED.</strong><span className="text-xs" style={{ color: colors.mutedForeground }}>SHOP &nbsp; STUDIO</span></div><div className="py-12"><p className="text-xs uppercase" style={{ color: colors.mutedForeground }}>Heavyweight essentials</p><h3 className="mt-3 text-4xl font-semibold" style={{ fontFamily: form.headingFont }}>Built to hold<br />its shape.</h3><button type="button" className="mt-6 px-4 py-3 text-xs font-semibold uppercase" style={{ background: colors.primary, color: colors.primaryForeground, borderRadius: form.radius === "square" ? 0 : form.radius === "soft" ? 4 : 10 }}>Shop collection</button></div><div className="border p-4" style={{ background: colors.surface, borderColor: colors.border, borderRadius: form.radius === "square" ? 0 : form.radius === "soft" ? 4 : 10 }}><div className="aspect-[4/3]" style={{ background: colors.muted }} /><p className="mt-3 text-sm font-medium">MONOLITH TEE</p><p className="mt-1 text-xs" style={{ color: colors.mutedForeground }}>₹1,499 · 240 GSM</p></div></div>{changed && <p className="mt-3 text-xs text-muted-foreground">You have unpublished changes.</p>}</aside>
+        <aside className="xl:sticky xl:top-8 xl:self-start"><p className="label-xs mb-3 text-muted-foreground">Live preview · {previewMode}</p><div className="overflow-hidden border p-5" style={{ background: colors.background, color: colors.foreground, borderColor: colors.border, borderRadius: form.radius === "square" ? 0 : form.radius === "soft" ? 4 : 10, fontFamily: form.bodyFont }}><div className="flex items-center justify-between border-b pb-4" style={{ borderColor: colors.border }}><strong style={{ fontFamily: form.headingFont }}>UNLABELLED.</strong><span className="text-xs" style={{ color: colors.mutedForeground }}>SHOP &nbsp; STUDIO</span></div><div className="py-12"><p className="text-xs uppercase" style={{ color: colors.mutedForeground }}>Heavyweight essentials</p><h3 className="mt-3 text-4xl font-semibold" style={{ fontFamily: form.headingFont }}>Built to hold<br />its shape.</h3><span className="mt-6 inline-block px-4 py-3 text-xs font-semibold uppercase" style={{ background: colors.primary, color: colors.primaryForeground, borderRadius: form.radius === "square" ? 0 : form.radius === "soft" ? 4 : 10 }}>Shop collection</span></div><div className="border p-4" style={{ background: colors.surface, borderColor: colors.border, borderRadius: form.radius === "square" ? 0 : form.radius === "soft" ? 4 : 10 }}><div className="aspect-[4/3]" style={{ background: colors.muted }} /><p className="mt-3 text-sm font-medium">MONOLITH TEE</p><p className="mt-1 text-xs" style={{ color: colors.mutedForeground }}>₹1,499 · 240 GSM</p></div></div>{changed && <p className="mt-3 text-xs text-muted-foreground">You have unpublished changes.</p>}</aside>
       </div>
     </div>
   );

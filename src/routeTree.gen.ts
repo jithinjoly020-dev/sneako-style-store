@@ -23,6 +23,7 @@ import { Route as AdminCustomRouteImport } from './routes/admin.custom'
 import { Route as AdminCustomersRouteImport } from './routes/admin.customers'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
+import { Route as AdminThemeRouteImport } from './routes/admin.theme'
 import { Route as AdminUpiRouteImport } from './routes/admin.upi'
 import { Route as ApiVirtualTryOnRouteImport } from './routes/api/virtual-try-on'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
@@ -100,6 +101,11 @@ const AdminProductsRoute = AdminProductsRouteImport.update({
   path: '/products',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminThemeRoute = AdminThemeRouteImport.update({
+  id: '/theme',
+  path: '/theme',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminUpiRoute = AdminUpiRouteImport.update({
   id: '/upi',
   path: '/upi',
@@ -145,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
+  '/admin/theme': typeof AdminThemeRoute
   '/admin/upi': typeof AdminUpiRoute
   '/api/virtual-try-on': typeof ApiVirtualTryOnRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -166,6 +173,7 @@ export interface FileRoutesByTo {
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
+  '/admin/theme': typeof AdminThemeRoute
   '/admin/upi': typeof AdminUpiRoute
   '/api/virtual-try-on': typeof ApiVirtualTryOnRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -189,6 +197,7 @@ export interface FileRoutesById {
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
+  '/admin/theme': typeof AdminThemeRoute
   '/admin/upi': typeof AdminUpiRoute
   '/api/virtual-try-on': typeof ApiVirtualTryOnRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -213,6 +222,7 @@ export interface FileRouteTypes {
     | '/admin/customers'
     | '/admin/orders'
     | '/admin/products'
+    | '/admin/theme'
     | '/admin/upi'
     | '/api/virtual-try-on'
     | '/product/$slug'
@@ -234,6 +244,7 @@ export interface FileRouteTypes {
     | '/admin/customers'
     | '/admin/orders'
     | '/admin/products'
+    | '/admin/theme'
     | '/admin/upi'
     | '/api/virtual-try-on'
     | '/product/$slug'
@@ -256,6 +267,7 @@ export interface FileRouteTypes {
     | '/admin/customers'
     | '/admin/orders'
     | '/admin/products'
+    | '/admin/theme'
     | '/admin/upi'
     | '/api/virtual-try-on'
     | '/product/$slug'
@@ -382,6 +394,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminProductsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/theme': {
+      id: '/admin/theme'
+      path: '/theme'
+      fullPath: '/admin/theme'
+      preLoaderRoute: typeof AdminThemeRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/upi': {
       id: '/admin/upi'
       path: '/upi'
@@ -432,6 +451,7 @@ interface AdminRouteChildren {
   AdminCustomersRoute: typeof AdminCustomersRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
   AdminProductsRoute: typeof AdminProductsRoute
+  AdminThemeRoute: typeof AdminThemeRoute
   AdminUpiRoute: typeof AdminUpiRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
@@ -441,6 +461,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCustomersRoute: AdminCustomersRoute,
   AdminOrdersRoute: AdminOrdersRoute,
   AdminProductsRoute: AdminProductsRoute,
+  AdminThemeRoute: AdminThemeRoute,
   AdminUpiRoute: AdminUpiRoute,
   AdminIndexRoute: AdminIndexRoute,
 }

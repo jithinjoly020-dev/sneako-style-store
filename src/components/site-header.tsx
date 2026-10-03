@@ -2,6 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { useCart } from "@/lib/cart";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { Button } from "@/components/ui/button";
 
 const links = [
   { to: "/shop", label: "Shop" },
@@ -35,17 +37,20 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-5">
+          <ThemeToggle />
           <Link to="/cart" className="label-xs text-foreground">
             Cart ({count})
           </Link>
-          <button
+          <Button
             type="button"
             aria-label="Menu"
+            variant="ghost"
+            size="icon"
             className="md:hidden"
             onClick={() => setOpen((v) => !v)}
           >
             {open ? <X className="size-5" /> : <Menu className="size-5" />}
-          </button>
+          </Button>
         </div>
       </div>
 

@@ -23,6 +23,7 @@ const nav = [
   { to: "/admin/customers", label: "Customers", exact: false },
   { to: "/admin/custom", label: "Custom designs", exact: false },
   { to: "/admin/upi", label: "UPI IDs", exact: false },
+  { to: "/admin/theme", label: "Theme", exact: false },
 ] as const;
 
 

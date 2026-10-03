@@ -21,6 +21,7 @@ const nav = [
   { to: "/admin/products", label: "Products", exact: false },
   { to: "/admin/orders", label: "Orders", exact: false },
   { to: "/admin/customers", label: "Customers", exact: false },
+  { to: "/admin/custom", label: "Custom designs", exact: false },
   { to: "/admin/upi", label: "UPI IDs", exact: false },
 ] as const;
 

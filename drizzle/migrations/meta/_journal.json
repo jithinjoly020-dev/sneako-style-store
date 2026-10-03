@@ -43,6 +43,13 @@
       "when": 1791054872115,
       "tag": "0005_allow_cod_orders",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791055901722,
+      "tag": "0006_add_visual_site_content",
+      "breakpoints": true
     }
   ]
 }

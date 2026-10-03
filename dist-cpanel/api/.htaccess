@@ -1,4 +1,0 @@
-RewriteEngine Off
-<FilesMatch "^(config|lib)\.php$">
-  Require all denied
-</FilesMatch>

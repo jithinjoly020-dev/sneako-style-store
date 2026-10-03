@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { VirtualTryOn } from "@/components/virtual-try-on";
+import { EditableBackground, EditableText } from "@/lib/site-content";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -58,13 +59,10 @@ const values = [
 function About() {
   return (
     <div className="py-16 md:py-24">
-      <div className="mx-auto max-w-[1000px] px-5 md:px-10">
-        <p className="label-xs text-muted-foreground">The studio</p>
-        <h1 className="mt-4 text-4xl font-semibold md:text-7xl">MADE PLAINLY</h1>
-        <p className="mt-10 max-w-[720px] text-xl leading-relaxed text-muted-foreground md:text-2xl">
-          unlabelled makes one thing properly: heavy cotton bodies that keep their shape after fifty
-          washes. No seasonal churn, no logos, no story we can't back up on the label.
-        </p>
+      <EditableBackground contentKey="about.hero" className="mx-auto max-w-[1000px] px-5 md:px-10">
+        <EditableText as="p" contentKey="about.eyebrow" fallback="The studio" className="label-xs text-muted-foreground" />
+        <EditableText as="h1" contentKey="about.title" fallback="MADE PLAINLY" className="mt-4 text-4xl font-semibold md:text-7xl" />
+        <EditableText as="p" contentKey="about.intro" fallback="unlabelled makes one thing properly: heavy cotton bodies that keep their shape after fifty washes. No seasonal churn, no logos, no story we can't back up on the label." className="mt-10 max-w-[720px] text-xl leading-relaxed text-muted-foreground md:text-2xl" />
 
         <div className="mt-16 grid gap-px bg-border md:grid-cols-2">
         {specs.map((b) => (
@@ -75,7 +73,7 @@ function About() {
         ))}
         </div>
 
-        <h2 className="mt-24 text-2xl font-semibold md:text-4xl">HOW A RUN IS MADE</h2>
+        <EditableText as="h2" contentKey="about.process" fallback="HOW A RUN IS MADE" className="mt-24 text-2xl font-semibold md:text-4xl" />
         <div className="mt-10 border-t border-border">
         {timeline.map((s) => (
           <div
@@ -89,7 +87,7 @@ function About() {
         ))}
         </div>
 
-        <h2 className="mt-24 text-2xl font-semibold md:text-4xl">WHAT WE HOLD TO</h2>
+        <EditableText as="h2" contentKey="about.values" fallback="WHAT WE HOLD TO" className="mt-24 text-2xl font-semibold md:text-4xl" />
         <div className="mt-10 grid gap-px bg-border md:grid-cols-2">
         {values.map((v) => (
           <div key={v.k} className="bg-background p-8">
@@ -98,12 +96,12 @@ function About() {
           </div>
         ))}
         </div>
-      </div>
+      </EditableBackground>
 
       <VirtualTryOn />
 
       <div className="mx-auto mt-24 max-w-[1000px] border border-border bg-surface p-8 md:p-12">
-        <h2 className="text-2xl font-semibold md:text-4xl">SIZING, PLAINLY</h2>
+        <EditableText as="h2" contentKey="about.sizing" fallback="SIZING, PLAINLY" className="text-2xl font-semibold md:text-4xl" />
         <p className="mt-4 max-w-[640px] leading-relaxed text-muted-foreground">
           Measurements are flat, in inches, taken on a finished garment. If you are between sizes,
           take the smaller one for a clean shoulder or the larger one for a true box fit.

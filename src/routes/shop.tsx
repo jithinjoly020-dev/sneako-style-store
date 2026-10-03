@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { productsQuery } from "@/lib/products";
 import { ProductCard } from "@/components/product-card";
+import { EditableBackground, EditableText } from "@/lib/site-content";
 
 export const Route = createFileRoute("/shop")({
   head: () => ({
@@ -28,8 +29,8 @@ function Shop() {
   const visible = category === "all" ? active : active.filter((p) => p.category === category);
 
   return (
-    <div className="mx-auto max-w-[1400px] px-5 py-14 md:px-10 md:py-20">
-      <h1 className="text-4xl font-semibold md:text-7xl">SHOP</h1>
+    <EditableBackground contentKey="shop.hero" className="mx-auto max-w-[1400px] px-5 py-14 md:px-10 md:py-20">
+      <EditableText as="h1" contentKey="shop.title" fallback="SHOP" className="text-4xl font-semibold md:text-7xl" />
       <div className="hairline mt-8 flex flex-wrap gap-6 pb-5">
         {categories.map((c) => (
           <button
@@ -50,12 +51,13 @@ function Shop() {
       {isLoading ? (
         <p className="label-xs mt-10 text-muted-foreground">Loading…</p>
       ) : (
-        <div className="mt-8 grid grid-cols-2 gap-px bg-border md:grid-cols-3 lg:grid-cols-4">
+          <div className="mt-8 grid grid-cols-2 gap-px bg-border md:grid-cols-3 lg:grid-cols-4">
           {visible.map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}
-        </div>
+            {!visible.length && <EditableText as="p" contentKey="shop.empty" fallback="No products in this collection yet." className="col-span-full bg-background py-16 text-center text-sm text-muted-foreground" />}
+          </div>
       )}
-    </div>
+    </EditableBackground>
   );
 }

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { customSettingsQuery, estimate, inr, swatch } from "@/lib/custom";
+import { EditableBackground, EditableText } from "@/lib/site-content";
 
 export const Route = createFileRoute("/custom")({
   head: () => ({
@@ -182,11 +183,9 @@ function CustomPage() {
     `label-xs border px-3 py-2 transition-colors ${active ? "border-foreground bg-foreground text-background" : "border-border text-muted-foreground hover:text-foreground"}`;
 
   return (
-    <div className="mx-auto max-w-[1400px] px-5 py-16 md:px-10 md:py-24">
-      <p className="label-xs text-muted-foreground">Custom studio</p>
-      <h1 className="mt-3 max-w-3xl font-display text-5xl font-semibold tracking-[-0.05em] md:text-7xl">
-        Your artwork. Our heavyweight tee.
-      </h1>
+    <EditableBackground contentKey="custom.hero" className="mx-auto max-w-[1400px] px-5 py-16 md:px-10 md:py-24">
+      <EditableText as="p" contentKey="custom.eyebrow" fallback="Custom studio" className="label-xs text-muted-foreground" />
+      <EditableText as="h1" contentKey="custom.title" fallback="Your artwork. Our heavyweight tee." className="mt-3 max-w-3xl font-display text-5xl font-semibold tracking-[-0.05em] md:text-7xl" />
       <p className="mt-5 max-w-xl text-muted-foreground">{settings.notes}</p>
 
       <form onSubmit={submit} className="mt-14 grid gap-12 lg:grid-cols-2">
@@ -212,7 +211,7 @@ function CustomPage() {
 
         <div className="space-y-10">
           <section>
-            <h2 className="label-xs mb-3">01 — Upload design</h2>
+            <EditableText as="h2" contentKey="custom.upload" fallback="01 — Upload design" className="label-xs mb-3" />
             <label
               className="flex cursor-pointer flex-col items-center justify-center border border-dashed border-border px-6 py-10 text-center hover:border-foreground"
               onDragOver={(e) => e.preventDefault()}
@@ -234,7 +233,7 @@ function CustomPage() {
           </section>
 
           <section>
-            <h2 className="label-xs mb-3">02 — Colour</h2>
+            <EditableText as="h2" contentKey="custom.color" fallback="02 — Colour" className="label-xs mb-3" />
             <div className="flex flex-wrap gap-2">
               {settings.colors.map((c) => (
                 <button key={c} type="button" onClick={() => setColor(c)} className={chip(color === c)}>
@@ -246,7 +245,7 @@ function CustomPage() {
           </section>
 
           <section>
-            <h2 className="label-xs mb-3">03 — Size, placement & quantity</h2>
+            <EditableText as="h2" contentKey="custom.options" fallback="03 — Size, placement & quantity" className="label-xs mb-3" />
             <div className="flex flex-wrap gap-2">
               {settings.sizes.map((s) => (
                 <button key={s} type="button" onClick={() => setSize(s)} className={chip(size === s)}>
@@ -268,7 +267,7 @@ function CustomPage() {
           </section>
 
           <section>
-            <h2 className="label-xs mb-3">04 — Your details</h2>
+            <EditableText as="h2" contentKey="custom.details" fallback="04 — Your details" className="label-xs mb-3" />
             <div className="grid gap-3 sm:grid-cols-2">
               <input className={input} placeholder="Full name" maxLength={100} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
               <input className={input} placeholder="Phone" maxLength={20} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
@@ -287,11 +286,11 @@ function CustomPage() {
               Final price confirmed by the studio after reviewing your artwork. No payment now.
             </p>
             <button type="submit" disabled={sending} className="label-xs mt-6 w-full bg-foreground py-4 text-background disabled:opacity-50">
-              {sending ? "Sending…" : "Send design for review"}
+              {sending ? "Sending…" : <EditableText contentKey="custom.submit" fallback="Send design for review" />}
             </button>
           </div>
         </div>
       </form>
-    </div>
+    </EditableBackground>
   );
 }

@@ -18,6 +18,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { Toaster } from "@/components/ui/sonner";
 import { PageDepth } from "@/components/three-d";
 import { ThemeProvider } from "@/lib/theme";
+import { SiteContentProvider, useSiteContent } from "@/lib/site-content";
 
 
 function NotFoundComponent() {
@@ -133,6 +134,8 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <CartProvider>
         <ThemeProvider>
+        <SiteContentProvider>
+        <GlobalPageBackground>
         <div className="flex min-h-screen flex-col">
           {!isAdmin && <SiteHeader />}
           <main className="flex-1">
@@ -143,10 +146,18 @@ function RootComponent() {
           </main>
           {!isAdmin && <SiteFooter />}
         </div>
+        </GlobalPageBackground>
+        </SiteContentProvider>
         <Toaster />
         </ThemeProvider>
       </CartProvider>
     </QueryClientProvider>
   );
 
+}
+
+function GlobalPageBackground({ children }: { children: ReactNode }) {
+  const { background } = useSiteContent();
+  const value = background("global.page");
+  return <div className="min-h-screen" style={value?.image ? { backgroundImage: `linear-gradient(color-mix(in oklab, var(--background) ${value.overlay}%, transparent), color-mix(in oklab, var(--background) ${value.overlay}%, transparent)), url(${JSON.stringify(value.image).slice(1, -1)})`, backgroundPosition: value.position, backgroundSize: value.fit, backgroundAttachment: "fixed" } : undefined}>{children}</div>;
 }

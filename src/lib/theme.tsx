@@ -36,6 +36,11 @@ export type StoreTheme = {
   productRatio: "portrait" | "square" | "landscape";
   buttonStyle: "solid" | "outline" | "soft";
   shadow: "none" | "soft" | "strong";
+  navigationSize: "compact" | "standard" | "large";
+  logoSize: "compact" | "standard" | "large";
+  sectionSpacing: "compact" | "standard" | "large";
+  borderStrength: "subtle" | "standard" | "bold";
+  imageFit: "cover" | "contain";
 };
 
 export const DEFAULT_THEME: StoreTheme = {
@@ -52,6 +57,7 @@ export const DEFAULT_THEME: StoreTheme = {
   headingWeight: "semibold", bodyScale: "standard", headingStyle: "tight", labelSpacing: "standard",
   containerWidth: "standard", density: "comfortable", headerStyle: "glass", productRatio: "portrait",
   buttonStyle: "solid", shadow: "none",
+  navigationSize: "standard", logoSize: "standard", sectionSpacing: "standard", borderStrength: "standard", imageFit: "cover",
 };
 
 export const themeQuery = {
@@ -93,6 +99,11 @@ export function normalizeTheme(value: unknown): StoreTheme {
     productRatio: ["portrait", "square", "landscape"].includes(String(source["productRatio"])) ? source["productRatio"] as StoreTheme["productRatio"] : DEFAULT_THEME.productRatio,
     buttonStyle: ["solid", "outline", "soft"].includes(String(source["buttonStyle"])) ? source["buttonStyle"] as StoreTheme["buttonStyle"] : DEFAULT_THEME.buttonStyle,
     shadow: ["none", "soft", "strong"].includes(String(source["shadow"])) ? source["shadow"] as StoreTheme["shadow"] : DEFAULT_THEME.shadow,
+    navigationSize: ["compact", "standard", "large"].includes(String(source["navigationSize"])) ? source["navigationSize"] as StoreTheme["navigationSize"] : DEFAULT_THEME.navigationSize,
+    logoSize: ["compact", "standard", "large"].includes(String(source["logoSize"])) ? source["logoSize"] as StoreTheme["logoSize"] : DEFAULT_THEME.logoSize,
+    sectionSpacing: ["compact", "standard", "large"].includes(String(source["sectionSpacing"])) ? source["sectionSpacing"] as StoreTheme["sectionSpacing"] : DEFAULT_THEME.sectionSpacing,
+    borderStrength: ["subtle", "standard", "bold"].includes(String(source["borderStrength"])) ? source["borderStrength"] as StoreTheme["borderStrength"] : DEFAULT_THEME.borderStrength,
+    imageFit: source["imageFit"] === "contain" ? "contain" : DEFAULT_THEME.imageFit,
   };
 }
 
@@ -145,6 +156,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     root.dataset["productRatio"] = data.productRatio;
     root.dataset["buttonStyle"] = data.buttonStyle;
     root.dataset["shadow"] = data.shadow;
+    root.dataset["navigationSize"] = data.navigationSize;
+    root.dataset["logoSize"] = data.logoSize;
+    root.dataset["sectionSpacing"] = data.sectionSpacing;
+    root.dataset["borderStrength"] = data.borderStrength;
+    root.dataset["imageFit"] = data.imageFit;
     root.style.setProperty("--background", colors.background);
     root.style.setProperty("--foreground", colors.foreground);
     root.style.setProperty("--surface", colors.surface);

@@ -89,6 +89,7 @@ export type Database = {
           front_print_price: number
           id: number
           notes: string
+          site_content: Json
           sizes: string[]
           theme: Json
           updated_at: string
@@ -101,6 +102,7 @@ export type Database = {
           front_print_price?: number
           id?: number
           notes?: string
+          site_content?: Json
           sizes?: string[]
           theme?: Json
           updated_at?: string
@@ -113,6 +115,7 @@ export type Database = {
           front_print_price?: number
           id?: number
           notes?: string
+          site_content?: Json
           sizes?: string[]
           theme?: Json
           updated_at?: string

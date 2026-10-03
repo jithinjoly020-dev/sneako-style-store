@@ -116,6 +116,26 @@ html[data-shadow="soft"] .theme-surface { box-shadow: 0 14px 34px color-mix(in o
 html[data-shadow="strong"] .theme-surface { box-shadow: 0 20px 50px color-mix(in oklab, var(--foreground) 20%, transparent); }
 html[data-button-style="outline"] .theme-button { background: transparent; color: var(--foreground); border: 1px solid var(--primary); }
 html[data-button-style="soft"] .theme-button { background: var(--accent); color: var(--foreground); }
+html[data-navigation-size="compact"] .site-header > div { height: 3.25rem; }
+html[data-navigation-size="large"] .site-header > div { height: 5rem; }
+html[data-logo-size="compact"] .brand-logo { width: 118px; }
+html[data-logo-size="large"] .brand-logo { width: 190px; }
+html[data-section-spacing="compact"] .site-section { padding-block: 2rem; }
+html[data-section-spacing="large"] .site-section { padding-block: 8rem; }
+html[data-border-strength="subtle"] * { --color-border: color-mix(in oklab, var(--border) 55%, transparent); }
+html[data-border-strength="bold"] * { --color-border: color-mix(in oklab, var(--border) 72%, var(--foreground)); }
+html[data-image-fit="contain"] .product-media img { object-fit: contain; }
+
+[data-site-edit] {
+  cursor: pointer;
+  outline: 1px dashed color-mix(in oklab, var(--ring) 70%, transparent);
+  outline-offset: 3px;
+}
+
+[data-site-edit]:hover {
+  outline-style: solid;
+  outline-width: 2px;
+}
 
 @utility label-xs {
   font-family: var(--font-mono);

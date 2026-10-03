@@ -11,7 +11,7 @@ export function ProductCard({ product }: { product: Product }) {
         params={{ slug: product.slug }}
         className="group block h-full border border-border bg-surface"
       >
-        <div className="aspect-[4/5] overflow-hidden bg-muted">
+        <div className="product-media aspect-[4/5] overflow-hidden bg-muted">
           <img
             src={product.image_url}
             alt={product.name}

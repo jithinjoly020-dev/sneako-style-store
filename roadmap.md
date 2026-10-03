@@ -6,9 +6,11 @@
   - [x] UPI intent link + QR on checkout, customer submits UTR / txn reference
   - [x] Reference saved to the order, owner emailed for confirmation
   - [x] Set the studio UPI ID in src/lib/upi.ts
-- [x] Checkout: manual UPI (QR + UTR) as the ONLY payment method; Paytm and COD removed
+- [x] Checkout: UPI with 5% prepaid discount plus cash on delivery
 - [x] Studio virtual try-on using active shop products
   - [x] Live camera preview with movable and resizable shirt layer
   - [x] Realistic AI photo try-on with streamed previews and download
 - [x] Customer light/dark/system theme switch with saved preference
 - [x] Admin theme editor with published colors, fonts, corners, motion and grain controls
+- [x] Advanced admin theme controls for typography, layout, product media, buttons, header and effects
+- [x] Uploaded UNLABELLED logo in customer header/footer and matching favicon

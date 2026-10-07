@@ -380,6 +380,10 @@ export type Database = {
     }
     Functions: {
       gateway_check_token: { Args: { _token: string }; Returns: boolean }
+      gateway_export: {
+        Args: { _since: string; _token: string }
+        Returns: Json
+      }
       gateway_mark_paid: {
         Args: {
           _amount: number

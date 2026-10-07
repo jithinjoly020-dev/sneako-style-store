@@ -227,6 +227,7 @@ function Checkout() {
       if (error) throw error;
       const order = Array.isArray(rows) ? rows[0] : rows;
       if (!order) throw new Error("We couldn't place your order. Please try again.");
+      if (STATIC_HOST) void fetch("/api/sync.php").catch(() => undefined);
 
       if (payment === "cod") {
         await notifyOwner({ data: { orderId: order.id } }).catch(() => undefined);

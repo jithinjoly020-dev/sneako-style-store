@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { productsQuery } from "@/lib/products";
+import { useLiveProducts } from "@/lib/live";
 import { ProductCard } from "@/components/product-card";
 import { EditableBackground, EditableText } from "@/lib/site-content";
 
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/shop")({
 });
 
 function Shop() {
+  useLiveProducts();
   const { data: products = [], isLoading } = useQuery(productsQuery);
   const [category, setCategory] = useState("all");
 

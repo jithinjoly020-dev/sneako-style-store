@@ -2,6 +2,7 @@ import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-rout
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { useLiveOrders } from "@/lib/live";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -31,6 +32,7 @@ const nav = [
 function AdminLayout() {
   const { session, loading, isAdmin } = useAuth();
   const navigate = useNavigate();
+  useLiveOrders();
 
   useEffect(() => {
     if (!loading && !session) navigate({ to: "/auth" });

@@ -8,4 +8,9 @@ return [
   'smb_key' => 'pi_live_57352826efa19045cc2fb4e6544fe049b220cb2ce8f5d1bc',
   'smb_secret' => 'sk_live_4e4dd2e3e436c738c1b57bb3398639383445f990a6a65258',
   'webhook_secret' => '750d990fff34f010340b88d97da88153bbe812c41ac5ca8401d18d5088521e43',
+  // cPanel MySQL copy (create the database + user in cPanel > MySQL Databases)
+  'mysql_host' => 'localhost',
+  'mysql_db' => '',
+  'mysql_user' => '',
+  'mysql_pass' => '',
 ];

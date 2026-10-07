@@ -57,6 +57,13 @@
       "when": 1791383317811,
       "tag": "0007_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791383652364,
+      "tag": "0008_realtime_stock_and_mysql_export",
+      "breakpoints": true
     }
   ]
 }

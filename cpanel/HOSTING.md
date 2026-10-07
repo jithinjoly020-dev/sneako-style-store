@@ -56,3 +56,9 @@ This build assumes the site lives at the domain root (`https://example.com/`).
 For a subfolder like `example.com/shop-site/`, set `base: "/shop-site/"` in
 `vite.cpanel.config.ts`, change `RewriteBase` in `.htaccess` to match, and
 rebuild.
+
+## MySQL copy (phpMyAdmin)
+1. cPanel > MySQL Databases: create a database and user, add the user with ALL privileges.
+2. Fill `mysql_db`, `mysql_user`, `mysql_pass` in `public_html/api/config.php`.
+3. cPanel > Cron Jobs, every minute: `curl -s https://frxsuper.store/api/sync.php >/dev/null`
+4. Orders, items and products then appear in phpMyAdmin (tables are created automatically).

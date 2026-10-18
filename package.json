@@ -1,5 +1,6 @@
 {
-  "name": "tanstack_start_ts",
+  "name": "unlabelled-store",
+  "version": "1.0.0",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -11,9 +12,6 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "build:cpanel": "vite build --config vite.cpanel.config.ts"
-  },
-  "overrides": {
-    "rolldown": "1.2.1"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

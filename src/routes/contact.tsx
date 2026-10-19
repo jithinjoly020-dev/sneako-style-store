@@ -4,16 +4,16 @@ import { EditableBackground, EditableText } from "@/lib/site-content";
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact — unlabelled" },
+      { title: "Contact — Comfort Hub" },
       {
         name: "description",
         content:
-          "Reach the unlabelled studio about orders, sizing, returns, repairs or wholesale. We answer every message within one working day.",
+          "Reach the Comfort Hub studio about orders, sizing, returns, repairs or wholesale. We answer every message within one working day.",
       },
-      { property: "og:title", content: "Contact — unlabelled" },
+      { property: "og:title", content: "Contact — Comfort Hub" },
       {
         property: "og:description",
-        content: "Orders, sizing, returns, repairs and wholesale — reach the unlabelled studio.",
+        content: "Orders, sizing, returns, repairs and wholesale — reach the Comfort Hub studio.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -25,17 +25,17 @@ export const Route = createFileRoute("/contact")({
 const channels = [
   {
     k: "Orders & delivery",
-    v: "orders@unlabelled.store",
+    v: "orders@comforthub.store",
     d: "Tracking, address changes, delayed parcels. Include your order number (UL-XXXX).",
   },
   {
     k: "Returns & repairs",
-    v: "care@unlabelled.store",
+    v: "care@comforthub.store",
     d: "14-day returns on unworn pieces. Split seams restitched free within a year.",
   },
   {
     k: "Wholesale & stockists",
-    v: "trade@unlabelled.store",
+    v: "trade@comforthub.store",
     d: "Minimum 60 pieces per run. Line sheet and terms sent within a day.",
   },
 ];
@@ -51,7 +51,7 @@ const faqs = [
   },
   {
     q: "Can I change or cancel an order?",
-    a: "Yes, until it is packed. Email orders@unlabelled.store with your order number and we will stop it at the studio.",
+    a: "Yes, until it is packed. Email orders@comforthub.store with your order number and we will stop it at the studio.",
   },
   {
     q: "What if the size is wrong?",

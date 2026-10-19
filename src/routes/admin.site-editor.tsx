@@ -9,9 +9,9 @@ import { normalizeSiteContent, siteContentQuery, useRefreshSiteContent, type Pag
 
 export const Route = createFileRoute("/admin/site-editor")({
   head: () => ({ meta: [
-    { title: "Site Editor — unlabelled" },
+    { title: "Site Editor — Comfort Hub" },
     { name: "description", content: "Edit storefront copy and page images." },
-    { property: "og:title", content: "Site Editor — unlabelled" },
+    { property: "og:title", content: "Site Editor — Comfort Hub" },
     { property: "og:description", content: "Edit storefront copy and page images." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/admin/site-editor")({
 
 const pages = [
   { path: "/", label: "Home", texts: [
-    ["home.eyebrow", "Collection 01 — unlabelled"], ["home.title", "WEIGHT OVER NOISE"],
+    ["home.eyebrow", "Collection 01 — Comfort Hub"], ["home.title", "WEIGHT OVER NOISE"],
     ["home.intro", "Heavyweight cotton basics built in a grey-only palette. Made to be worn every day, washed hard, and to still look like itself two years from now."],
     ["home.primaryCta", "Shop the collection"], ["home.secondaryCta", "The studio"],
     ["home.manifestoLabel", "Manifesto"], ["home.manifesto", "Most t-shirts are a billboard with sleeves. We took the graphics off, doubled the fabric weight, and spent the difference on cotton. What's left is a shirt that does one job properly — and gets out of the way."],
@@ -30,7 +30,7 @@ const pages = [
     ["home.process", "Four steps, no shortcuts"], ["home.questions", "Questions, answered plainly"], ["home.finalCta", "BUY ONE. WEAR IT OUT."],
   ], backgrounds: [["home.hero", "Top banner"], ["home.collectiblesBg", "Collectibles section"], ["global.page", "Global page background"]] },
   { path: "/shop", label: "Shop", texts: [["shop.title", "SHOP"], ["shop.empty", "No products in this collection yet."]], backgrounds: [["shop.hero", "Shop top area"]] },
-  { path: "/about", label: "Studio", texts: [["about.eyebrow", "The studio"], ["about.title", "MADE PLAINLY"], ["about.intro", "unlabelled makes one thing properly: heavy cotton bodies that keep their shape after fifty washes. No seasonal churn, no logos, no story we can't back up on the label."], ["about.process", "HOW A RUN IS MADE"], ["about.values", "WHAT WE HOLD TO"], ["about.sizing", "SIZING, PLAINLY"]], backgrounds: [["about.hero", "Studio top area"]] },
+  { path: "/about", label: "Studio", texts: [["about.eyebrow", "The studio"], ["about.title", "MADE PLAINLY"], ["about.intro", "Comfort Hub makes one thing properly: heavy cotton bodies that keep their shape after fifty washes. No seasonal churn, no logos, no story we can't back up on the label."], ["about.process", "HOW A RUN IS MADE"], ["about.values", "WHAT WE HOLD TO"], ["about.sizing", "SIZING, PLAINLY"]], backgrounds: [["about.hero", "Studio top area"]] },
   { path: "/custom", label: "Custom", texts: [["custom.eyebrow", "Custom studio"], ["custom.title", "Your artwork. Our heavyweight tee."], ["custom.upload", "01 — Upload design"], ["custom.color", "02 — Colour"], ["custom.options", "03 — Size, placement & quantity"], ["custom.details", "04 — Your details"], ["custom.submit", "Send design for review"]], backgrounds: [["custom.hero", "Custom top area"]] },
   { path: "/contact", label: "Contact", texts: [["contact.eyebrow", "Talk to us"], ["contact.title", "CONTACT"], ["contact.intro", "A real person reads every message. We answer within one working day, usually much sooner."], ["contact.questions", "COMMON QUESTIONS"], ["contact.footer", "Heavyweight basics. Nothing extra."]], backgrounds: [["contact.hero", "Contact top area"]] },
 ] as const;

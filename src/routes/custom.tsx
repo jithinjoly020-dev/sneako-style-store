@@ -9,12 +9,12 @@ import { EditableBackground, EditableText } from "@/lib/site-content";
 export const Route = createFileRoute("/custom")({
   head: () => ({
     meta: [
-      { title: "Custom Design — unlabelled" },
+      { title: "Custom Design — Comfort Hub" },
       {
         name: "description",
-        content: "Upload your own artwork and get it printed on a 240 GSM heavyweight unlabelled tee.",
+        content: "Upload your own artwork and get it printed on a 240 GSM heavyweight Comfort Hub tee.",
       },
-      { property: "og:title", content: "Custom Design — unlabelled" },
+      { property: "og:title", content: "Custom Design — Comfort Hub" },
       {
         property: "og:description",
         content: "Design your own heavyweight tee: upload artwork, pick colour, size and placement.",

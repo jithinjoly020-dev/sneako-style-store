@@ -174,7 +174,7 @@ function OrderCard({
             </button>
             {phone.length === 10 && (
               <a
-                href={`https://wa.me/91${phone}?text=${encodeURIComponent(`Hi ${o.customer_name}, about your unlabelled custom design ${o.request_number}${o.quoted_price ? ` — final price ${inr(Number(o.quoted_price))}` : ""}.`)}`}
+                href={`https://wa.me/91${phone}?text=${encodeURIComponent(`Hi ${o.customer_name}, about your Comfort Hub custom design ${o.request_number}${o.quoted_price ? ` — final price ${inr(Number(o.quoted_price))}` : ""}.`)}`}
                 target="_blank"
                 rel="noreferrer"
                 className="label-xs border border-border px-3 py-2"

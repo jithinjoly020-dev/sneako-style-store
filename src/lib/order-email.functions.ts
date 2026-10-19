@@ -39,7 +39,7 @@ export const emailOrderToOwner = createServerFn({ method: "POST" })
     const html = `
       <div style="font-family:Arial,Helvetica,sans-serif;max-width:620px;margin:0 auto;color:#141414">
         <h2 style="margin:0 0 4px">New order ${String(o["order_number"])}</h2>
-        <p style="margin:0 0 18px;color:#5c5c5c">unlabelled · ${new Date(String(o["created_at"])).toLocaleString("en-IN")}</p>
+        <p style="margin:0 0 18px;color:#5c5c5c">Comfort Hub · ${new Date(String(o["created_at"])).toLocaleString("en-IN")}</p>
         <table style="width:100%;border-collapse:collapse;font-size:14px">${rows}</table>
         <table style="width:100%;margin-top:14px;font-size:14px">
           <tr><td>Subtotal</td><td style="text-align:right">${inr(Number(o["subtotal"] ?? o["total"]))}</td></tr>
@@ -61,7 +61,7 @@ export const emailOrderToOwner = createServerFn({ method: "POST" })
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: "unlabelled orders <onboarding@resend.dev>",
+        from: "Comfort Hub orders <onboarding@resend.dev>",
         to: [OWNER_EMAIL],
         reply_to: String(o["customer_email"]),
         subject: `New order ${String(o["order_number"])} · ${inr(Number(o["total"]))} · ${String(o["payment_method"])}`,

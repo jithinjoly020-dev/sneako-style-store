@@ -56,7 +56,7 @@ export const smbCreateOrder = createServerFn({ method: "POST" })
       customer_name: order.customer_name,
       customer_mobile: mobile.length === 10 ? mobile : undefined,
       callback_url: `${origin}/checkout?smb=${order.id}`,
-      description: `unlabelled order ${order.order_number}`,
+      description: `Comfort Hub order ${order.order_number}`,
     });
     const url = String(res["payment_url"] ?? "");
     if (!url.startsWith("https://smbupi.com/")) throw new Error("Gateway did not return a payment link.");

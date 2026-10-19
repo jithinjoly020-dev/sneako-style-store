@@ -1,11 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Check, RotateCcw, Save, Sparkles } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Check, Code, RotateCcw, Save, Sparkles } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { DEFAULT_THEME, themeQuery, useRefreshTheme, type StoreTheme, type ThemePalette } from "@/lib/theme";
+import { DEFAULT_THEME, normalizeTheme, themeQuery, useRefreshTheme, type StoreTheme, type ThemePalette } from "@/lib/theme";
 
 export const Route = createFileRoute("/admin/theme")({
   head: () => ({ meta: [
@@ -89,6 +89,7 @@ function ThemeEditor() {
           <section><h2 className="text-xl font-semibold">Layout & commerce</h2><div className="mt-4 grid gap-7 md:grid-cols-2"><SelectSetting label="Store width" value={form.containerWidth} values={["compact", "standard", "wide"]} onChange={(containerWidth) => setForm({ ...form, containerWidth: containerWidth as StoreTheme["containerWidth"] })} /><SelectSetting label="Content density" value={form.density} values={["compact", "comfortable", "airy"]} onChange={(density) => setForm({ ...form, density: density as StoreTheme["density"] })} /><SelectSetting label="Section spacing" value={form.sectionSpacing} values={["compact", "standard", "large"]} onChange={(sectionSpacing) => setForm({ ...form, sectionSpacing: sectionSpacing as StoreTheme["sectionSpacing"] })} /><SelectSetting label="Header treatment" value={form.headerStyle} values={["solid", "glass", "borderless"]} onChange={(headerStyle) => setForm({ ...form, headerStyle: headerStyle as StoreTheme["headerStyle"] })} /><SelectSetting label="Navigation size" value={form.navigationSize} values={["compact", "standard", "large"]} onChange={(navigationSize) => setForm({ ...form, navigationSize: navigationSize as StoreTheme["navigationSize"] })} /><SelectSetting label="Logo size" value={form.logoSize} values={["compact", "standard", "large"]} onChange={(logoSize) => setForm({ ...form, logoSize: logoSize as StoreTheme["logoSize"] })} /><SelectSetting label="Product image shape" value={form.productRatio} values={["portrait", "square", "landscape"]} onChange={(productRatio) => setForm({ ...form, productRatio: productRatio as StoreTheme["productRatio"] })} /><SelectSetting label="Default image fit" value={form.imageFit} values={["cover", "contain"]} onChange={(imageFit) => setForm({ ...form, imageFit: imageFit as StoreTheme["imageFit"] })} /><SelectSetting label="Button style" value={form.buttonStyle} values={["solid", "outline", "soft"]} onChange={(buttonStyle) => setForm({ ...form, buttonStyle: buttonStyle as StoreTheme["buttonStyle"] })} /><SelectSetting label="Border strength" value={form.borderStrength} values={["subtle", "standard", "bold"]} onChange={(borderStrength) => setForm({ ...form, borderStrength: borderStrength as StoreTheme["borderStrength"] })} /><SelectSetting label="Shadow strength" value={form.shadow} values={["none", "soft", "strong"]} onChange={(shadow) => setForm({ ...form, shadow: shadow as StoreTheme["shadow"] })} /></div></section>
           <section className="grid gap-7 md:grid-cols-2"><div><h2 className="text-xl font-semibold">Corner style</h2><Segmented values={["square", "soft", "rounded"]} value={form.radius} onChange={(radius) => setForm({ ...form, radius: radius as StoreTheme["radius"] })} /></div><div><h2 className="text-xl font-semibold">Motion</h2><Segmented values={["full", "subtle", "off"]} value={form.motion} onChange={(motion) => setForm({ ...form, motion: motion as StoreTheme["motion"] })} /></div></section>
           <label className="flex items-center justify-between border-y border-border py-4"><span><strong className="block text-sm">Film grain</strong><span className="text-sm text-muted-foreground">Keep the editorial texture on visual areas.</span></span><input type="checkbox" checked={form.grain} onChange={(e) => setForm({ ...form, grain: e.target.checked })} className="size-5 accent-current" /></label>
+          <CodeEditorSection form={form} onApply={(next) => { if (changed && !window.confirm("Replace your unpublished theme changes with this code?")) return; setForm(next); }} />
         </div>
 
         <aside className="xl:sticky xl:top-8 xl:self-start"><p className="label-xs mb-3 text-muted-foreground">Live preview · {previewMode}</p><ThemePreview form={form} mode={previewMode} />{changed && <p className="mt-3 text-xs text-muted-foreground">You have unpublished changes.</p>}</aside>
@@ -111,4 +112,57 @@ function Segmented({ values, value, onChange }: { values: string[]; value: strin
 }
 function SelectSetting({ label, value, values, onChange }: { label: string; value: string; values: string[]; onChange: (value: string) => void }) {
   return <label><span className="text-xl font-semibold">{label}</span><select value={value} onChange={(e) => onChange(e.target.value)} className="mt-3 block w-full border border-border bg-background px-3 py-3 text-sm">{values.map((item) => <option key={item}>{item}</option>)}</select></label>;
+}
+
+function CodeEditorSection({ form, onApply }: { form: StoreTheme; onApply: (next: StoreTheme) => void }) {
+  const initial = useMemo(() => JSON.stringify(form, null, 2), []);
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(initial);
+  const [parseError, setParseError] = useState<string | null>(null);
+
+  useEffect(() => { if (!open) setValue(JSON.stringify(form, null, 2)); }, [form, open]);
+
+  function apply() {
+    let parsed: unknown;
+    try { parsed = JSON.parse(value); }
+    catch (err) { setParseError((err as Error).message); return; }
+    const normalized = normalizeTheme(parsed);
+    if (JSON.stringify(normalized) === JSON.stringify(form)) { setParseError(null); setOpen(false); return; }
+    setParseError(null);
+    onApply(normalized);
+    setOpen(false);
+    toast.success("Theme updated from code");
+  }
+
+  return (
+    <section>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2"><Code className="size-5" /><h2 className="text-xl font-semibold">Code editor</h2></div>
+        <Button type="button" variant="outline" size="sm" onClick={() => setOpen((v) => !v)}>{open ? "Close" : "Edit as JSON"}</Button>
+      </div>
+      <p className="mt-1 text-sm text-muted-foreground">Edit the raw theme JSON directly. Values outside the supported schema are safely ignored on apply.</p>
+      {open && (
+        <div className="mt-4 space-y-3">
+          <div className="border border-border bg-background">
+            <div className="flex items-center justify-between border-b border-border px-3 py-2 text-xs text-muted-foreground">
+              <span>theme.json</span>
+              <span>{value.split("\n").length} lines</span>
+            </div>
+            <textarea
+              value={value}
+              onChange={(e) => { setValue(e.target.value); setParseError(null); }}
+              spellCheck={false}
+              className="block min-h-[420px] w-full resize-y bg-transparent p-4 font-mono text-xs leading-relaxed outline-none"
+            />
+          </div>
+          {parseError && <p className="text-sm text-destructive">Invalid JSON: {parseError}</p>}
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" size="sm" onClick={apply}><Check />Apply to editor</Button>
+            <Button type="button" size="sm" variant="outline" onClick={() => { setValue(JSON.stringify(form, null, 2)); setParseError(null); }}>Reset to current</Button>
+            <Button type="button" size="sm" variant="ghost" onClick={() => setValue(JSON.stringify(DEFAULT_THEME, null, 2))}>Load defaults</Button>
+          </div>
+        </div>
+      )}
+    </section>
+  );
 }

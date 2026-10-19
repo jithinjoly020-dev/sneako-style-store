@@ -88,11 +88,13 @@
 }
 
 .brand-logo {
-  filter: invert(1);
+  filter: brightness(0);
+  transition: filter 0.3s ease;
 }
 
+html.dark .brand-logo,
 html[data-theme="dark"] .brand-logo {
-  filter: none;
+  filter: brightness(0) invert(1);
 }
 
 @keyframes shop-rise {
@@ -128,8 +130,8 @@ html[data-button-style="outline"] .theme-button { background: transparent; color
 html[data-button-style="soft"] .theme-button { background: var(--accent); color: var(--foreground); }
 html[data-navigation-size="compact"] .site-header > div { height: 3.25rem; }
 html[data-navigation-size="large"] .site-header > div { height: 5rem; }
-html[data-logo-size="compact"] .brand-logo { width: 118px; }
-html[data-logo-size="large"] .brand-logo { width: 190px; }
+html[data-logo-size="compact"] .brand-logo { width: 150px; }
+html[data-logo-size="large"] .brand-logo { width: 250px; }
 html[data-section-spacing="compact"] .site-section { padding-block: 2rem; }
 html[data-section-spacing="large"] .site-section { padding-block: 8rem; }
 html[data-border-strength="subtle"] * { --color-border: color-mix(in oklab, var(--border) 55%, transparent); }

@@ -88,11 +88,11 @@
 }
 
 .brand-logo {
-  filter: none;
+  filter: invert(1);
 }
 
 html[data-theme="dark"] .brand-logo {
-  filter: brightness(1.35) saturate(1.1);
+  filter: none;
 }
 
 @keyframes shop-rise {

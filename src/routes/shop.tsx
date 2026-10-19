@@ -54,8 +54,10 @@ function Shop() {
         <p className="label-xs mt-10 text-muted-foreground">Loading…</p>
       ) : (
           <div className="mt-8 grid grid-cols-2 gap-px bg-border md:grid-cols-3 lg:grid-cols-4">
-          {visible.map((p) => (
-            <ProductCard key={p.id} product={p} />
+          {visible.map((p, i) => (
+            <div key={`${category}-${p.id}`} className="shop-item bg-background" style={{ animationDelay: `${Math.min(i, 12) * 60}ms` }}>
+              <ProductCard product={p} />
+            </div>
           ))}
             {!visible.length && <EditableText as="p" contentKey="shop.empty" fallback="No products in this collection yet." className="col-span-full bg-background py-16 text-center text-sm text-muted-foreground" />}
           </div>

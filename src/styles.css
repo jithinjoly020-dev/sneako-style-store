@@ -92,8 +92,18 @@
 }
 
 html[data-theme="dark"] .brand-logo {
-  filter: invert(1);
+  filter: brightness(1.35) saturate(1.1);
 }
+
+@keyframes shop-rise {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+.shop-item {
+  animation: shop-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.shop-item:hover img { transform: scale(1.05) rotate(-0.4deg); }
+html[data-motion="off"] .shop-item { animation: none; }
 
 html[data-container-width="compact"] .site-container { max-width: 1120px; }
 html[data-container-width="wide"] .site-container { max-width: 1600px; }

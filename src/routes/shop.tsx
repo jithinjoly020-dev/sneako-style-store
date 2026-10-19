@@ -9,13 +9,13 @@ import { EditableBackground, EditableText } from "@/lib/site-content";
 export const Route = createFileRoute("/shop")({
   head: () => ({
     meta: [
-      { title: "Shop All — unlabelled" },
+      { title: "Shop All — Comfort Hub" },
       {
         name: "description",
-        content: "Browse every unlabelled tee, long sleeve and basic. Heavyweight cotton only.",
+        content: "Browse every Comfort Hub tee, long sleeve and basic. Heavyweight cotton only.",
       },
-      { property: "og:title", content: "Shop All — unlabelled" },
-      { property: "og:description", content: "Every unlabelled tee and basic in one place." },
+      { property: "og:title", content: "Shop All — Comfort Hub" },
+      { property: "og:description", content: "Every Comfort Hub tee and basic in one place." },
     ],
   }),
   component: Shop,

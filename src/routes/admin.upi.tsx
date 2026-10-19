@@ -9,7 +9,7 @@ export const Route = createFileRoute("/admin/upi")({
   component: AdminUpi,
 });
 
-const empty = { label: "", upi_id: "", payee_name: "unlabelled", sort_order: "0" };
+const empty = { label: "", upi_id: "", payee_name: "Comfort Hub", sort_order: "0" };
 type FormState = typeof empty;
 
 function AdminUpi() {
@@ -42,7 +42,7 @@ function AdminUpi() {
     const payload = {
       label: form.label.trim() || upi,
       upi_id: upi,
-      payee_name: form.payee_name.trim() || "unlabelled",
+      payee_name: form.payee_name.trim() || "Comfort Hub",
       sort_order: Number(form.sort_order) || 0,
     };
     const { error } = editing

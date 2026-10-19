@@ -22,13 +22,13 @@ const heroVideoWebm = STATIC_HOST ? "/videos/home-hero-fashion.webm" : homeHeroV
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "unlabelled — Heavyweight T-Shirts, Nothing Extra" },
+      { title: "Comfort Hub — Heavyweight T-Shirts, Nothing Extra" },
       {
         name: "description",
         content:
-          "unlabelled makes heavyweight cotton t-shirts and basics in a tight, unbranded palette. Free shipping over ₹2,999.",
+          "Comfort Hub makes heavyweight cotton t-shirts and basics in a tight, unbranded palette. Free shipping over ₹2,999.",
       },
-      { property: "og:title", content: "unlabelled — Heavyweight T-Shirts" },
+      { property: "og:title", content: "Comfort Hub — Heavyweight T-Shirts" },
       {
         property: "og:description",
         content: "Heavyweight cotton tees in a tight, unbranded palette.",
@@ -91,7 +91,7 @@ const faqs = [
 const collectibles = [
   {
     index: "001",
-    name: "unlabelled",
+    name: "Comfort Hub",
     edition: "Ed. 240 / 240 GSM",
     image: "/images/tee-concrete.jpg",
     spec: "Garment dyed — ink",
@@ -161,7 +161,7 @@ function Index() {
           />
           <div className="film-grain pointer-events-none absolute inset-0" aria-hidden />
           <div className="absolute inset-0 mx-auto flex max-w-[1400px] flex-col justify-end px-5 pb-14 md:px-10 md:pb-20">
-            <EditableText as="p" contentKey="home.eyebrow" fallback="Collection 01 — unlabelled" className="label-xs fade-up text-muted-foreground" />
+            <EditableText as="p" contentKey="home.eyebrow" fallback="Collection 01 — Comfort Hub" className="label-xs fade-up text-muted-foreground" />
             <EditTarget contentKey="home.title"><SplitText
               as="h1"
               text={text("home.title", "WEIGHT OVER NOISE")}

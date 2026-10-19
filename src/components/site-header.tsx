@@ -19,8 +19,8 @@ export function SiteHeader() {
   return (
     <header className="site-header sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md">
       <div className="site-container mx-auto flex h-16 max-w-[1400px] items-center justify-between px-5 md:px-10">
-        <Link to="/" aria-label="PepperPot home" className="block">
-          <img src="/images/unlabelled-logo.png" alt="PepperPot" className="brand-logo h-auto w-[148px]" />
+        <Link to="/" aria-label="Comfort Hub home" className="block">
+          <img src="/images/Comfort Hub-logo.png" alt="Comfort Hub" className="brand-logo h-auto w-[148px]" />
         </Link>
 
         <nav className="hidden items-center gap-10 md:flex">

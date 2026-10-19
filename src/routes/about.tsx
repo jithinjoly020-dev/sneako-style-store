@@ -5,16 +5,16 @@ import { EditableBackground, EditableText } from "@/lib/site-content";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "The Studio — unlabelled" },
+      { title: "The Studio — Comfort Hub" },
       {
         name: "description",
         content:
-          "unlabelled is a small Indian studio making 240 GSM heavyweight cotton basics in runs of 300 — no logos, no seasons, no filler.",
+          "Comfort Hub is a small Indian studio making 240 GSM heavyweight cotton basics in runs of 300 — no logos, no seasons, no filler.",
       },
-      { property: "og:title", content: "The Studio — unlabelled" },
+      { property: "og:title", content: "The Studio — Comfort Hub" },
       {
         property: "og:description",
-        content: "How unlabelled sources, cuts and finishes heavyweight cotton basics in India.",
+        content: "How Comfort Hub sources, cuts and finishes heavyweight cotton basics in India.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -62,7 +62,7 @@ function About() {
       <EditableBackground contentKey="about.hero" className="mx-auto max-w-[1000px] px-5 md:px-10">
         <EditableText as="p" contentKey="about.eyebrow" fallback="The studio" className="label-xs text-muted-foreground" />
         <EditableText as="h1" contentKey="about.title" fallback="MADE PLAINLY" className="mt-4 text-4xl font-semibold md:text-7xl" />
-        <EditableText as="p" contentKey="about.intro" fallback="unlabelled makes one thing properly: heavy cotton bodies that keep their shape after fifty washes. No seasonal churn, no logos, no story we can't back up on the label." className="mt-10 max-w-[720px] text-xl leading-relaxed text-muted-foreground md:text-2xl" />
+        <EditableText as="p" contentKey="about.intro" fallback="Comfort Hub makes one thing properly: heavy cotton bodies that keep their shape after fifty washes. No seasonal churn, no logos, no story we can't back up on the label." className="mt-10 max-w-[720px] text-xl leading-relaxed text-muted-foreground md:text-2xl" />
 
         <div className="mt-16 grid gap-px bg-border md:grid-cols-2">
         {specs.map((b) => (

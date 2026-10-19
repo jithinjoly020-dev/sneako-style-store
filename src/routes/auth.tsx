@@ -7,10 +7,10 @@ import { useAuth } from "@/lib/auth";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Staff Sign In — unlabelled" },
-      { name: "description", content: "Sign in to the unlabelled admin dashboard." },
-      { property: "og:title", content: "Staff Sign In — unlabelled" },
-      { property: "og:description", content: "Sign in to the unlabelled admin dashboard." },
+      { title: "Staff Sign In — Comfort Hub" },
+      { name: "description", content: "Sign in to the Comfort Hub admin dashboard." },
+      { property: "og:title", content: "Staff Sign In — Comfort Hub" },
+      { property: "og:description", content: "Sign in to the Comfort Hub admin dashboard." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -63,7 +63,7 @@ function AuthPage() {
     <div className="flex min-h-screen items-center justify-center px-5">
       <div className="w-full max-w-sm">
         <Link to="/" className="label-xs text-muted-foreground">
-          ← unlabelled
+          ← Comfort Hub
         </Link>
         <h1 className="mt-6 text-3xl font-semibold">
           {mode === "signin" ? "Staff sign in" : "Create account"}

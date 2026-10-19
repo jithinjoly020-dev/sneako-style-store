@@ -13,7 +13,7 @@ $body = [
   'order_id' => $o['id'],
   'customer_name' => $o['customer_name'],
   'callback_url' => $cfg['site_url'] . '/checkout?smb=' . $o['id'],
-  'description' => 'unlabelled order ' . $o['order_number'],
+  'description' => 'Comfort Hub order ' . $o['order_number'],
 ];
 if (strlen($mobile) === 10) $body['customer_mobile'] = $mobile;
 [$c, $j] = smb('/create-order', $body);

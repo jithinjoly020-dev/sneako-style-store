@@ -16,12 +16,12 @@ import { UPI_ID, UPI_NAME, upiAccountsQuery, upiLink } from "@/lib/upi";
 export const Route = createFileRoute("/checkout")({
   head: () => ({
     meta: [
-      { title: "Checkout — unlabelled" },
+      { title: "Checkout — Comfort Hub" },
       {
         name: "description",
-        content: "Secure checkout with UPI or cash on delivery for unlabelled orders.",
+        content: "Secure checkout with UPI or cash on delivery for Comfort Hub orders.",
       },
-      { property: "og:title", content: "Checkout — unlabelled" },
+      { property: "og:title", content: "Checkout — Comfort Hub" },
       { property: "og:description", content: "Secure checkout with UPI or cash on delivery." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -310,7 +310,7 @@ function Checkout() {
         <div className="mt-8 flex flex-col items-center gap-5 border border-border bg-surface p-8">
           <div className="bg-white p-4">
             <QRCodeSVG
-              value={upiLink(upiOrder.amount, `unlabelled ${upiOrder.number}`, payVpa, payName)}
+              value={upiLink(upiOrder.amount, `Comfort Hub ${upiOrder.number}`, payVpa, payName)}
               size={200}
             />
           </div>
@@ -318,7 +318,7 @@ function Checkout() {
             UPI ID <span className="font-mono text-foreground">{payVpa}</span>
           </p>
           <a
-            href={upiLink(upiOrder.amount, `unlabelled ${upiOrder.number}`, payVpa, payName)}
+            href={upiLink(upiOrder.amount, `Comfort Hub ${upiOrder.number}`, payVpa, payName)}
             className="w-full bg-primary px-6 py-3 text-center text-sm text-primary-foreground md:hidden"
           >
             Open UPI app

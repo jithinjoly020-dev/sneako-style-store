@@ -335,7 +335,7 @@ function PhotoTryOn({ selected }: { selected: Product }) {
         </Button>
         {result && isFinal && (
           <Button asChild variant="ghost">
-            <a href={result} download={`unlabelled-${selected.slug}-try-on.png`}><Download /> Download</a>
+            <a href={result} download={`comforthub-${selected.slug}-try-on.png`}><Download /> Download</a>
           </Button>
         )}
       </div>

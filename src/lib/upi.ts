@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 /** Fallback used only if no UPI account is configured in the admin site. */
 export const UPI_ID = "8590233909@upi";
-export const UPI_NAME = "unlabelled";
+export const UPI_NAME = "Comfort Hub";
 
 export type UpiAccount = {
   id: string;

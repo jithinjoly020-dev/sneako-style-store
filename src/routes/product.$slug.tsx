@@ -8,9 +8,9 @@ import { money, useCart } from "@/lib/cart";
 export const Route = createFileRoute("/product/$slug")({
   head: ({ params }) => ({
     meta: [
-      { title: `${params.slug.replace(/-/g, " ")} — unlabelled` },
+      { title: `${params.slug.replace(/-/g, " ")} — Comfort Hub` },
       { name: "description", content: "Heavyweight cotton, minimal cut, built to last." },
-      { property: "og:title", content: `${params.slug.replace(/-/g, " ")} — unlabelled` },
+      { property: "og:title", content: `${params.slug.replace(/-/g, " ")} — Comfort Hub` },
       { property: "og:description", content: "Heavyweight cotton, minimal cut, built to last." },
     ],
   }),

@@ -18,10 +18,12 @@ import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CustomRouteImport } from './routes/custom'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as TrackRouteImport } from './routes/track'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminCodeEditorRouteImport } from './routes/admin.code-editor'
 import { Route as AdminCustomRouteImport } from './routes/admin.custom'
 import { Route as AdminCustomersRouteImport } from './routes/admin.customers'
+import { Route as AdminDeliveryRouteImport } from './routes/admin.delivery'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminSiteEditorRouteImport } from './routes/admin.site-editor'
@@ -78,6 +80,11 @@ const ShopRoute = ShopRouteImport.update({
   path: '/shop',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TrackRoute = TrackRouteImport.update({
+  id: '/track',
+  path: '/track',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -96,6 +103,11 @@ const AdminCustomRoute = AdminCustomRouteImport.update({
 const AdminCustomersRoute = AdminCustomersRouteImport.update({
   id: '/customers',
   path: '/customers',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDeliveryRoute = AdminDeliveryRouteImport.update({
+  id: '/delivery',
+  path: '/delivery',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminOrdersRoute = AdminOrdersRouteImport.update({
@@ -159,9 +171,11 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/custom': typeof CustomRoute
   '/shop': typeof ShopRoute
+  '/track': typeof TrackRoute
   '/admin/code-editor': typeof AdminCodeEditorRoute
   '/admin/custom': typeof AdminCustomRoute
   '/admin/customers': typeof AdminCustomersRoute
+  '/admin/delivery': typeof AdminDeliveryRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/site-editor': typeof AdminSiteEditorRoute
@@ -183,9 +197,11 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/custom': typeof CustomRoute
   '/shop': typeof ShopRoute
+  '/track': typeof TrackRoute
   '/admin/code-editor': typeof AdminCodeEditorRoute
   '/admin/custom': typeof AdminCustomRoute
   '/admin/customers': typeof AdminCustomersRoute
+  '/admin/delivery': typeof AdminDeliveryRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/site-editor': typeof AdminSiteEditorRoute
@@ -209,9 +225,11 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/custom': typeof CustomRoute
   '/shop': typeof ShopRoute
+  '/track': typeof TrackRoute
   '/admin/code-editor': typeof AdminCodeEditorRoute
   '/admin/custom': typeof AdminCustomRoute
   '/admin/customers': typeof AdminCustomersRoute
+  '/admin/delivery': typeof AdminDeliveryRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/site-editor': typeof AdminSiteEditorRoute
@@ -236,9 +254,11 @@ export interface FileRouteTypes {
     | '/contact'
     | '/custom'
     | '/shop'
+    | '/track'
     | '/admin/code-editor'
     | '/admin/custom'
     | '/admin/customers'
+    | '/admin/delivery'
     | '/admin/orders'
     | '/admin/products'
     | '/admin/site-editor'
@@ -260,9 +280,11 @@ export interface FileRouteTypes {
     | '/contact'
     | '/custom'
     | '/shop'
+    | '/track'
     | '/admin/code-editor'
     | '/admin/custom'
     | '/admin/customers'
+    | '/admin/delivery'
     | '/admin/orders'
     | '/admin/products'
     | '/admin/site-editor'
@@ -285,9 +307,11 @@ export interface FileRouteTypes {
     | '/contact'
     | '/custom'
     | '/shop'
+    | '/track'
     | '/admin/code-editor'
     | '/admin/custom'
     | '/admin/customers'
+    | '/admin/delivery'
     | '/admin/orders'
     | '/admin/products'
     | '/admin/site-editor'
@@ -311,6 +335,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   CustomRoute: typeof CustomRoute
   ShopRoute: typeof ShopRoute
+  TrackRoute: typeof TrackRoute
   ApiVirtualTryOnRoute: typeof ApiVirtualTryOnRoute
   ProductSlugRoute: typeof ProductSlugRoute
   ApiPublicPaytmCallbackRoute: typeof ApiPublicPaytmCallbackRoute
@@ -383,6 +408,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShopRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/track': {
+      id: '/track'
+      path: '/track'
+      fullPath: '/track'
+      preLoaderRoute: typeof TrackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/': {
       id: '/admin/'
       path: '/'
@@ -409,6 +441,13 @@ declare module '@tanstack/react-router' {
       path: '/customers'
       fullPath: '/admin/customers'
       preLoaderRoute: typeof AdminCustomersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/delivery': {
+      id: '/admin/delivery'
+      path: '/delivery'
+      fullPath: '/admin/delivery'
+      preLoaderRoute: typeof AdminDeliveryRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/orders': {
@@ -488,6 +527,7 @@ interface AdminRouteChildren {
   AdminCodeEditorRoute: typeof AdminCodeEditorRoute
   AdminCustomRoute: typeof AdminCustomRoute
   AdminCustomersRoute: typeof AdminCustomersRoute
+  AdminDeliveryRoute: typeof AdminDeliveryRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminSiteEditorRoute: typeof AdminSiteEditorRoute
@@ -500,6 +540,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCodeEditorRoute: AdminCodeEditorRoute,
   AdminCustomRoute: AdminCustomRoute,
   AdminCustomersRoute: AdminCustomersRoute,
+  AdminDeliveryRoute: AdminDeliveryRoute,
   AdminOrdersRoute: AdminOrdersRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminSiteEditorRoute: AdminSiteEditorRoute,
@@ -520,6 +561,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   CustomRoute: CustomRoute,
   ShopRoute: ShopRoute,
+  TrackRoute: TrackRoute,
   ApiVirtualTryOnRoute: ApiVirtualTryOnRoute,
   ProductSlugRoute: ProductSlugRoute,
   ApiPublicPaytmCallbackRoute: ApiPublicPaytmCallbackRoute,

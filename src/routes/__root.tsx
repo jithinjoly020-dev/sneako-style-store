@@ -146,6 +146,7 @@ function RootComponent() {
           </main>
           {!isAdmin && <SiteFooter />}
         </div>
+        {!isAdmin && <CustomCode pathname={pathname} />}
         </GlobalPageBackground>
         </SiteContentProvider>
         <Toaster />
@@ -160,4 +161,25 @@ function GlobalPageBackground({ children }: { children: ReactNode }) {
   const { background } = useSiteContent();
   const value = background("global.page");
   return <div className="min-h-screen" style={value?.image ? { backgroundImage: `linear-gradient(color-mix(in oklab, var(--background) ${value.overlay}%, transparent), color-mix(in oklab, var(--background) ${value.overlay}%, transparent)), url(${JSON.stringify(value.image).slice(1, -1)})`, backgroundPosition: value.position, backgroundSize: value.fit, backgroundAttachment: "fixed" } : undefined}>{children}</div>;
+}
+
+function CustomCode({ pathname }: { pathname: string }) {
+  const { content } = useSiteContent();
+  const global = content.code["global"];
+  const page = content.code[pathname];
+  const css = `${global?.css ?? ""}\n${page?.css ?? ""}`.trim();
+  const html = `${global?.html ?? ""}\n${page?.html ?? ""}`.trim();
+  const js = [global?.js, page?.js].filter(Boolean).join("\n;\n");
+  useEffect(() => {
+    if (!js) return;
+    const el = document.createElement("script");
+    el.dataset["customCode"] = "1";
+    el.text = `try{${js}\n}catch(e){console.error("Custom code error",e)}`;
+    document.body.appendChild(el);
+    return () => el.remove();
+  }, [js, pathname]);
+  return <>
+    {css && <style data-custom-code dangerouslySetInnerHTML={{ __html: css }} />}
+    {html && <div data-custom-code dangerouslySetInnerHTML={{ __html: html }} />}
+  </>;
 }

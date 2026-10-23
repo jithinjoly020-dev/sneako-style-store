@@ -13,9 +13,12 @@ export type PageBackground = {
 export type SiteContent = {
   text: Record<string, string>;
   backgrounds: Record<string, PageBackground>;
+  code: Record<string, PageCode>;
 };
 
-export const DEFAULT_SITE_CONTENT: SiteContent = { text: {}, backgrounds: {} };
+export type PageCode = { css: string; html: string; js: string };
+
+export const DEFAULT_SITE_CONTENT: SiteContent = { text: {}, backgrounds: {}, code: {} };
 
 function boundedText(value: unknown) {
   return typeof value === "string" ? value.slice(0, 4000) : "";
@@ -40,7 +43,16 @@ export function normalizeSiteContent(value: unknown): SiteContent {
       overlay: Math.min(90, Math.max(0, Number(item["overlay"]) || 0)),
     };
   }
-  return { text, backgrounds };
+  const sourceCode = source["code"] && typeof source["code"] === "object" ? source["code"] as Record<string, unknown> : {};
+  const code: Record<string, PageCode> = {};
+  const big = (v: unknown) => typeof v === "string" ? v.slice(0, 100000) : "";
+  for (const [key, raw] of Object.entries(sourceCode)) {
+    if (!raw || typeof raw !== "object") continue;
+    const item = raw as Record<string, unknown>;
+    const entry = { css: big(item["css"]), html: big(item["html"]), js: big(item["js"]) };
+    if (entry.css || entry.html || entry.js) code[key.slice(0, 120)] = entry;
+  }
+  return { text, backgrounds, code };
 }
 
 export const siteContentQuery = {

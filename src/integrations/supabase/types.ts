@@ -122,6 +122,41 @@ export type Database = {
         }
         Relationships: []
       }
+      order_events: {
+        Row: {
+          created_at: string
+          id: string
+          location: string
+          note: string
+          order_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          location?: string
+          note?: string
+          order_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          location?: string
+          note?: string
+          order_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           created_at: string
@@ -175,11 +210,14 @@ export type Database = {
           address_line: string
           city: string
           country: string
+          courier: string
           created_at: string
           customer_email: string
           customer_name: string
           customer_phone: string
+          delivered_at: string | null
           discount: number
+          expected_delivery: string | null
           id: string
           notes: string
           order_number: string
@@ -192,17 +230,22 @@ export type Database = {
           status: Database["public"]["Enums"]["order_status"]
           subtotal: number
           total: number
+          tracking_number: string
+          tracking_url: string
           updated_at: string
         }
         Insert: {
           address_line?: string
           city?: string
           country?: string
+          courier?: string
           created_at?: string
           customer_email: string
           customer_name: string
           customer_phone?: string
+          delivered_at?: string | null
           discount?: number
+          expected_delivery?: string | null
           id?: string
           notes?: string
           order_number?: string
@@ -215,17 +258,22 @@ export type Database = {
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
           total?: number
+          tracking_number?: string
+          tracking_url?: string
           updated_at?: string
         }
         Update: {
           address_line?: string
           city?: string
           country?: string
+          courier?: string
           created_at?: string
           customer_email?: string
           customer_name?: string
           customer_phone?: string
+          delivered_at?: string | null
           discount?: number
+          expected_delivery?: string | null
           id?: string
           notes?: string
           order_number?: string
@@ -238,6 +286,8 @@ export type Database = {
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
           total?: number
+          tracking_number?: string
+          tracking_url?: string
           updated_at?: string
         }
         Relationships: []
@@ -422,6 +472,10 @@ export type Database = {
       submit_upi_reference: {
         Args: { _order_id: string; _reference: string }
         Returns: number
+      }
+      track_order: {
+        Args: { _contact: string; _order_number: string }
+        Returns: Json
       }
     }
     Enums: {

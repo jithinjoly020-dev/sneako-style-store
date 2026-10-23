@@ -19,6 +19,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CustomRouteImport } from './routes/custom'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminCodeEditorRouteImport } from './routes/admin.code-editor'
 import { Route as AdminCustomRouteImport } from './routes/admin.custom'
 import { Route as AdminCustomersRouteImport } from './routes/admin.customers'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
@@ -80,6 +81,11 @@ const ShopRoute = ShopRouteImport.update({
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCodeEditorRoute = AdminCodeEditorRouteImport.update({
+  id: '/code-editor',
+  path: '/code-editor',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminCustomRoute = AdminCustomRouteImport.update({
@@ -153,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/custom': typeof CustomRoute
   '/shop': typeof ShopRoute
+  '/admin/code-editor': typeof AdminCodeEditorRoute
   '/admin/custom': typeof AdminCustomRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/orders': typeof AdminOrdersRoute
@@ -176,6 +183,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/custom': typeof CustomRoute
   '/shop': typeof ShopRoute
+  '/admin/code-editor': typeof AdminCodeEditorRoute
   '/admin/custom': typeof AdminCustomRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/orders': typeof AdminOrdersRoute
@@ -201,6 +209,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/custom': typeof CustomRoute
   '/shop': typeof ShopRoute
+  '/admin/code-editor': typeof AdminCodeEditorRoute
   '/admin/custom': typeof AdminCustomRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/orders': typeof AdminOrdersRoute
@@ -227,6 +236,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/custom'
     | '/shop'
+    | '/admin/code-editor'
     | '/admin/custom'
     | '/admin/customers'
     | '/admin/orders'
@@ -250,6 +260,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/custom'
     | '/shop'
+    | '/admin/code-editor'
     | '/admin/custom'
     | '/admin/customers'
     | '/admin/orders'
@@ -274,6 +285,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/custom'
     | '/shop'
+    | '/admin/code-editor'
     | '/admin/custom'
     | '/admin/customers'
     | '/admin/orders'
@@ -378,6 +390,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/code-editor': {
+      id: '/admin/code-editor'
+      path: '/code-editor'
+      fullPath: '/admin/code-editor'
+      preLoaderRoute: typeof AdminCodeEditorRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/custom': {
       id: '/admin/custom'
       path: '/custom'
@@ -466,6 +485,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminCodeEditorRoute: typeof AdminCodeEditorRoute
   AdminCustomRoute: typeof AdminCustomRoute
   AdminCustomersRoute: typeof AdminCustomersRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
@@ -477,6 +497,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminCodeEditorRoute: AdminCodeEditorRoute,
   AdminCustomRoute: AdminCustomRoute,
   AdminCustomersRoute: AdminCustomersRoute,
   AdminOrdersRoute: AdminOrdersRoute,

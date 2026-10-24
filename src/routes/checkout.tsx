@@ -368,12 +368,18 @@ function Checkout() {
               ? ". Pay the delivery partner when it arrives. We pack and dispatch within two working days and email you tracking the moment it leaves the studio."
             : ". We're still matching your payment reference — you'll get an email the moment it's confirmed, and we dispatch right after."}
         </p>
-        <Link
-          to="/shop"
-          className="mt-10 inline-flex bg-primary px-6 py-3 text-sm text-primary-foreground"
-        >
-          Keep shopping
-        </Link>
+        <div className="mt-10 flex flex-wrap gap-3">
+          <Link
+            to="/track"
+            search={{ order: placed.number }}
+            className="inline-flex bg-primary px-6 py-3 text-sm text-primary-foreground"
+          >
+            Track this order
+          </Link>
+          <Link to="/shop" className="inline-flex border border-border px-6 py-3 text-sm">
+            Keep shopping
+          </Link>
+        </div>
       </div>
     );
   }

@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -22,6 +22,7 @@ function ProductPage() {
   const { data: product, isLoading } = useQuery(productBySlugQuery(slug));
   const [size, setSize] = useState<string | null>(null);
   const { add } = useCart();
+  const navigate = useNavigate();
 
   if (isLoading) {
     return <p className="label-xs px-5 py-20 text-muted-foreground md:px-10">Loading…</p>;
@@ -39,6 +40,16 @@ function ProductPage() {
   }
 
   const soldOut = product.stock <= 0;
+
+  const addToCart = () => {
+
+    if (!size) { toast.error("Pick a size first"); return false; }
+
+    add({ productId: product.id, name: product.name, slug: product.slug, size, price: Number(product.price), image: product.image_url, quantity: 1 });
+
+    return true;
+
+  };
 
   return (
     <div className="mx-auto grid max-w-[1400px] gap-px bg-border md:grid-cols-2">

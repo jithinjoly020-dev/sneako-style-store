@@ -80,29 +80,25 @@ function ProductPage() {
           </div>
         </div>
 
-        <button
-          type="button"
-          disabled={soldOut}
-          onClick={() => {
-            if (!size) {
-              toast.error("Pick a size first");
-              return;
-            }
-            add({
-              productId: product.id,
-              name: product.name,
-              slug: product.slug,
-              size,
-              price: Number(product.price),
-              image: product.image_url,
-              quantity: 1,
-            });
-            toast.success(`${product.name} (${size}) added to cart`);
-          }}
-          className="mt-10 w-full bg-primary px-8 py-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-85 disabled:opacity-40 md:w-auto"
-        >
-          {soldOut ? "Sold out" : "Add to cart"}
-        </button>
+        <div className="mt-10 flex flex-col gap-3 md:flex-row">
+          <button
+            type="button"
+            disabled={soldOut}
+            onClick={() => addToCart() && toast.success(`${product.name} (${size}) added to cart`)}
+            className="w-full border border-foreground px-8 py-4 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-40 md:w-auto"
+          >
+            {soldOut ? "Sold out" : "Add to cart"}
+          </button>
+          {!soldOut && (
+            <button
+              type="button"
+              onClick={() => { if (addToCart()) void navigate({ to: "/checkout" }); }}
+              className="w-full bg-primary px-8 py-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-85 md:w-auto"
+            >
+              Buy now
+            </button>
+          )}
+        </div>
 
         <div className="mt-12 space-y-2 border-t border-border pt-6">
           <p className="label-xs text-muted-foreground">

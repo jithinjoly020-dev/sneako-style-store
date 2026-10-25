@@ -21,6 +21,7 @@ function ProductPage() {
   const { slug } = Route.useParams();
   const { data: product, isLoading } = useQuery(productBySlugQuery(slug));
   const [size, setSize] = useState<string | null>(null);
+  const [active, setActive] = useState(0);
   const { add } = useCart();
   const navigate = useNavigate();
 
@@ -40,12 +41,15 @@ function ProductPage() {
   }
 
   const soldOut = product.stock <= 0;
+  const noSizes = product.sizes.length === 0;
+  const images = [product.image_url, ...(product.gallery ?? [])].filter(Boolean);
+  const shown = images[Math.min(active, images.length - 1)] ?? product.image_url;
 
   const addToCart = () => {
 
-    if (!size) { toast.error("Pick a size first"); return false; }
+    if (!noSizes && !size) { toast.error("Pick a size first"); return false; }
 
-    add({ productId: product.id, name: product.name, slug: product.slug, size, price: Number(product.price), image: product.image_url, quantity: 1 });
+    add({ productId: product.id, name: product.name, slug: product.slug, size: noSizes ? "" : size!, price: Number(product.price), image: product.image_url, quantity: 1 });
 
     return true;
 
@@ -55,12 +59,27 @@ function ProductPage() {
     <div className="mx-auto grid max-w-[1400px] gap-px bg-border md:grid-cols-2">
       <div className="bg-muted">
         <img
-          src={product.image_url}
+          src={shown}
           alt={product.name}
           width={1024}
           height={1280}
-          className="size-full object-cover"
+          className="aspect-[4/5] w-full object-cover"
         />
+        {images.length > 1 && (
+          <div className="flex gap-2 overflow-x-auto bg-background p-3">
+            {images.map((src, i) => (
+              <button
+                key={src + i}
+                type="button"
+                aria-label={`Show image ${i + 1}`}
+                onClick={() => setActive(i)}
+                className={i === active ? "shrink-0 border border-foreground" : "shrink-0 border border-transparent opacity-70 hover:opacity-100"}
+              >
+                <img src={src} alt="" loading="lazy" className="size-16 object-cover md:size-20" />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="bg-background p-6 md:p-14">
@@ -71,7 +90,7 @@ function ProductPage() {
           {product.description}
         </p>
 
-        <div className="mt-10">
+        {!noSizes && <div className="mt-10">
           <p className="label-xs text-muted-foreground">Size</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {product.sizes.map((s) => (
@@ -89,13 +108,13 @@ function ProductPage() {
               </button>
             ))}
           </div>
-        </div>
+        </div>}
 
         <div className="mt-10 flex flex-col gap-3 md:flex-row">
           <button
             type="button"
             disabled={soldOut}
-            onClick={() => addToCart() && toast.success(`${product.name} (${size}) added to cart`)}
+            onClick={() => addToCart() && toast.success(`${product.name}${size && !noSizes ? ` (${size})` : ""} added to cart`)}
             className="w-full border border-foreground px-8 py-4 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-40 md:w-auto"
           >
             {soldOut ? "Sold out" : "Add to cart"}

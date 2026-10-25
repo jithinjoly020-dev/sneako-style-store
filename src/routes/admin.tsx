@@ -28,6 +28,7 @@ const nav = [
   { to: "/admin/theme", label: "Theme", exact: false },
   { to: "/admin/site-editor", label: "Site editor", exact: false },
   { to: "/admin/code-editor", label: "Code editor", exact: false },
+  { to: "/admin/activity", label: "Activity log", exact: false },
 ] as const;
 
 
@@ -35,6 +36,21 @@ function AdminLayout() {
   const { session, loading, isAdmin } = useAuth();
   const navigate = useNavigate();
   useLiveOrders();
+
+  useEffect(() => {
+    if (!session || !isAdmin) return;
+    const key = `ch-logged-${session.user.id}-${session.expires_at ?? ""}`;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "1");
+    void supabase.from("activity_logs").insert({
+      actor_id: session.user.id,
+      actor_email: session.user.email ?? "",
+      area: "admin",
+      action: "sign in",
+      summary: "Opened the admin dashboard",
+      details: { browser: navigator.userAgent.slice(0, 200) },
+    });
+  }, [session, isAdmin]);
 
   useEffect(() => {
     if (!loading && !session) navigate({ to: "/auth" });

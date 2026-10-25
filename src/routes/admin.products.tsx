@@ -18,6 +18,7 @@ const empty = {
   description: "",
   price: "0",
   image_url: "",
+  gallery: [] as string[],
   sizes: "S, M, L, XL",
   colors: "",
   category: "tees",
@@ -35,6 +36,7 @@ function toForm(p: Product): FormState {
     description: p.description,
     price: String(p.price),
     image_url: p.image_url,
+    gallery: p.gallery ?? [],
     sizes: p.sizes.join(", "),
     colors: p.colors.join(", "),
     category: p.category,
@@ -55,7 +57,11 @@ function AdminProducts() {
   const [sort, setSort] = useState<"name" | "price" | "stock">("name");
   const [uploading, setUploading] = useState(false);
 
-  async function uploadImage(file: File) {
+  async function uploadImages(files: File[]) {
+    for (const f of files) await uploadImage(f, true);
+  }
+
+  async function uploadImage(file: File, toGallery = false) {
     if (!file.type.startsWith("image/")) {
       toast.error("Choose an image file");
       return;
@@ -83,8 +89,12 @@ function AdminProducts() {
       toast.error(signError?.message ?? "Could not fetch the image URL");
       return;
     }
-    setForm((f) => (f ? { ...f, image_url: data.signedUrl } : f));
-    toast.success("Image uploaded — URL filled in automatically");
+    setForm((f) => {
+      if (!f) return f;
+      if (toGallery && f.image_url) return { ...f, gallery: [...f.gallery, data.signedUrl] };
+      return { ...f, image_url: data.signedUrl };
+    });
+    toast.success("Image uploaded");
   }
 
 
@@ -117,6 +127,7 @@ function AdminProducts() {
       description: form.description.trim(),
       price: Number(form.price) || 0,
       image_url: form.image_url.trim(),
+      gallery: form.gallery.filter((g) => g && g !== form.image_url.trim()),
       sizes: form.sizes
         .split(",")
         .map((s) => s.trim())
@@ -156,7 +167,7 @@ function AdminProducts() {
     qc.invalidateQueries({ queryKey: ["products"] });
   }
 
-  const set = (key: keyof FormState, value: string | boolean) =>
+  const set = (key: keyof FormState, value: string | boolean | string[]) =>
     setForm((f) => (f ? { ...f, [key]: value } : f));
 
   const categories = ["all", ...Array.from(new Set(products.map((p) => p.category)))];
@@ -200,6 +211,7 @@ function AdminProducts() {
       description: p.description,
       price: p.price,
       image_url: p.image_url,
+      gallery: p.gallery,
       sizes: p.sizes,
       colors: p.colors,
       category: p.category,
@@ -261,7 +273,7 @@ function AdminProducts() {
                 ["stock", "Stock"],
                 ["category", "Category"],
                 ["image_url", "Image URL (e.g. /images/tee-blank.jpg)"],
-                ["sizes", "Sizes (comma separated)"],
+                ["sizes", "Sizes (comma separated — leave empty for no size)"],
                 ["colors", "Colours (comma separated)"],
               ] as const
             ).map(([key, label]) => (
@@ -279,31 +291,80 @@ function AdminProducts() {
             ))}
             <div className="md:col-span-2 border border-dashed border-border p-4">
               <label htmlFor="image_file" className="label-xs text-muted-foreground">
-                Upload image (fills the URL automatically)
+                Product images — pick one or many (first becomes the main image)
               </label>
               <div className="mt-3 flex flex-wrap items-center gap-4">
                 <input
                   id="image_file"
                   type="file"
                   accept="image/*"
+                  multiple
                   disabled={uploading}
                   onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) void uploadImage(file);
+                    const files = Array.from(e.target.files ?? []);
+                    if (files.length) void uploadImages(files);
                     e.target.value = "";
                   }}
                   className="text-xs"
                 />
                 {uploading && <span className="label-xs text-muted-foreground">Uploading…</span>}
-                {form.image_url && (
-                  <img
-                    src={form.image_url}
-                    alt="Product preview"
-                    className="size-16 object-cover"
-                  />
-                )}
+              </div>
+              <div className="mt-4 flex flex-wrap gap-3">
+                {[form.image_url, ...form.gallery].filter(Boolean).map((url, i) => (
+                  <div key={url + i} className="relative">
+                    <img src={url} alt={`Product image ${i + 1}`} className="size-20 object-cover" />
+                    <span className="label-xs absolute left-1 top-1 bg-background px-1">
+                      {i === 0 ? "Main" : i + 1}
+                    </span>
+                    <div className="mt-1 flex gap-1">
+                      {i > 0 && (
+                        <button
+                          type="button"
+                          className="label-xs border border-border px-1"
+                          onClick={() =>
+                            setForm((f) =>
+                              f
+                                ? {
+                                    ...f,
+                                    image_url: url,
+                                    gallery: [f.image_url, ...f.gallery.filter((g) => g !== url)].filter(Boolean),
+                                  }
+                                : f,
+                            )
+                          }
+                        >
+                          Main
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        className="label-xs border border-border px-1 text-destructive"
+                        onClick={() =>
+                          setForm((f) => {
+                            if (!f) return f;
+                            if (i === 0) {
+                              const [next = "", ...rest] = f.gallery;
+                              return { ...f, image_url: next, gallery: rest };
+                            }
+                            return { ...f, gallery: f.gallery.filter((g) => g !== url) };
+                          })
+                        }
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
+            <label className="label-xs flex items-center gap-2 text-muted-foreground md:col-span-2">
+              <input
+                type="checkbox"
+                checked={form.sizes.trim() === ""}
+                onChange={(e) => set("sizes", e.target.checked ? "" : "S, M, L, XL")}
+              />
+              No sizes for this product (e.g. caps, bags, accessories)
+            </label>
             <div className="md:col-span-2">
               <label htmlFor="description" className="label-xs text-muted-foreground">
                 Description

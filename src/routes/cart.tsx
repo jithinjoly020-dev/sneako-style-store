@@ -48,7 +48,7 @@ function CartPage() {
                   <div className="flex justify-between gap-4">
                     <div>
                       <p className="font-medium">{l.name}</p>
-                      <p className="label-xs mt-1 text-muted-foreground">Size {l.size}</p>
+                      {l.size && <p className="label-xs mt-1 text-muted-foreground">Size {l.size}</p>}
                     </div>
                     <p className="font-mono text-sm">{money(l.price * l.quantity)}</p>
                   </div>

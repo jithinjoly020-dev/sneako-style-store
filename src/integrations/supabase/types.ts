@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          action: string
+          actor_email: string
+          actor_id: string | null
+          area: string
+          created_at: string
+          details: Json
+          id: string
+          record_id: string
+          summary: string
+        }
+        Insert: {
+          action: string
+          actor_email?: string
+          actor_id?: string | null
+          area: string
+          created_at?: string
+          details?: Json
+          id?: string
+          record_id?: string
+          summary?: string
+        }
+        Update: {
+          action?: string
+          actor_email?: string
+          actor_id?: string | null
+          area?: string
+          created_at?: string
+          details?: Json
+          id?: string
+          record_id?: string
+          summary?: string
+        }
+        Relationships: []
+      }
       custom_orders: {
         Row: {
           address: string

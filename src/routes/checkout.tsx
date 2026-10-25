@@ -500,7 +500,7 @@ function Checkout() {
               <span>
                 {l.name}{" "}
                 <span className="text-muted-foreground">
-                  · {l.size} × {l.quantity}
+                  {l.size ? `· ${l.size} ` : "· "}× {l.quantity}
                 </span>
               </span>
               <span className="font-mono">{money(l.price * l.quantity)}</span>

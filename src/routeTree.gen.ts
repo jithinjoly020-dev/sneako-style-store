@@ -28,6 +28,7 @@ import { Route as AdminDeliveryRouteImport } from './routes/admin.delivery'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminSiteEditorRouteImport } from './routes/admin.site-editor'
+import { Route as AdminStudioRouteImport } from './routes/admin.studio'
 import { Route as AdminThemeRouteImport } from './routes/admin.theme'
 import { Route as AdminUpiRouteImport } from './routes/admin.upi'
 import { Route as ApiVirtualTryOnRouteImport } from './routes/api/virtual-try-on'
@@ -131,6 +132,11 @@ const AdminSiteEditorRoute = AdminSiteEditorRouteImport.update({
   path: '/site-editor',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminStudioRoute = AdminStudioRouteImport.update({
+  id: '/studio',
+  path: '/studio',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminThemeRoute = AdminThemeRouteImport.update({
   id: '/theme',
   path: '/theme',
@@ -186,6 +192,7 @@ export interface FileRoutesByFullPath {
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/site-editor': typeof AdminSiteEditorRoute
+  '/admin/studio': typeof AdminStudioRoute
   '/admin/theme': typeof AdminThemeRoute
   '/admin/upi': typeof AdminUpiRoute
   '/api/virtual-try-on': typeof ApiVirtualTryOnRoute
@@ -213,6 +220,7 @@ export interface FileRoutesByTo {
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/site-editor': typeof AdminSiteEditorRoute
+  '/admin/studio': typeof AdminStudioRoute
   '/admin/theme': typeof AdminThemeRoute
   '/admin/upi': typeof AdminUpiRoute
   '/api/virtual-try-on': typeof ApiVirtualTryOnRoute
@@ -242,6 +250,7 @@ export interface FileRoutesById {
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/site-editor': typeof AdminSiteEditorRoute
+  '/admin/studio': typeof AdminStudioRoute
   '/admin/theme': typeof AdminThemeRoute
   '/admin/upi': typeof AdminUpiRoute
   '/api/virtual-try-on': typeof ApiVirtualTryOnRoute
@@ -272,6 +281,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/products'
     | '/admin/site-editor'
+    | '/admin/studio'
     | '/admin/theme'
     | '/admin/upi'
     | '/api/virtual-try-on'
@@ -299,6 +309,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/products'
     | '/admin/site-editor'
+    | '/admin/studio'
     | '/admin/theme'
     | '/admin/upi'
     | '/api/virtual-try-on'
@@ -327,6 +338,7 @@ export interface FileRouteTypes {
     | '/admin/orders'
     | '/admin/products'
     | '/admin/site-editor'
+    | '/admin/studio'
     | '/admin/theme'
     | '/admin/upi'
     | '/api/virtual-try-on'
@@ -490,6 +502,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSiteEditorRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/studio': {
+      id: '/admin/studio'
+      path: '/studio'
+      fullPath: '/admin/studio'
+      preLoaderRoute: typeof AdminStudioRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/theme': {
       id: '/admin/theme'
       path: '/theme'
@@ -551,6 +570,7 @@ interface AdminRouteChildren {
   AdminOrdersRoute: typeof AdminOrdersRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminSiteEditorRoute: typeof AdminSiteEditorRoute
+  AdminStudioRoute: typeof AdminStudioRoute
   AdminThemeRoute: typeof AdminThemeRoute
   AdminUpiRoute: typeof AdminUpiRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -565,6 +585,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminOrdersRoute: AdminOrdersRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminSiteEditorRoute: AdminSiteEditorRoute,
+  AdminStudioRoute: AdminStudioRoute,
   AdminThemeRoute: AdminThemeRoute,
   AdminUpiRoute: AdminUpiRoute,
   AdminIndexRoute: AdminIndexRoute,

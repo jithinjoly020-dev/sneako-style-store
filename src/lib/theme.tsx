@@ -121,9 +121,23 @@ function systemMode() {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const { data = DEFAULT_THEME } = useQuery(themeQuery);
+  const { data: saved = DEFAULT_THEME } = useQuery(themeQuery);
+  const [draft, setDraft] = useState<{ theme: StoreTheme; mode: "light" | "dark" } | null>(null);
+  const data = draft?.theme ?? saved;
   const [mode, setModeState] = useState<ThemeMode>(DEFAULT_THEME.defaultMode);
   const [system, setSystem] = useState<"light" | "dark">("dark");
+
+  // Theme Studio: live draft theme pushed from the admin page into the preview frame.
+  useEffect(() => {
+    if (window.parent === window || !new URLSearchParams(window.location.search).has("site-editor-preview")) return;
+    const receive = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin || event.data?.type !== "theme-studio:draft") return;
+      setDraft({ theme: normalizeTheme(event.data.theme), mode: event.data.mode === "light" ? "light" : "dark" });
+    };
+    window.addEventListener("message", receive);
+    window.parent.postMessage({ type: "theme-studio:ready" }, window.location.origin);
+    return () => window.removeEventListener("message", receive);
+  }, []);
 
   useEffect(() => {
     setSystem(systemMode());
@@ -138,7 +152,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setModeState(stored === "light" || stored === "dark" || stored === "system" ? stored : data.defaultMode);
   }, [data.defaultMode]);
 
-  const resolvedMode = mode === "system" ? system : mode;
+  const resolvedMode = draft ? draft.mode : mode === "system" ? system : mode;
   useEffect(() => {
     const root = document.documentElement;
     const colors = data[resolvedMode];

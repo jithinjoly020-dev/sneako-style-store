@@ -17,19 +17,25 @@ export const Route = createFileRoute("/admin")({
   component: AdminLayout,
 });
 
-const nav = [
-  { to: "/admin", label: "Overview", exact: true },
-  { to: "/admin/products", label: "Products", exact: false },
-  { to: "/admin/orders", label: "Orders", exact: false },
-  { to: "/admin/delivery", label: "Delivery", exact: false },
-  { to: "/admin/customers", label: "Customers", exact: false },
-  { to: "/admin/custom", label: "Custom designs", exact: false },
-  { to: "/admin/upi", label: "UPI IDs", exact: false },
-  { to: "/admin/studio", label: "Theme Studio", exact: false },
-  { to: "/admin/theme", label: "Theme", exact: false },
-  { to: "/admin/site-editor", label: "Site editor", exact: false },
-  { to: "/admin/code-editor", label: "Code editor", exact: false },
-  { to: "/admin/activity", label: "Activity log", exact: false },
+const groups = [
+  { title: "Store", items: [
+    { to: "/admin", label: "Overview", exact: true },
+    { to: "/admin/products", label: "Products", exact: false },
+    { to: "/admin/orders", label: "Orders", exact: false },
+    { to: "/admin/delivery", label: "Delivery", exact: false },
+    { to: "/admin/customers", label: "Customers", exact: false },
+    { to: "/admin/custom", label: "Custom designs", exact: false },
+  ] },
+  { title: "Design", items: [
+    { to: "/admin/studio", label: "Theme Studio", exact: false },
+    { to: "/admin/theme", label: "Theme", exact: false },
+    { to: "/admin/site-editor", label: "Site editor", exact: false },
+    { to: "/admin/code-editor", label: "Code editor", exact: false },
+  ] },
+  { title: "Settings", items: [
+    { to: "/admin/upi", label: "UPI IDs", exact: false },
+    { to: "/admin/activity", label: "Activity log", exact: false },
+  ] },
 ] as const;
 
 
@@ -81,35 +87,41 @@ function AdminLayout() {
   }
 
   return (
-    <div className="min-h-screen md:flex">
-      <aside className="border-b border-border bg-surface p-6 md:min-h-screen md:w-60 md:border-r md:border-b-0">
-        <Link to="/" className="font-display text-lg font-semibold tracking-[-0.04em]">
-          COMFORT HUB
-        </Link>
-        <p className="label-xs mt-1 text-muted-foreground">Admin</p>
-        <nav className="mt-8 flex gap-5 md:flex-col md:gap-3">
-          {nav.map((n) => (
-            <Link
-              key={n.to}
-              to={n.to}
-              activeOptions={{ exact: n.exact }}
-              className="label-xs text-muted-foreground hover:text-foreground"
-              activeProps={{ className: "label-xs text-foreground" }}
-            >
-              {n.label}
-            </Link>
+    <div className="min-h-screen bg-background md:flex">
+      <aside className="border-b border-border bg-surface md:sticky md:top-0 md:h-screen md:w-56 md:shrink-0 md:overflow-y-auto md:border-r md:border-b-0">
+        <div className="flex items-center justify-between px-5 py-5">
+          <Link to="/" className="text-base font-semibold">Comfort Hub</Link>
+          <span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">Admin</span>
+        </div>
+        <nav className="flex gap-1 overflow-x-auto px-3 pb-3 md:flex-col md:pb-0">
+          {groups.map((g) => (
+            <div key={g.title} className="flex gap-1 md:mb-4 md:flex-col">
+              <p className="hidden px-3 pb-1 text-xs text-muted-foreground md:block">{g.title}</p>
+              {g.items.map((n) => (
+                <Link
+                  key={n.to}
+                  to={n.to}
+                  activeOptions={{ exact: n.exact }}
+                  className="whitespace-nowrap rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                  activeProps={{ className: "whitespace-nowrap rounded-md px-3 py-2 text-sm bg-accent text-foreground font-medium" }}
+                >
+                  {n.label}
+                </Link>
+              ))}
+            </div>
           ))}
         </nav>
-        <button
-          type="button"
-          onClick={() => supabase.auth.signOut()}
-          className="label-xs mt-10 text-muted-foreground hover:text-foreground"
-        >
-          Sign out
-        </button>
+        <div className="hidden border-t border-border px-5 py-4 md:block">
+          <p className="truncate text-xs text-muted-foreground">{session.user.email}</p>
+          <button type="button" onClick={() => supabase.auth.signOut()} className="mt-2 text-sm text-muted-foreground hover:text-foreground">
+            Sign out
+          </button>
+        </div>
       </aside>
-      <div className="flex-1 p-6 md:p-10">
-        <Outlet />
+      <div className="min-w-0 flex-1 p-6 md:p-10">
+        <div className="mx-auto max-w-6xl">
+          <Outlet />
+        </div>
       </div>
     </div>
   );

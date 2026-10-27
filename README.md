@@ -1,4 +1,4 @@
-👕 Sneako Tee Shop
+
 
 <p align="center">
 <img src="https://readme-typing-svg.demolab.com?font=Inter&weight=700&size=32&pause=1000&color=FFFFFF&background=00000000&center=true&vCenter=true&width=600&lines=SNEAKO+TEE+SHOP;Minimal+Style.+Maximum+Impact.;Premium+Streetwear+Essentials" alt="Sneako Tee Shop animated heading" />

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { money } from "@/lib/cart";
 import { downloadCsv } from "@/lib/export-csv";
+import { printDocs, type PrintOrder } from "@/lib/print-docs";
 
 
 export const Route = createFileRoute("/admin/orders")({
@@ -174,6 +175,10 @@ function AdminOrders() {
 
             {open === o.id && (
               <div className="grid gap-6 border-t border-border bg-surface px-4 py-5 md:grid-cols-2">
+                <div className="flex flex-wrap gap-2 md:col-span-2">
+                  <button type="button" onClick={() => printDocs("label", [o as unknown as PrintOrder])} className="border border-border bg-background px-3 py-1.5 text-sm hover:bg-muted">Print shipping label</button>
+                  <button type="button" onClick={() => printDocs("invoice", [o as unknown as PrintOrder])} className="border border-border bg-background px-3 py-1.5 text-sm hover:bg-muted">Print invoice</button>
+                </div>
                 <div>
                   <p className="label-xs text-muted-foreground">Items</p>
                   <div className="mt-3 space-y-2">

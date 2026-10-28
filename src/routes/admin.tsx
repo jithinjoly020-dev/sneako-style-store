@@ -119,9 +119,7 @@ function AdminLayout() {
         </div>
       </aside>
       <div className="min-w-0 flex-1 p-6 md:p-10">
-        <div className="mx-auto max-w-6xl">
-          <Outlet />
-        </div>
+        <Outlet />
       </div>
     </div>
   );

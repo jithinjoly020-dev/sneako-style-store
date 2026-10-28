@@ -5,6 +5,21 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { printDocs, getSender, setSender, type PrintOrder } from "@/lib/print-docs";
+
+function SenderBox() {
+  const [v, setV] = useState("");
+  const [openBox, setOpenBox] = useState(false);
+  return <div className="border border-border bg-background p-3">
+    <button type="button" className="text-sm font-medium" onClick={() => { setV(getSender()); setOpenBox(!openBox); }}>
+      {openBox ? "▾" : "▸"} Dispatch / return address (printed on labels & invoices)
+    </button>
+    {openBox && <div className="mt-2 space-y-2">
+      <textarea value={v} onChange={(e) => setV(e.target.value)} rows={4} className="w-full border border-border bg-surface px-3 py-2 text-sm" />
+      <Button size="sm" onClick={() => { setSender(v); toast.success("Address saved"); setOpenBox(false); }}>Save address</Button>
+    </div>}
+  </div>;
+}
 
 export const Route = createFileRoute("/admin/delivery")({
   head: () => ({ meta: [
@@ -33,7 +48,7 @@ function Delivery() {
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["admin-delivery"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false }).limit(300);
+      const { data, error } = await supabase.from("orders").select("*, order_items(*)").order("created_at", { ascending: false }).limit(300);
       if (error) throw error;
       return data;
     },
@@ -48,7 +63,12 @@ function Delivery() {
       <button key={s} type="button" onClick={() => setFilter(filter === s ? "all" : s)} className={`p-4 text-left ${filter === s ? "bg-primary text-primary-foreground" : "bg-background"}`}>
         <p className="label-xs capitalize opacity-70">{s === "pending" ? "To confirm" : s}</p><p className="text-2xl font-semibold">{counts[s]}</p>
       </button>)}</div>
-    <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search order, name, phone, tracking no." className="w-full border border-border bg-surface px-4 py-2 outline-none focus:ring-2 focus:ring-ring" />
+    <SenderBox />
+    <div className="flex flex-wrap gap-2">
+      <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search order, name, phone, tracking no." className="min-w-0 flex-1 border border-border bg-surface px-4 py-2 outline-none focus:ring-2 focus:ring-ring" />
+      <Button variant="outline" disabled={!visible.length} onClick={() => printDocs("label", visible as unknown as PrintOrder[])}>Print {visible.length} labels</Button>
+      <Button variant="outline" disabled={!visible.length} onClick={() => printDocs("invoice", visible as unknown as PrintOrder[])}>Print {visible.length} invoices</Button>
+    </div>
     {isLoading ? <p className="label-xs text-muted-foreground">Loading…</p> :
       <div className="divide-y divide-border border border-border bg-background">
         {visible.map((o) => <div key={o.id}>
@@ -109,6 +129,8 @@ function Editor({ order, onSaved }: { order: Order; onSaved: () => void }) {
         <Button onClick={save} disabled={busy}>{busy ? "Saving…" : "Save"}</Button>
         <Button variant="outline" asChild><a href={`/track?order=${encodeURIComponent(order.order_number)}`} target="_blank" rel="noreferrer">Customer view</a></Button>
         {order.customer_phone && <Button variant="outline" asChild><a target="_blank" rel="noreferrer" href={`https://wa.me/91${order.customer_phone.replace(/\D/g, "").slice(-10)}?text=${encodeURIComponent(`Hi ${order.customer_name}, your Comfort Hub order ${order.order_number} is ${f.status}.${f.tracking_number ? ` ${f.courier} tracking: ${f.tracking_number}.` : ""} Track it: ${window.location.origin}/track?order=${order.order_number}`)}`}>WhatsApp update</a></Button>}
+        <Button variant="outline" onClick={() => printDocs("label", [{ ...(order as unknown as PrintOrder), courier: f.courier, tracking_number: f.tracking_number }])}>Print label</Button>
+        <Button variant="outline" onClick={() => printDocs("invoice", [{ ...(order as unknown as PrintOrder), courier: f.courier, tracking_number: f.tracking_number }])}>Print invoice</Button>
       </div>
     </div>
     <div className="space-y-3">

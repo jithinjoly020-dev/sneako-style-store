@@ -8,8 +8,8 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 // Public (browser-safe) backend address and publishable key. Used as a fallback so a hosted
 // build that is made without its environment settings still connects instead of going blank.
-const PUBLIC_BACKEND_URL = process.env.VITE_SUPABASE_URL || "https://jsabtikwuaismnmuhxsu.supabase.co";
-const PUBLIC_BACKEND_KEY = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_xpmxxNqgBUyUV4i0CpjxwA_TtFSeVWV";
+const PUBLIC_BACKEND_URL = process.env['VITE_SUPABASE_URL'] || "https://jsabtikwuaismnmuhxsu.supabase.co";
+const PUBLIC_BACKEND_KEY = process.env['VITE_SUPABASE_PUBLISHABLE_KEY'] || "sb_publishable_xpmxxNqgBUyUV4i0CpjxwA_TtFSeVWV";
 
 export default defineConfig({
   tanstackStart: {

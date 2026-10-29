@@ -31,6 +31,7 @@ import { Route as AdminSiteEditorRouteImport } from './routes/admin.site-editor'
 import { Route as AdminStudioRouteImport } from './routes/admin.studio'
 import { Route as AdminThemeRouteImport } from './routes/admin.theme'
 import { Route as AdminUpiRouteImport } from './routes/admin.upi'
+import { Route as ApiScrapeProductRouteImport } from './routes/api/scrape-product'
 import { Route as ApiVirtualTryOnRouteImport } from './routes/api/virtual-try-on'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as ApiPublicPaytmCallbackRouteImport } from './routes/api/public/paytm-callback'
@@ -147,6 +148,11 @@ const AdminUpiRoute = AdminUpiRouteImport.update({
   path: '/upi',
   getParentRoute: () => AdminRoute,
 } as any)
+const ApiScrapeProductRoute = ApiScrapeProductRouteImport.update({
+  id: '/api/scrape-product',
+  path: '/api/scrape-product',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiVirtualTryOnRoute = ApiVirtualTryOnRouteImport.update({
   id: '/api/virtual-try-on',
   path: '/api/virtual-try-on',
@@ -195,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/admin/studio': typeof AdminStudioRoute
   '/admin/theme': typeof AdminThemeRoute
   '/admin/upi': typeof AdminUpiRoute
+  '/api/scrape-product': typeof ApiScrapeProductRoute
   '/api/virtual-try-on': typeof ApiVirtualTryOnRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin/': typeof AdminIndexRoute
@@ -223,6 +230,7 @@ export interface FileRoutesByTo {
   '/admin/studio': typeof AdminStudioRoute
   '/admin/theme': typeof AdminThemeRoute
   '/admin/upi': typeof AdminUpiRoute
+  '/api/scrape-product': typeof ApiScrapeProductRoute
   '/api/virtual-try-on': typeof ApiVirtualTryOnRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin': typeof AdminIndexRoute
@@ -253,6 +261,7 @@ export interface FileRoutesById {
   '/admin/studio': typeof AdminStudioRoute
   '/admin/theme': typeof AdminThemeRoute
   '/admin/upi': typeof AdminUpiRoute
+  '/api/scrape-product': typeof ApiScrapeProductRoute
   '/api/virtual-try-on': typeof ApiVirtualTryOnRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin/': typeof AdminIndexRoute
@@ -284,6 +293,7 @@ export interface FileRouteTypes {
     | '/admin/studio'
     | '/admin/theme'
     | '/admin/upi'
+    | '/api/scrape-product'
     | '/api/virtual-try-on'
     | '/product/$slug'
     | '/admin/'
@@ -312,6 +322,7 @@ export interface FileRouteTypes {
     | '/admin/studio'
     | '/admin/theme'
     | '/admin/upi'
+    | '/api/scrape-product'
     | '/api/virtual-try-on'
     | '/product/$slug'
     | '/admin'
@@ -341,6 +352,7 @@ export interface FileRouteTypes {
     | '/admin/studio'
     | '/admin/theme'
     | '/admin/upi'
+    | '/api/scrape-product'
     | '/api/virtual-try-on'
     | '/product/$slug'
     | '/admin/'
@@ -360,6 +372,7 @@ export interface RootRouteChildren {
   CustomRoute: typeof CustomRoute
   ShopRoute: typeof ShopRoute
   TrackRoute: typeof TrackRoute
+  ApiScrapeProductRoute: typeof ApiScrapeProductRoute
   ApiVirtualTryOnRoute: typeof ApiVirtualTryOnRoute
   ProductSlugRoute: typeof ProductSlugRoute
   ApiPublicPaytmCallbackRoute: typeof ApiPublicPaytmCallbackRoute
@@ -523,6 +536,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUpiRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/api/scrape-product': {
+      id: '/api/scrape-product'
+      path: '/api/scrape-product'
+      fullPath: '/api/scrape-product'
+      preLoaderRoute: typeof ApiScrapeProductRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/virtual-try-on': {
       id: '/api/virtual-try-on'
       path: '/api/virtual-try-on'
@@ -604,6 +624,7 @@ const rootRouteChildren: RootRouteChildren = {
   CustomRoute: CustomRoute,
   ShopRoute: ShopRoute,
   TrackRoute: TrackRoute,
+  ApiScrapeProductRoute: ApiScrapeProductRoute,
   ApiVirtualTryOnRoute: ApiVirtualTryOnRoute,
   ProductSlugRoute: ProductSlugRoute,
   ApiPublicPaytmCallbackRoute: ApiPublicPaytmCallbackRoute,

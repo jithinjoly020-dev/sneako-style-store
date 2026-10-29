@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { productsQuery, type Product } from "@/lib/products";
 import { money } from "@/lib/cart";
 import { downloadCsv } from "@/lib/export-csv";
+import { UrlImporter } from "@/components/admin/url-importer";
 
 
 export const Route = createFileRoute("/admin/products")({
@@ -98,6 +99,7 @@ function AdminProducts() {
   }
 
 
+  const [showImport, setShowImport] = useState(false);
   const startNew = () => {
     setEditing("new");
     setForm({ ...empty });
@@ -250,14 +252,35 @@ function AdminProducts() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-3xl font-semibold md:text-5xl">Products</h1>
-        <button
-          type="button"
-          onClick={startNew}
-          className="bg-primary px-5 py-3 text-sm font-medium text-primary-foreground"
-        >
-          Import new product
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setShowImport((v) => !v)}
+            className="border border-border px-5 py-3 text-sm font-medium"
+          >
+            Import from link
+          </button>
+          <button
+            type="button"
+            onClick={startNew}
+            className="bg-primary px-5 py-3 text-sm font-medium text-primary-foreground"
+          >
+            Import new product
+          </button>
+        </div>
       </div>
+
+      {showImport && (
+        <UrlImporter
+          onClose={() => setShowImport(false)}
+          onUse={(d) => {
+            setEditing("new");
+            setForm({ ...empty, ...d, category: "tees", stock: "10", is_active: false });
+            setShowImport(false);
+            toast.success("Details filled in — check them, then save. Saved as hidden until you switch it on.");
+          }}
+        />
+      )}
 
       {form && (
         <div className="mt-8 border border-border bg-surface p-6">

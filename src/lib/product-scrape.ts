@@ -48,16 +48,16 @@ export function parseProductHtml(html: string, url: string): ScrapedProduct {
     try {
       const p = findProduct(JSON.parse(m[1].trim()));
       if (!p) continue;
-      out.name ||= String(p.name ?? "");
-      out.description ||= stripTags(String(p.description ?? ""));
-      const imgs = Array.isArray(p.image) ? p.image : [p.image];
+      out.name ||= String(p["name"] ?? "");
+      out.description ||= stripTags(String(p["description"] ?? ""));
+      const imgs = Array.isArray(p["image"]) ? p["image"] : [p["image"]];
       out.images.push(...imgs.map((i) => abs(typeof i === "string" ? i : String((i as { url?: string })?.url ?? ""), url)));
-      const offers = Array.isArray(p.offers) ? p.offers[0] : p.offers as Record<string, unknown> | undefined;
+      const offers = Array.isArray(p["offers"]) ? p["offers"][0] : p["offers"] as Record<string, unknown> | undefined;
       const off = offers as Record<string, unknown> | undefined;
-      const price = Number(off?.price ?? off?.lowPrice ?? 0);
-      if (price && !out.price) { out.price = price; out.currency = String(off?.priceCurrency ?? out.currency); }
-      if (p.color) out.colors.push(String(p.color));
-      if (p.size) out.sizes.push(String(p.size));
+      const price = Number(off?.["price"] ?? off?.["lowPrice"] ?? 0);
+      if (price && !out.price) { out.price = price; out.currency = String(off?.["priceCurrency"] ?? out.currency); }
+      if (p["color"]) out.colors.push(String(p["color"]));
+      if (p["size"]) out.sizes.push(String(p["size"]));
     } catch { /* ignore bad JSON-LD */ }
   }
   out.name ||= meta(html, "og:title") || stripTags(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? "");

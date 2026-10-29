@@ -46,7 +46,7 @@ export function parseProductHtml(html: string, url: string): ScrapedProduct {
   const out: ScrapedProduct = { name: "", description: "", price: 0, currency: "INR", images: [], sizes: [], colors: [], source: url };
   for (const m of html.matchAll(/<script[^>]+application\/ld\+json[^>]*>([\s\S]*?)<\/script>/gi)) {
     try {
-      const p = findProduct(JSON.parse(m[1].trim()));
+      const p = findProduct(JSON.parse((m[1] ?? "").trim()));
       if (!p) continue;
       out.name ||= String(p["name"] ?? "");
       out.description ||= stripTags(String(p["description"] ?? ""));

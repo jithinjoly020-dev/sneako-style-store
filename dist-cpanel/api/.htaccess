@@ -1,0 +1,4 @@
+RewriteEngine Off
+<FilesMatch "^(config|lib)\.php$|^mysql-schema\.sql$">
+  Require all denied
+</FilesMatch>
